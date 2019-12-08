@@ -39,11 +39,10 @@ Luckily this project can help you out. It can track all those versions for you a
 
 ## Example output
 
-+---------------------------------------+---------+---------+---------+
+
 |                 IMAGE                 | VERSION | LATEST  | FETCHED |
-+---------------------------------------+---------+---------+---------+
+| --------------------------------------|---------|---------|---------|
 | uswitch/kiam                          |  v3.3   |  v3.4   | true    |
 | kubernetes-helm/tiller                | v2.13.0 | v2.16.1 | true    |
 | cluster-proportional-autoscaler-amd64 |  1.1.1  |  1.7.1  | true    |
 | openpolicyagent/opa                   | 0.14.1  | 0.15.1  | true    |
-+---------------------------------------+---------+---------+---------+
