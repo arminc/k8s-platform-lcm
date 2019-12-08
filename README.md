@@ -24,6 +24,10 @@ Luckily this project can help you out. It can track all those versions for you a
 * Add a possibility to find Helm versions deployed in Kubernetes and find new versions
 * Provide information for Kubernetes version (for example AWS EKS)
 
+**Bugs**
+
+* There is an issue when using 'latest' tag it fails to compare the versions
+
 **Nice to have**
 
 * Specify `ALL` as an option for namespaces, it should find all namespaces and look at all of them
@@ -32,3 +36,14 @@ Luckily this project can help you out. It can track all those versions for you a
 ## Issues
 
 * AWS ECR "602401143452" which does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
+
+## Example output
+
++---------------------------------------+---------+---------+---------+
+|                 IMAGE                 | VERSION | LATEST  | FETCHED |
++---------------------------------------+---------+---------+---------+
+| uswitch/kiam                          |  v3.3   |  v3.4   | true    |
+| kubernetes-helm/tiller                | v2.13.0 | v2.16.1 | true    |
+| cluster-proportional-autoscaler-amd64 |  1.1.1  |  1.7.1  | true    |
+| openpolicyagent/opa                   | 0.14.1  | 0.15.1  | true    |
++---------------------------------------+---------+---------+---------+

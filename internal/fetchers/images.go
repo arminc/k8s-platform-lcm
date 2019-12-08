@@ -22,7 +22,7 @@ type tagsResponse struct {
 	Tags []string `json:"tags"`
 }
 
-var cacheTokens = make(map[string]string)
+var cacheToken = ""
 
 // GetLatestImageVersionFromRegistry fetches the latest versiono of the docker image from docker hub
 func GetLatestImageVersionFromRegistry(name string, registry config.ImageRegistry) string {
@@ -30,6 +30,8 @@ func GetLatestImageVersionFromRegistry(name string, registry config.ImageRegistr
 	if registry.Name == config.DockerHub && !strings.Contains(name, "/") {
 		name = "library/" + name
 	}
+
+	cacheToken = "" // reset the token
 
 	pathSuffix := fmt.Sprintf("/v2/%s/tags/list", name)
 	tags, err := fetch(pathSuffix, registry)
@@ -99,17 +101,15 @@ func getClientAndRequest(pathSuffix string, registry config.ImageRegistry) (*htt
 		req.SetBasicAuth(registry.Username, registry.Password)
 	}
 
-	if registry.AuthType == config.AuthTypeToken {
-		if _, ok := cacheTokens[registry.Name]; !ok {
-			log.Infof("Fetching auth token")
-			if err := getToken(url, registry); err != nil {
-				return nil, nil, err
-			}
+	if registry.AuthType == config.AuthTypeToken && cacheToken == "" {
+		log.Infof("Fetching auth token")
+		if err := getToken(url, registry); err != nil {
+			return nil, nil, err
 		}
-		if val, ok := cacheTokens[registry.Name]; ok {
-			log.Debug("Using cached token")
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", val))
-		}
+	}
+	if cacheToken != "" {
+		log.Debug("Using cached token")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", cacheToken))
 	}
 	return client, req, nil
 }
@@ -182,7 +182,7 @@ func getToken(url string, registry config.ImageRegistry) error {
 		return err
 	}
 
-	cacheTokens[registry.Name] = authToken.Token
+	cacheToken = authToken.Token
 	return nil
 }
 
@@ -198,7 +198,7 @@ func parsHeaders(headers http.Header) (string, error) {
 	}
 	log.Debugf("Auth: [%s]", authHeader[0])
 	url := strings.ReplaceAll(authHeader[0], "Bearer realm=", "") // Default registries
-	url = strings.ReplaceAll(authHeader[0], "Basic realm=", "")   //ECR
+	url = strings.ReplaceAll(url, "Basic realm=", "")             //ECR
 	log.Debugf("Url: [%s]", url)
 	url = strings.Replace(url, ",", "?", 1)
 	log.Debugf("Url: [%s]", url)
