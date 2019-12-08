@@ -1,0 +1,27 @@
+---
+type: yml # default type
+namespaces: # provide the names of the namespaces to check
+  - test
+  - kube-system
+imageRegistries: # The following registries are already configured, you can add your own private ones as well
+  - name: DockerHub
+    url: registry.hub.docker.com # Empty url, https is the default. Not supporting custom ports now
+    authType: token # Options are, nothing, basic and token
+    username: # Optional, not needed
+    password: # Optional, not needed
+  - name: Quay
+    url: quay.io
+  - name: Gcr
+    url: gcr.io
+  - name: GcrK8s
+    url: k8s.gcr.io
+  - name: Private # Example of a Jfrog private artifactory
+    url: private.somenonexistingurl.io
+    authType: basic
+defaultImageRegistry: Private # If this is set then this is used for all image version fetching
+overrideRegistries: # This is optional and it sets a different registry than configured in kubernetes to fetch versions from, takes precedent over defaultImageRegistry 
+  - url: gcr.io
+    registryName: DockerHub
+overrideImages: # This is optional and it sets a different registry than configured in kubernetes to fetch versions from, takes precedent over defaultImageRegistry and overrideRegistry 
+  - name: grafana
+    registryName: DockerHub
