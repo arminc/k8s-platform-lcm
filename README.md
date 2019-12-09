@@ -1,35 +1,27 @@
 # Kubernetes platform lifecycle management
 
-Keeping software up to date is always an issue and the more you have of it the harder it gets. It's not only the work of updating but also figuring out what to update and which tools have new versions. I am talking about lifecycle management. 
+This project helps you keep track of all your software and tools used and running in and around your Kubernetes platform. It helps you with part of the lifecycle management to keep your software up to data for feature completeness, security or compliance reasons. 
 
-When you add the mix of delivering a Kubernetes platform which has a lot of components that are updated often it's hard to keep track. If you want to be up to date because of feature completeness or security and compliance then there is a lot of tedious work to do.
+## Features
 
-Luckily this project can help you out. It can track all those versions for you automatically and show you what you need to update. For implemented features and future features please see below. 
+- [x] Keep track of versions of all the running containers (inclusive init containers) inside the Kubernetes
+- [x] Keep track of new versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory and probably any other Docker registry v2
+- [x] Present the information
+- [x] Allow overriding of the registry to search in, for example, if you are using private registry but need to fetch versions from the internet
+- [x] Works with private registries and private images
+- [ ] Keep track of image vulnerabilities (for example using Jfrog Xray)
+- [ ] Present the vulnerabilities
+- [ ] Possibility to whitelist vulnerabilities so only changes are presented
+- [ ] Possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub
+- [ ] Keep track of Helm chart deployments and track new versions of the charts
+- [ ] Provide information for Kubernetes version (for example AWS EKS)
 
-## Implemented features
-
-* Find all the running containers and init containers in Kubernetes
-* Search for new versions, works with Quay, Gcr, Docker hub, Jfrog Artifactory and probably any other Docker registry v2
-* Allows you to override the registry to search in, for example, if you are using private registry but need to fetch versions from the internet
-* It works with private registries and private images as well
-
-## TODO
-
-**Must have**
-
-* Use Jfrog Xray to find which images contain vulnerabilities 
-* Show the information regarding vulnerabilities
-* Add the possibility to whitelist vulnerabilities so you only see when something changes
-* Add a possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub 
-* Add a possibility to find Helm versions deployed in Kubernetes and find new versions
-* Provide information for Kubernetes version (for example AWS EKS)
-
-**Nice to have**
+### Nice to have
 
 * Specify `ALL` as an option for namespaces, it should find all namespaces and look at all of them
 * Use Clair as a vulnerabilitie scanning option
 
-## Issues
+### Issues
 
 * AWS ECR "602401143452" which does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
 
