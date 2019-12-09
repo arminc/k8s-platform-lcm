@@ -36,7 +36,7 @@ func GetLatestImageVersionFromRegistry(name string, registry config.ImageRegistr
 	pathSuffix := fmt.Sprintf("/v2/%s/tags/list", name)
 	tags, err := fetch(pathSuffix, registry)
 	if err != nil {
-		log.Error("Could not fetch tags")
+		log.Errorf("Could not fetch tags for [%s]", name)
 		log.Debugf("Could not fetch tags [%v]", err)
 		return utils.Notfound
 	}
