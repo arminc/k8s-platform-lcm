@@ -47,7 +47,7 @@ func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Contain
 
 func containerStringToContainerStruct(containerString string) (Container, error) {
 	log.Infof("Extract [%s] to struct", containerString)
-	version := "latest"
+	version := "0" // Latest can't be compared
 	URL := ""
 	fullPath := containerString
 	name := containerString

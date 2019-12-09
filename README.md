@@ -24,10 +24,6 @@ Luckily this project can help you out. It can track all those versions for you a
 * Add a possibility to find Helm versions deployed in Kubernetes and find new versions
 * Provide information for Kubernetes version (for example AWS EKS)
 
-**Bugs**
-
-* There is an issue when using 'latest' tag it fails to compare the versions
-
 **Nice to have**
 
 * Specify `ALL` as an option for namespaces, it should find all namespaces and look at all of them
