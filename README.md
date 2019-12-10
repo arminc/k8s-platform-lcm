@@ -6,11 +6,11 @@ This project helps you keep track of all your software and tools used and runnin
 
 - [x] Keep track of versions of all the running containers (inclusive init containers) inside the Kubernetes
 - [x] Keep track of new versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory and probably any other Docker registry v2
-- [x] Present the information
+- [x] Present the information command line
 - [x] Allow overriding of the registry to search in, for example, if you are using private registry but need to fetch versions from the internet
 - [x] Works with private registries and private images
-- [ ] Keep track of image vulnerabilities (for example using Jfrog Xray)
-- [ ] Present the vulnerabilities
+- [ ] Keep track of image vulnerabilities using Jfrog Xray
+- [ ] Present the vulnerabilities command line
 - [ ] Possibility to whitelist vulnerabilities so only changes are presented
 - [ ] Possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub
 - [ ] Keep track of Helm chart deployments and track new versions of the charts
@@ -18,6 +18,7 @@ This project helps you keep track of all your software and tools used and runnin
 
 ### Nice to have
 
+* Scan image with Xray instead of only getting the report
 * Specify `ALL` as an option for namespaces, it should find all namespaces and look at all of them
 * Use Clair as a vulnerabilitie scanning option
 

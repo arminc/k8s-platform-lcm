@@ -7,6 +7,7 @@ import (
 	"github.com/arminc/k8s-platform-lcm/internal/config"
 	"github.com/arminc/k8s-platform-lcm/internal/fetchers"
 	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
+	"github.com/arminc/k8s-platform-lcm/internal/scanning"
 	"github.com/arminc/k8s-platform-lcm/internal/utils"
 	"github.com/olekukonko/tablewriter"
 )
@@ -15,12 +16,24 @@ import (
 func Execute() {
 	pods := kubernetes.GetContainersFromNamespaces(config.LcmConfig.Namespaces, config.ConfigFlags.LocalKubernetes)
 	info := getLatestVersionsForContainers(pods)
+	info = getVulnerabilities(info)
 	prettyPrint(info)
 }
 
 func FakeExecute(containers []kubernetes.Container) {
 	info := getLatestVersionsForContainers(containers)
+	info = getVulnerabilities(info)
 	prettyPrint(info)
+}
+
+func getVulnerabilities(info []ContainerInfo) []ContainerInfo {
+	infoWithVul := []ContainerInfo{}
+	for _, ci := range info {
+		vulnerabilities := scanning.GetVulnerabilities(ci.Container)
+		ci.Cves = vulnerabilities
+		infoWithVul = append(infoWithVul, ci)
+	}
+	return infoWithVul
 }
 
 // ContainerInfo contains pod information about the container, its version info and security
@@ -29,6 +42,7 @@ type ContainerInfo struct {
 	LatestVersion string
 	VersionStatus string
 	Fetched       bool
+	Cves          []string
 }
 
 func getLatestVersionsForContainers(containers []kubernetes.Container) []ContainerInfo {
@@ -67,11 +81,17 @@ func determinRegistry(container kubernetes.Container) config.ImageRegistry {
 
 func prettyPrint(info []ContainerInfo) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Image", "Version", "Latest", "Fetched"})
-	table.SetColumnAlignment([]int{3, 1, 1, 3})
+	table.SetHeader([]string{"Image", "Version", "Latest", "Cves", "Fetched"})
+	table.SetColumnAlignment([]int{3, 1, 1, 3, 3})
 
 	for _, container := range info {
-		row := []string{container.Container.Name, container.Container.Version, container.LatestVersion, strconv.FormatBool(container.Fetched)}
+		row := []string{
+			container.Container.Name,
+			container.Container.Version,
+			container.LatestVersion,
+			string(len(container.Cves)),
+			strconv.FormatBool(container.Fetched),
+		}
 		table.Append(row)
 	}
 	table.Render()

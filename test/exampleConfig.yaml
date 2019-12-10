@@ -1,9 +1,13 @@
 ---
 type: yml # default type
-namespaces: # provide the names of the namespaces to check
+
+# provide the names of the namespaces to check
+namespaces:
   - test
   - kube-system
-imageRegistries: # The following registries are already configured, you can add your own private ones as well
+
+# The following registries are configured, you can add your own private ones as well
+imageRegistries: 
   - name: DockerHub
     url: registry.hub.docker.com # Empty url, https is the default. Not supporting custom ports now
     authType: token # Options are, nothing, basic and token
@@ -18,10 +22,30 @@ imageRegistries: # The following registries are already configured, you can add 
   - name: Private # Example of a Jfrog private artifactory
     url: private.somenonexistingurl.io
     authType: basic
-defaultImageRegistry: Private # If this is set then this is used for all image version fetching
-overrideRegistries: # This is optional and it sets a different registry than configured in kubernetes to fetch versions from, takes precedent over defaultImageRegistry 
+
+# If this is set then this is used for all image version fetching
+defaultImageRegistry: Private
+
+# This is optional and it sets a different registry than configured in kubernetes to fetch versions from.
+# It takes precedent over defaultImageRegistry 
+overrideRegistries: 
   - url: gcr.io
-    registryName: DockerHub
-overrideImages: # This is optional and it sets a different registry than configured in kubernetes to fetch versions from, takes precedent over defaultImageRegistry and overrideRegistry 
+  registryName: DockerHub
+
+# This is optional and it sets a different registry than configured in kubernetes to fetch versions from. 
+# It takes precedent over defaultImageRegistry and overrideRegistry
+errideImages:   
   - name: grafana
-    registryName: DockerHub
+  registryName: DockerHub
+
+# The following image scanning servers are configured, you can add as many as you want
+imageScanners:
+  - name: xray
+    hostname: xray.somenonexistingurl.io
+    username: 
+    password:
+    severity:
+      - Critical
+      - High
+    extra:
+      key: value # Any extra key value specific for this scanner

@@ -27,6 +27,7 @@ type Config struct {
 	DefaultImageRegistry string             `koanf:"defaultImageRegistry"`
 	OverrideImages       []OverrideImage    `koanf:"overrideImages"`
 	OverrideRegistries   []OverrideRegistry `koanf:"overrideRegistries"`
+	ImageScanners        []ImageScanner     `koanf:"imageScanners"`
 }
 
 // CommandFlags are flags to manipulate app behavior from the cli
@@ -57,6 +58,16 @@ type OverrideRegistry struct {
 	RegistryName string `koanf:"registryName"`
 }
 
+// ImageScanner contains all the information about the vulnerability scanner
+type ImageScanner struct {
+	Name     string            `koanf:"name"`
+	URL      string            `koanf:"url"`
+	Username string            `koanf:"username"`
+	Password string            `koanf:"password"`
+	Severity []string          `koanf:"severity"`
+	Extra    map[string]string `koanf:"extra"`
+}
+
 // LcmConfig is singleton access to Config struct
 var LcmConfig Config
 
@@ -66,6 +77,24 @@ var ConfigFlags CommandFlags
 // LoadConfiguration loads the configuration from file
 func LoadConfiguration() {
 	loadConfiguration("config.yaml")
+}
+
+// AreScannersDefined returns true if scanners are defined
+func (c Config) AreScannersDefined() bool {
+	if len(LcmConfig.ImageScanners) >= 1 {
+		return true
+	}
+	return false
+}
+
+// IsSeverityEnabled checks if the severity is configured
+func (i ImageScanner) IsSeverityEnabled(severity string) bool {
+	for _, s := range i.Severity {
+		if s == severity {
+			return true
+		}
+	}
+	return false
 }
 
 func loadConfiguration(fileName string) {

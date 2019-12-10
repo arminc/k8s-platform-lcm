@@ -36,6 +36,11 @@ func TestLoadingConfigFile(t *testing.T) {
 	if overrideImagesLength != 1 {
 		t.Errorf("Expecting one image override got [%v]", overrideImagesLength)
 	}
+
+	imageScannersLength := len(LcmConfig.ImageScanners)
+	if imageScannersLength != 1 {
+		t.Errorf("Expecting one image scanner got [%v]", imageScannersLength)
+	}
 }
 
 func TestFindRegistryEmptyUrl(t *testing.T) {
