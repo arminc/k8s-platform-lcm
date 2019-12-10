@@ -20,10 +20,10 @@ func GetVulnerabilities(image kubernetes.Container) []string {
 	}
 	// Currently we only support one: Xray
 	scanner := config.LcmConfig.ImageScanners[0]
-	log.Debugf("Scan image: [%]", image.Name)
+	log.Debugf("Scan image: [%v]", image.Name)
 	vul, err := getVulnerabilitiesFromXray(image, scanner)
 	if err != nil {
-		log.Errorf("Could not get vulnerabilities for [%], error occured: [%v]", image.Name, err)
+		log.Errorf("Could not get vulnerabilities for [%s], error occured: [%v]", image.Name, err)
 		return []string{ERROR}
 	}
 	return convertXrayToCves(vul, scanner)
