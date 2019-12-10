@@ -30,13 +30,13 @@ defaultImageRegistry: Private
 # It takes precedent over defaultImageRegistry 
 overrideRegistries: 
   - url: gcr.io
-  registryName: DockerHub
+    registryName: DockerHub
 
 # This is optional and it sets a different registry than configured in kubernetes to fetch versions from. 
 # It takes precedent over defaultImageRegistry and overrideRegistry
 errideImages:   
   - name: grafana
-  registryName: DockerHub
+    registryName: DockerHub
 
 # The following image scanning servers are configured, you can add as many as you want
 imageScanners:
