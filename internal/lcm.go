@@ -57,7 +57,6 @@ func getLatestVersionsForContainers(containers []kubernetes.Container) []Contain
 			Container:     container,
 			LatestVersion: version,
 			VersionStatus: utils.DetermineLifeCycleStatus(version, container.Version),
-			Fetched:       true,
 		})
 	}
 	return info
@@ -88,11 +87,11 @@ func prettyPrint(info []ContainerInfo) {
 	})
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Image", "Version", "Latest", "Cves", "Fetched"})
+	table.SetHeader([]string{"Image", "Version", "Latest", "Cves"})
 	table.SetColumnAlignment([]int{3, 1, 1, 3, 3})
 
 	for _, container := range info {
-		cve := string(len(container.Cves))
+		cve := strconv.Itoa(len(container.Cves))
 		if len(container.Cves) == 1 && container.Cves[0] == scanning.ERROR {
 			cve = scanning.ERROR
 		}
@@ -102,7 +101,6 @@ func prettyPrint(info []ContainerInfo) {
 			container.Container.Version,
 			container.LatestVersion,
 			cve,
-			strconv.FormatBool(container.Fetched),
 		}
 		table.Append(row)
 	}
