@@ -18,7 +18,6 @@ This project helps you keep track of all your software and tools used and runnin
 
 ### Nice to have
 
-* Scan image with Xray instead of only getting the report
 * Specify `ALL` as an option for namespaces, it should find all namespaces and look at all of them
 * Use Clair as a vulnerabilitie scanning option
 
