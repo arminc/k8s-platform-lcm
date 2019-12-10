@@ -78,10 +78,7 @@ func LoadConfiguration() {
 
 // AreScannersDefined returns true if scanners are defined
 func (c Config) AreScannersDefined() bool {
-	if len(LcmConfig.ImageScanners) >= 1 {
-		return true
-	}
-	return false
+	return len(LcmConfig.ImageScanners) >= 1
 }
 
 // IsSeverityEnabled checks if the severity is configured
@@ -99,7 +96,10 @@ func loadConfiguration(fileName string) {
 	if err := k.Load(file.Provider(fileName), yaml.Parser()); err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
-	k.Unmarshal("", &LcmConfig)
+	err := k.Unmarshal("", &LcmConfig)
+	if err != nil {
+		log.Fatalf("Error unmarshaling config: %v", err)
+	}
 }
 
 // FindRegistryByOverrideByURL finds if the url has an registry override
