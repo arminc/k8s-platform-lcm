@@ -9,8 +9,8 @@ This project helps you keep track of all your software and tools used and runnin
 - [x] Present the information command line
 - [x] Allow overriding of the registry to search in, for example, if you are using private registry but need to fetch versions from the internet
 - [x] Works with private registries and private images
-- [ ] Keep track of image vulnerabilities using Jfrog Xray
-- [ ] Present the vulnerabilities command line
+- [x] Keep track of image vulnerabilities using Jfrog Xray
+- [x] Present the vulnerabilities command line
 - [ ] Possibility to whitelist vulnerabilities so only changes are presented
 - [ ] Possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub
 - [ ] Keep track of Helm chart deployments and track new versions of the charts

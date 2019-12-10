@@ -7,6 +7,11 @@ import (
 	"github.com/target/go-arty/xray"
 )
 
+const (
+	// ERROR defines error for not able to fetch cve
+	ERROR = "ERROR"
+)
+
 // GetVulnerabilities gets vulnerabilites for alle images using the configured scanner
 func GetVulnerabilities(image kubernetes.Container) []string {
 	log.Debug("Check if Vulnerabilitiy scanners are configured")
@@ -19,7 +24,7 @@ func GetVulnerabilities(image kubernetes.Container) []string {
 	vul, err := getVulnerabilitiesFromXray(image, scanner)
 	if err != nil {
 		log.Errorf("Could not get vulnerabilities for [%], error occured: [%v]", image.Name, err)
-		return []string{"ERROR"}
+		return []string{ERROR}
 	}
 	return convertXrayToCves(vul, scanner)
 }

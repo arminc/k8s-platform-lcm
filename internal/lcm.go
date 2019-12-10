@@ -2,6 +2,7 @@ package internal
 
 import (
 	"os"
+	"sort"
 	"strconv"
 
 	"github.com/arminc/k8s-platform-lcm/internal/config"
@@ -10,6 +11,7 @@ import (
 	"github.com/arminc/k8s-platform-lcm/internal/scanning"
 	"github.com/arminc/k8s-platform-lcm/internal/utils"
 	"github.com/olekukonko/tablewriter"
+	log "github.com/sirupsen/logrus"
 )
 
 // Execute runs all the checks for LCM
@@ -32,6 +34,7 @@ func getVulnerabilities(info []ContainerInfo) []ContainerInfo {
 		vulnerabilities := scanning.GetVulnerabilities(ci.Container)
 		ci.Cves = vulnerabilities
 		infoWithVul = append(infoWithVul, ci)
+		log.Infof("print me %v", ci)
 	}
 	return infoWithVul
 }
@@ -80,16 +83,25 @@ func determinRegistry(container kubernetes.Container) config.ImageRegistry {
 }
 
 func prettyPrint(info []ContainerInfo) {
+	sort.Slice(info, func(i, j int) bool {
+		return info[i].Container.Name < info[j].Container.Name
+	})
+
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Image", "Version", "Latest", "Cves", "Fetched"})
 	table.SetColumnAlignment([]int{3, 1, 1, 3, 3})
 
 	for _, container := range info {
+		cve := string(len(container.Cves))
+		if len(container.Cves) == 1 && container.Cves[0] == scanning.ERROR {
+			cve = scanning.ERROR
+		}
+
 		row := []string{
 			container.Container.Name,
 			container.Container.Version,
 			container.LatestVersion,
-			string(len(container.Cves)),
+			cve,
 			strconv.FormatBool(container.Fetched),
 		}
 		table.Append(row)
