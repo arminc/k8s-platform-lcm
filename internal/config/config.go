@@ -1,9 +1,6 @@
 package config
 
 import (
-	"fmt"
-	"os"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/knadh/koanf"
@@ -98,11 +95,6 @@ func (i ImageScanner) IsSeverityEnabled(severity string) bool {
 }
 
 func loadConfiguration(fileName string) {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(dir)
 	k := koanf.New(".")
 	if err := k.Load(file.Provider(fileName), yaml.Parser()); err != nil {
 		log.Fatalf("Error loading config: %v", err)
