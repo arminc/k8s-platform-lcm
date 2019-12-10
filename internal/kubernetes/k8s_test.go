@@ -5,7 +5,7 @@ import "testing"
 func TestPodStringToPodStruct(t *testing.T) {
 	// No version
 	pod, _ := containerStringToContainerStruct("test")
-	if pod.FullPath != "test" || pod.URL != "" || pod.Name != "test" || pod.Version != "latest" {
+	if pod.FullPath != "test" || pod.URL != "" || pod.Name != "test" || pod.Version != "0" {
 		t.Errorf("No version %v", pod)
 	}
 

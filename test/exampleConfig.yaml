@@ -34,7 +34,7 @@ overrideRegistries:
 
 # This is optional and it sets a different registry than configured in kubernetes to fetch versions from. 
 # It takes precedent over defaultImageRegistry and overrideRegistry
-errideImages:   
+overrideImages:   
   - name: grafana
     registryName: DockerHub
 
