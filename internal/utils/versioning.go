@@ -41,6 +41,9 @@ func FindHigestVersionInList(versions []string) string {
 	latestVersion := "0"
 
 	for _, vers := range versions {
+		if !strings.Contains(vers, ".") {
+			continue
+		}
 		if regexRelease.MatchString(vers) {
 			if version.CompareSimple(version.Normalize(vers), version.Normalize(latestVersion)) == 1 {
 				latestVersion = vers
