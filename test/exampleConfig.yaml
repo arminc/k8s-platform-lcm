@@ -1,10 +1,10 @@
 ---
 type: yml # default type
 
-# provide the names of the namespaces to check
-namespaces:
-  - test
-  - kube-system
+# Default all namespaces are checked. If you wish you can provide a list of namespaces to check.
+#namespaces:
+#  - test
+#  - kube-system
 
 # The following registries are configured, you can add your own private ones as well
 imageRegistries: 

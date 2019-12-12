@@ -12,6 +12,7 @@ import (
 
 // Config of the lcm application, normally loaded from the config file
 type Config struct {
+	CommandFlags    CommandFlags
 	Namespaces      []string                   `koanf:"namespaces"`
 	ImageRegistries registries.ImageRegistries `koanf:"imageRegistries"`
 	ImageScanners   scanning.ImageScanners     `koanf:"imageScanners"`
@@ -25,9 +26,6 @@ type CommandFlags struct {
 	Verbose         bool
 	Debug           bool
 }
-
-// ConfigFlags is singleton access to Command flags
-var ConfigFlags CommandFlags
 
 // LoadConfiguration loads the configuration from file
 func LoadConfiguration() Config {

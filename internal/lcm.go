@@ -15,9 +15,9 @@ import (
 )
 
 // Execute runs all the checks for LCM
-func Execute(con config.Config) {
-	containers := kubernetes.GetContainersFromNamespaces(con.Namespaces, config.ConfigFlags.LocalKubernetes)
-	ExecuteWithoutFetchingContainers(con, containers)
+func Execute(config config.Config) {
+	containers := kubernetes.GetContainersFromNamespaces(config.Namespaces, config.CommandFlags.LocalKubernetes)
+	ExecuteWithoutFetchingContainers(config, containers)
 }
 
 func ExecuteWithoutFetchingContainers(config config.Config, containers []kubernetes.Container) {

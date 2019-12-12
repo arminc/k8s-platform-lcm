@@ -13,17 +13,17 @@ var (
 	version = "0.1.0"
 )
 
-func initLogging() {
+func initLogging(flags config.CommandFlags) {
 	log.SetOutput(os.Stdout)     // Default to out instead of err
 	log.SetLevel(log.ErrorLevel) // Default only Errors
-	if config.ConfigFlags.Verbose {
+	if flags.Verbose {
 		log.SetLevel(log.InfoLevel)
-	} else if config.ConfigFlags.Debug {
+	} else if flags.Debug {
 		log.SetLevel(log.DebugLevel)
 	}
 }
 
-func initFlags() {
+func initFlags() config.CommandFlags {
 	app := kingpin.New("lcm", "Kubernetes platform lifecycle management")
 	app.Version(version)
 	commandFlags := new(config.CommandFlags)
@@ -32,13 +32,14 @@ func initFlags() {
 	app.Flag("debug", "Show debug information, debug includes verbose").BoolVar(&commandFlags.Debug)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	config.ConfigFlags = *commandFlags
+	return *commandFlags
 }
 
 func main() {
-	initFlags()
+	commandFlags := initFlags()
 	config := config.LoadConfiguration()
-	initLogging()
+	config.CommandFlags = commandFlags
+	initLogging(config.CommandFlags)
 	log.Infof("Running version %s", version)
 	internal.Execute(config)
 }

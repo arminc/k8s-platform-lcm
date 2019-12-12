@@ -23,8 +23,15 @@ type Container struct {
 
 // GetContainersFromNamespaces fetches all containers and init containers
 func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Container {
-	log.Infof("Get all containers from the namespaces %s", namespaces)
 	client := getKubernetesClient(useLocally)
+
+	if len(namespaces) == 0 {
+		log.Info("No namespaces defined, fetching all")
+		namespaces = getAllNamespaces(client)
+	} else {
+		log.Infof("Get all containers from the namespaces %s", namespaces)
+	}
+
 	runningContainers := make(map[string]bool)
 
 	for _, namespace := range namespaces {
@@ -130,6 +137,19 @@ func getRunningContainers(client *kubernetes.Clientset, namespace string) map[st
 		}
 	}
 	return containers
+}
+
+func getAllNamespaces(client *kubernetes.Clientset) []string {
+	var ns []string
+	namespaces, err := client.CoreV1().Namespaces().List(metav1.ListOptions{})
+	if err != nil {
+		log.Fatalf("Could not namespaces %v", err)
+	}
+
+	for _, namespace := range namespaces.Items {
+		ns = append(ns, namespace.GetObjectMeta().GetName())
+	}
+	return ns
 }
 
 func homeDir() string {
