@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/arminc/k8s-platform-lcm/internal/config"
-	"github.com/arminc/k8s-platform-lcm/internal/utils"
+	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -38,9 +38,9 @@ func GetLatestImageVersionFromRegistry(name string, registry config.ImageRegistr
 	if err != nil {
 		log.Errorf("Could not fetch tags for [%s]", name)
 		log.Debugf("Could not fetch tags [%v]", err)
-		return utils.Notfound
+		return versioning.Notfound
 	}
-	return utils.FindHigestVersionInList(tags)
+	return versioning.FindHigestVersionInList(tags)
 }
 
 func fetch(pathSuffix string, registry config.ImageRegistry) ([]string, error) {

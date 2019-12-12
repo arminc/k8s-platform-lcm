@@ -3,6 +3,7 @@ package config
 import (
 	log "github.com/sirupsen/logrus"
 
+	"github.com/arminc/k8s-platform-lcm/internal/fetchers2"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/file"
@@ -19,12 +20,14 @@ const (
 
 // Config of the lcm application, normally loaded from the config file
 type Config struct {
-	Namespaces           []string           `koanf:"namespaces"`
-	ImageRegistries      []ImageRegistry    `koanf:"imageRegistries"`
-	DefaultImageRegistry string             `koanf:"defaultImageRegistry"`
-	OverrideImages       []OverrideImage    `koanf:"overrideImages"`
-	OverrideRegistries   []OverrideRegistry `koanf:"overrideRegistries"`
-	ImageScanners        []ImageScanner     `koanf:"imageScanners"`
+	Namespaces           []string                 `koanf:"namespaces"`
+	ImageRegistries      []ImageRegistry          `koanf:"imageRegistries"`
+	DefaultImageRegistry string                   `koanf:"defaultImageRegistry"`
+	OverrideImages       []OverrideImage          `koanf:"overrideImages"`
+	OverrideRegistries   []OverrideRegistry       `koanf:"overrideRegistries"`
+	ImageScanners        []ImageScanner           `koanf:"imageScanners"`
+	ToolRegistries       fetchers2.ToolRegistries `koanf:"toolRegistries"`
+	Tools                []fetchers2.Tool         `koanf:"tools"`
 }
 
 // CommandFlags are flags to manipulate app behavior from the cli

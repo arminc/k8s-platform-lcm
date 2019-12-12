@@ -10,7 +10,7 @@ namespaces:
 imageRegistries: 
   - name: DockerHub
     url: registry.hub.docker.com # Empty url, https is the default. Not supporting custom ports now
-    authType: token # Options are, nothing, basic and token
+    authType: token # Options are: nothing, basic and token
     username: # Optional, not needed
     password: # Optional, not needed
   - name: Quay
@@ -38,7 +38,7 @@ overrideImages:
   - name: grafana
     registryName: DockerHub
 
-# The following image scanning servers are configured, you can add as many as you want
+# The following image scanning servers are configured. If you leave this out not vulnerabilitie info will be shown
 imageScanners:
   - name: xray
     hostname: xray.somenonexistingurl.io
@@ -48,4 +48,14 @@ imageScanners:
       - Critical
       - High
     extra:
-      key: value # Any extra key value specific for this scanner
+      prefix: artifactory/docker # Extra key value specific for this scanner, this is an example of the prefix needed by xray 
+
+toolRegistries:
+  gitHub: # Optional but you don't specify username/password or token you might hit GitHub limits faster
+    username: test # Optional
+    password: test # Optional
+    token: test # Optional
+
+tools:
+  - repo: hashicorp/terraform                         
+    version: "0.11.14"

@@ -1,6 +1,8 @@
 package config
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestLoadingConfigFile(t *testing.T) {
 	loadConfiguration("../../test/exampleConfig.yaml")
@@ -79,5 +81,13 @@ func TestGetDefaultRegistry(t *testing.T) {
 	}
 	if registry.URL != "private.somenonexistingurl.io" {
 		t.Errorf("Received wrong default registry [%v]", registry)
+	}
+}
+
+func TestLoadGitHubConfig(t *testing.T) {
+	loadConfiguration("../../test/exampleConfig.yaml")
+
+	if LcmConfig.ToolRegistries.GitHub.Username != "test" {
+		t.Errorf("Expected to get test as username but got [%v]", LcmConfig.ToolRegistries.GitHub.Username)
 	}
 }

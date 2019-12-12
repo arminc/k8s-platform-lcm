@@ -1,4 +1,4 @@
-package utils
+package versioning
 
 import (
 	"regexp"
@@ -16,8 +16,10 @@ const (
 	Minor                   = "minor"
 	Patch                   = "patch"
 	Same                    = "same"
-	Unknown                 = "unknown"
 	Notfound                = "notfound"
+
+	Unknown = "UNKNOWN"
+	Failure = "FAILURE"
 )
 
 var regexRelease *regexp.Regexp
