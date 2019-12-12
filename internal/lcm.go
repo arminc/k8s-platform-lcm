@@ -48,9 +48,7 @@ func getLatestVerfionForTools(tools []registries.Tool, registries registries.Too
 func getVulnerabilities(info []ContainerInfo, config config.Config) []ContainerInfo {
 	infoWithVul := []ContainerInfo{}
 	for _, ci := range info {
-		// Currently we only support one: Xray
-		scanner := config.ImageScanners[0]
-		vulnerabilities := scanning.GetVulnerabilities(ci.Container, scanner)
+		vulnerabilities := config.ImageScanners.GetVulnerabilities(ci.Container.Name, ci.Container.Version)
 		ci.Cves = vulnerabilities
 		infoWithVul = append(infoWithVul, ci)
 		log.Infof("print me %v", ci)

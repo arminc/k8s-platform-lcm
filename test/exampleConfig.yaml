@@ -7,7 +7,7 @@ namespaces:
   - kube-system
 
 # The following registries are configured, you can add your own private ones as well
-images: 
+imageRegistries: 
   # If this is set then this is used for all image version fetching
   defaultImageRegistry: Private
   registries:
@@ -38,15 +38,14 @@ images:
 
 # The following image scanning servers are configured. If you leave this out not vulnerabilitie info will be shown
 imageScanners:
-  - name: xray
+  xray:
     hostname: xray.somenonexistingurl.io
     username: 
     password:
-    severity:
-      - Critical
-      - High
-    extra:
-      prefix: artifactory/docker # Extra key value specific for this scanner, this is an example of the prefix needed by xray 
+    prefix: artifactory/docker # Extra key value specific for this scanner, this is an example of the prefix needed by xray 
+  severity:
+    - Critical
+    - High
 
 toolRegistries:
   gitHub: # Optional but you don't specify username/password or token you might hit GitHub limits faster

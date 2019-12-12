@@ -3,21 +3,28 @@ package scanning
 import (
 	"fmt"
 
-	"github.com/arminc/k8s-platform-lcm/internal/config"
-	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
 	"github.com/target/go-arty/xray"
 )
 
-func getVulnerabilitiesFromXray(image kubernetes.Container, scanner config.ImageScanner) ([]xray.SummaryArtifact, error) {
-	url := "https://" + scanner.URL
+// XrayConfig contains all the information about the xray
+type XrayConfig struct {
+	Name     string `koanf:"name"`
+	URL      string `koanf:"url"`
+	Username string `koanf:"username"`
+	Password string `koanf:"password"`
+	Prefix   string `koanf:"prefix"`
+}
+
+// GetVulnerabilities gets vulnerabilities from xray
+func (x XrayConfig) GetVulnerabilities(name, version string) ([]xray.SummaryArtifact, error) {
+	url := "https://" + x.URL
 	client, _ := xray.NewClient(url, nil)
 
-	prefix := scanner.Extra["prefix"]
-	path := fmt.Sprintf("%s/%s/%s", prefix, image.Name, image.Version)
+	path := fmt.Sprintf("%s/%s/%s", x.Prefix, name, version)
 	arty := &xray.SummaryArtifactRequest{
 		Paths: &[]string{path},
 	}
-	client.Authentication.SetBasicAuth(scanner.Username, scanner.Password)
+	client.Authentication.SetBasicAuth(x.Username, x.Password)
 	sum, res, err := client.Summary.Artifact(arty)
 	if err != nil {
 		return nil, err
@@ -26,7 +33,7 @@ func getVulnerabilitiesFromXray(image kubernetes.Container, scanner config.Image
 		return nil, fmt.Errorf("Response code wrong [%v]", res.StatusCode)
 	}
 	if len(sum.GetErrors()) >= 1 {
-		return nil, fmt.Errorf("Got an error from xray for [%s]m error [%s]", image.Name, *sum.GetErrors()[0].Error)
+		return nil, fmt.Errorf("Got an error from xray for [%s]m error [%s]", name, *sum.GetErrors()[0].Error)
 	}
 	return sum.GetArtifacts(), nil
 }
