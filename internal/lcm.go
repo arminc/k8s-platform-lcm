@@ -6,9 +6,8 @@ import (
 	"strconv"
 
 	"github.com/arminc/k8s-platform-lcm/internal/config"
-	"github.com/arminc/k8s-platform-lcm/internal/fetchers"
-	"github.com/arminc/k8s-platform-lcm/internal/fetchers2"
 	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
+	"github.com/arminc/k8s-platform-lcm/internal/registries"
 	"github.com/arminc/k8s-platform-lcm/internal/scanning"
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	"github.com/olekukonko/tablewriter"
@@ -16,29 +15,26 @@ import (
 )
 
 // Execute runs all the checks for LCM
-func Execute() {
-	//pods := kubernetes.GetContainersFromNamespaces(config.LcmConfig.Namespaces, config.ConfigFlags.LocalKubernetes)
-	//info := getLatestVersionsForContainers(pods)
-	//info = getVulnerabilities(info)
-	//prettyPrint(info)
-	tools := getLatestVerfionForTools(config.LcmConfig.Tools)
+func Execute(con config.Config) {
+	containers := kubernetes.GetContainersFromNamespaces(con.Namespaces, config.ConfigFlags.LocalKubernetes)
+	ExecuteWithoutFetchingContainers(con, containers)
+}
+
+func ExecuteWithoutFetchingContainers(config config.Config, containers []kubernetes.Container) {
+	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
+	info = getVulnerabilities(info, config)
+	prettyPrint(info)
+	tools := getLatestVerfionForTools(config.Tools, config.ToolRegistries)
 	prettyPrintToolInfo(tools)
 }
 
-func FakeExecute(containers []kubernetes.Container) {
-	info := getLatestVersionsForContainers(containers)
-	info = getVulnerabilities(info)
-	prettyPrint(info)
-}
-
 type ToolInfo struct {
-	Tool          fetchers2.Tool
+	Tool          registries.Tool
 	LatestVersion string
 }
 
-func getLatestVerfionForTools(tools []fetchers2.Tool) []ToolInfo {
+func getLatestVerfionForTools(tools []registries.Tool, registries registries.ToolRegistries) []ToolInfo {
 	var toolInfo []ToolInfo
-	registries := config.LcmConfig.ToolRegistries
 	for _, tool := range tools {
 		version := registries.GetLatestVersionForTool(tool)
 		toolInfo = append(toolInfo, ToolInfo{
@@ -49,10 +45,12 @@ func getLatestVerfionForTools(tools []fetchers2.Tool) []ToolInfo {
 	return toolInfo
 }
 
-func getVulnerabilities(info []ContainerInfo) []ContainerInfo {
+func getVulnerabilities(info []ContainerInfo, config config.Config) []ContainerInfo {
 	infoWithVul := []ContainerInfo{}
 	for _, ci := range info {
-		vulnerabilities := scanning.GetVulnerabilities(ci.Container)
+		// Currently we only support one: Xray
+		scanner := config.ImageScanners[0]
+		vulnerabilities := scanning.GetVulnerabilities(ci.Container, scanner)
 		ci.Cves = vulnerabilities
 		infoWithVul = append(infoWithVul, ci)
 		log.Infof("print me %v", ci)
@@ -69,11 +67,10 @@ type ContainerInfo struct {
 	Cves          []string
 }
 
-func getLatestVersionsForContainers(containers []kubernetes.Container) []ContainerInfo {
+func getLatestVersionsForContainers(containers []kubernetes.Container, registries registries.ImageRegistries) []ContainerInfo {
 	info := []ContainerInfo{}
 	for _, container := range containers {
-		registry := determinRegistry(container)
-		version := fetchers.GetLatestImageVersionFromRegistry(container.Name, registry)
+		version := registries.GetLatestVersionForImage(container.Name, container.URL)
 		info = append(info, ContainerInfo{
 			Container:     container,
 			LatestVersion: version,
@@ -81,25 +78,6 @@ func getLatestVersionsForContainers(containers []kubernetes.Container) []Contain
 		})
 	}
 	return info
-}
-
-func determinRegistry(container kubernetes.Container) config.ImageRegistry {
-	registry, exists := config.LcmConfig.FindRegistryByOverrideByImage(container.Name)
-	if exists {
-		return registry
-	}
-
-	registry, exists = config.LcmConfig.FindRegistryByOverrideByURL(container.URL)
-	if exists {
-		return registry
-	}
-
-	registry, exists = config.LcmConfig.GetDefaultRegistry()
-	if exists {
-		return registry
-	}
-
-	return config.LcmConfig.FindRegistryByURL(container.URL)
 }
 
 func prettyPrint(info []ContainerInfo) {

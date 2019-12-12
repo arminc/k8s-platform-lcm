@@ -37,8 +37,8 @@ func initFlags() {
 
 func main() {
 	initFlags()
-	config.LoadConfiguration()
+	config := config.LoadConfiguration()
 	initLogging()
 	log.Infof("Running version %s", version)
-	internal.Execute()
+	internal.Execute(config)
 }

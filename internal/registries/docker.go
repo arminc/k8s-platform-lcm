@@ -1,4 +1,4 @@
-package fetchers
+package registries
 
 // Parts of the code here are comming from github.com/heroku/docker-registry-client
 
@@ -10,9 +10,17 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/arminc/k8s-platform-lcm/internal/config"
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	// DockerHub is the default name for the DockerHub registry
+	DockerHub = "DockerHub"
+	// AuthTypeBasic is the basic auth type
+	AuthTypeBasic = "basic"
+	// AuthTypeToken is the token auth type
+	AuthTypeToken = "token"
 )
 
 // ErrNoMorePages defines that there are no more pages
@@ -22,19 +30,28 @@ type tagsResponse struct {
 	Tags []string `json:"tags"`
 }
 
+// ImageRegistry contains all the information about the registry
+type ImageRegistry struct {
+	Name     string `koanf:"name"`
+	URL      string `koanf:"url"`
+	AuthType string `koanf:"authType"`
+	Username string `koanf:"username"`
+	Password string `koanf:"password"`
+}
+
 var cacheToken = ""
 
-// GetLatestImageVersionFromRegistry fetches the latest versiono of the docker image from docker hub
-func GetLatestImageVersionFromRegistry(name string, registry config.ImageRegistry) string {
+// GetLatestVersion fetches the latest version of the docker image from docker registry
+func (r ImageRegistry) GetLatestVersion(name string) string {
 	//If docker hub and single name (without /) add library/ to it
-	if registry.Name == config.DockerHub && !strings.Contains(name, "/") {
+	if r.Name == DockerHub && !strings.Contains(name, "/") {
 		name = "library/" + name
 	}
 
 	cacheToken = "" // reset the token
 
 	pathSuffix := fmt.Sprintf("/v2/%s/tags/list", name)
-	tags, err := fetch(pathSuffix, registry)
+	tags, err := r.fetch(pathSuffix)
 	if err != nil {
 		log.Errorf("Could not fetch tags for [%s]", name)
 		log.Debugf("Could not fetch tags [%v]", err)
@@ -43,13 +60,13 @@ func GetLatestImageVersionFromRegistry(name string, registry config.ImageRegistr
 	return versioning.FindHigestVersionInList(tags)
 }
 
-func fetch(pathSuffix string, registry config.ImageRegistry) ([]string, error) {
+func (r ImageRegistry) fetch(pathSuffix string) ([]string, error) {
 	tags := []string{}
 
 	for {
 		var response tagsResponse
 		var err error
-		pathSuffix, err = getPaginatedJSON(pathSuffix, registry, &response)
+		pathSuffix, err = r.getPaginatedJSON(pathSuffix, &response)
 		switch err {
 		case ErrNoMorePages:
 			log.Debug("No more pages")
@@ -66,8 +83,8 @@ func fetch(pathSuffix string, registry config.ImageRegistry) ([]string, error) {
 	}
 }
 
-func getPaginatedJSON(pathSuffix string, registry config.ImageRegistry, response interface{}) (string, error) {
-	client, req, err := getClientAndRequest(pathSuffix, registry)
+func (r ImageRegistry) getPaginatedJSON(pathSuffix string, response interface{}) (string, error) {
+	client, req, err := r.getClientAndRequest(pathSuffix)
 	if err != nil {
 		return "", err
 	}
@@ -88,8 +105,8 @@ func getPaginatedJSON(pathSuffix string, registry config.ImageRegistry, response
 	return getNextLink(resp)
 }
 
-func getClientAndRequest(pathSuffix string, registry config.ImageRegistry) (*http.Client, *http.Request, error) {
-	url := fmt.Sprintf("https://%s%s", registry.URL, pathSuffix)
+func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *http.Request, error) {
+	url := fmt.Sprintf("https://%s%s", r.URL, pathSuffix)
 	log.Debugf("try fetching the following [%s]", url)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -97,13 +114,13 @@ func getClientAndRequest(pathSuffix string, registry config.ImageRegistry) (*htt
 		return nil, nil, err
 	}
 
-	if registry.AuthType == config.AuthTypeBasic {
-		req.SetBasicAuth(registry.Username, registry.Password)
+	if r.AuthType == AuthTypeBasic {
+		req.SetBasicAuth(r.Username, r.Password)
 	}
 
-	if registry.AuthType == config.AuthTypeToken && cacheToken == "" {
+	if r.AuthType == AuthTypeToken && cacheToken == "" {
 		log.Infof("Fetching auth token")
-		if err := getToken(url, registry); err != nil {
+		if err := r.getToken(url); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -117,7 +134,7 @@ func getClientAndRequest(pathSuffix string, registry config.ImageRegistry) (*htt
 // Matches an RFC 5988 (https://tools.ietf.org/html/rfc5988#section-5)
 // Link header. For example,
 //
-//    <http://registry.example.com/v2/_catalog?n=5&last=tag5>; type="application/json"; rel="next"
+//    <http://r.example.com/v2/_catalog?n=5&last=tag5>; type="application/json"; rel="next"
 //
 // The URL is _supposed_ to be wrapped by angle brackets `< ... >`,
 // but e.g., quay.io does not include them. Similarly, params like
@@ -134,7 +151,7 @@ func getNextLink(resp *http.Response) (string, error) {
 	return "", ErrNoMorePages
 }
 
-func getToken(url string, registry config.ImageRegistry) error {
+func (r ImageRegistry) getToken(url string) error {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -163,8 +180,8 @@ func getToken(url string, registry config.ImageRegistry) error {
 		return err
 	}
 
-	if registry.Username != "" || registry.Password != "" {
-		req.SetBasicAuth(registry.Username, registry.Password)
+	if r.Username != "" || r.Password != "" {
+		req.SetBasicAuth(r.Username, r.Password)
 	}
 
 	resp, err = client.Do(req)
@@ -190,7 +207,7 @@ type authToken struct {
 	Token string `json:"token"`
 }
 
-// example: Www-Authenticate: Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:library/ubuntu:pull"
+// example: Www-Authenticate: Bearer realm="https://auth.docker.io/token",service="r.docker.io",scope="repository:library/ubuntu:pull"
 func parsHeaders(headers http.Header) (string, error) {
 	authHeader := headers[http.CanonicalHeaderKey("WWW-Authenticate")]
 	if len(authHeader) > 1 {

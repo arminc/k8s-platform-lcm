@@ -7,36 +7,34 @@ namespaces:
   - kube-system
 
 # The following registries are configured, you can add your own private ones as well
-imageRegistries: 
-  - name: DockerHub
-    url: registry.hub.docker.com # Empty url, https is the default. Not supporting custom ports now
-    authType: token # Options are: nothing, basic and token
-    username: # Optional, not needed
-    password: # Optional, not needed
-  - name: Quay
-    url: quay.io
-  - name: Gcr
-    url: gcr.io
-  - name: GcrK8s
-    url: k8s.gcr.io
-  - name: Private # Example of a Jfrog private artifactory
-    url: private.somenonexistingurl.io
-    authType: basic
-
-# If this is set then this is used for all image version fetching
-defaultImageRegistry: Private
-
-# This is optional and it sets a different registry than configured in kubernetes to fetch versions from.
-# It takes precedent over defaultImageRegistry 
-overrideRegistries: 
-  - url: gcr.io
-    registryName: DockerHub
-
-# This is optional and it sets a different registry than configured in kubernetes to fetch versions from. 
-# It takes precedent over defaultImageRegistry and overrideRegistry
-overrideImages:   
-  - name: grafana
-    registryName: DockerHub
+images: 
+  # If this is set then this is used for all image version fetching
+  defaultImageRegistry: Private
+  registries:
+    - name: DockerHub
+      url: registry.hub.docker.com # Empty url, https is the default. Not supporting custom ports now
+      authType: token # Options are: nothing, basic and token
+      username: # Optional, not needed
+      password: # Optional, not needed
+    - name: Quay
+      url: quay.io
+    - name: Gcr
+      url: gcr.io
+    - name: GcrK8s
+      url: k8s.gcr.io
+    - name: Private # Example of a Jfrog private artifactory
+      url: private.somenonexistingurl.io
+      authType: basic
+  # This is optional and it sets a different registry than configured in kubernetes to fetch versions from.
+  # It takes precedent over default 
+  overrideRegistries: 
+    - url: gcr.io
+      registryName: DockerHub
+  # This is optional and it sets a different registry than configured in kubernetes to fetch versions from. 
+  # It takes precedent over default and overrideRegistry
+  override:   
+    - name: grafana
+      registryName: DockerHub
 
 # The following image scanning servers are configured. If you leave this out not vulnerabilitie info will be shown
 imageScanners:

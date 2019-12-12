@@ -13,13 +13,11 @@ const (
 )
 
 // GetVulnerabilities gets vulnerabilites for alle images using the configured scanner
-func GetVulnerabilities(image kubernetes.Container) []string {
+func GetVulnerabilities(image kubernetes.Container, scanner config.ImageScanner) []string {
 	log.Debug("Check if Vulnerabilitiy scanners are configured")
-	if !config.LcmConfig.AreScannersDefined() {
-		return []string{}
-	}
-	// Currently we only support one: Xray
-	scanner := config.LcmConfig.ImageScanners[0]
+	//if !config.LcmConfig.AreScannersDefined() {
+	//	return []string{}
+	//}
 	log.Debugf("Scan image: [%v]", image.Name)
 	vul, err := getVulnerabilitiesFromXray(image, scanner)
 	if err != nil {

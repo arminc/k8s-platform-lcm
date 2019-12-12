@@ -1,4 +1,4 @@
-package fetchers2
+package registries
 
 import (
 	"strings"
