@@ -13,16 +13,17 @@ This project helps you keep track of all your software and tools used and runnin
 - [x] Present the vulnerabilities command line
 - [ ] Possibility to whitelist vulnerabilities so only changes are presented
 - [x] Possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub
-- [ ] Keep track of Helm chart deployments and track new versions of the charts
+- [x] Keep track of Helm chart deployments and track new versions of the charts
 - [ ] Provide information for Kubernetes version (for example AWS EKS)
 
 ### Todo
 
-* Run as a server with an web UI
+* Have a Helm chart search instead of direct access
+* Run as a server with a web UI
 * Have a helm chart to deploy the app into Kubernetes
 * List images below the chart
 * Automatically fetch new versions every X time
-* Use Clair as a vulnerabilitie scanning option
+* Use Clair as a vulnerability scanning option
 
 ### Issues
 
