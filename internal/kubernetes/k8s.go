@@ -26,7 +26,7 @@ func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Contain
 	client := getKubernetesClient(useLocally)
 
 	if len(namespaces) == 0 {
-		log.Info("No namespaces defined, fetching all")
+		log.Debug("No namespaces defined, fetching all")
 		namespaces = getAllNamespaces(client)
 	} else {
 		log.Infof("Get all containers from the namespaces %s", namespaces)

@@ -33,6 +33,7 @@ func LoadConfiguration() Config {
 
 	var lcmConfig Config
 	k := koanf.New(".")
+
 	if err := k.Load(file.Provider(fileName), yaml.Parser()); err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
@@ -40,5 +41,7 @@ func LoadConfiguration() Config {
 	if err != nil {
 		log.Fatalf("Error unmarshaling config: %v", err)
 	}
+
+	lcmConfig.ImageRegistries.DefaultRegistries()
 	return lcmConfig
 }

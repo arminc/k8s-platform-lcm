@@ -20,14 +20,16 @@ func Execute(config config.Config) {
 	ExecuteWithoutFetchingContainers(config, containers)
 }
 
+// ExecuteWithoutFetchingContainers used for passing in containers without fetching them from Kubernetes
 func ExecuteWithoutFetchingContainers(config config.Config, containers []kubernetes.Container) {
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
-	info = getVulnerabilities(info, config)
+	//info = getVulnerabilities(info, config)
 	prettyPrint(info)
-	tools := getLatestVerfionForTools(config.Tools, config.ToolRegistries)
-	prettyPrintToolInfo(tools)
+	//tools := getLatestVerfionForTools(config.Tools, config.ToolRegistries)
+	//prettyPrintToolInfo(tools)
 }
 
+// ToolInfo contains tool information with the latest version
 type ToolInfo struct {
 	Tool          registries.Tool
 	LatestVersion string

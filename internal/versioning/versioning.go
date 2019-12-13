@@ -40,6 +40,7 @@ func init() {
 
 //FindHigestVersionInList finds the higest version in an list of versions or returns NOTFOUND
 func FindHigestVersionInList(versions []string) string {
+	log.Debugf("FindHigestVersionInList [%v]", versions)
 	latestVersion := "0"
 
 	for _, vers := range versions {
@@ -63,7 +64,7 @@ func FindHigestVersionInList(versions []string) string {
 func DetermineLifeCycleStatus(latestVersion string, currentVersion string) string {
 	log.Infof("Comparing version [%s] with latest version [%s]", currentVersion, latestVersion)
 	latest := strings.Split(version.Normalize(latestVersion), ".")
-	curr := strings.Split(version.Normalize(regex.FindStringSubmatch(currentVersion)[1]), ".")
+	curr := strings.Split(version.Normalize(currentVersion), ".")
 
 	if version.Compare(currentVersion, latestVersion, "=") {
 		return Same

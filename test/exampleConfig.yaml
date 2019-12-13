@@ -2,41 +2,72 @@
 type: yml # default type
 
 # Default all namespaces are checked. If you wish you can provide a list of namespaces to check.
+#
 #namespaces:
 #  - test
 #  - kube-system
 
-# The following registries are configured, you can add your own private ones as well
-imageRegistries: 
-  # If this is set then this is used for all image version fetching
-  defaultImageRegistry: Private
-  registries:
-    - name: DockerHub
-      url: registry.hub.docker.com # Empty url, https is the default. Not supporting custom ports now
-      authType: token # Options are: nothing, basic and token
-      username: # Optional, not needed
-      password: # Optional, not needed
-    - name: Quay
-      url: quay.io
-    - name: Gcr
-      url: gcr.io
-    - name: GcrK8s
-      url: k8s.gcr.io
-    - name: Private # Example of a Jfrog private artifactory
-      url: private.somenonexistingurl.io
-      authType: basic
-  # This is optional and it sets a different registry than configured in kubernetes to fetch versions from.
-  # It takes precedent over default 
-  overrideRegistries: 
-    - url: gcr.io
-      registryName: DockerHub
-  # This is optional and it sets a different registry than configured in kubernetes to fetch versions from. 
-  # It takes precedent over default and overrideRegistry
-  override:   
-    - name: grafana
-      registryName: DockerHub
+# By default DockerHub, Quay, gcr.io, k8s.gcr.io and Zalando repository are configured
+# If your images are using one of these registries the version fetching will work automatically
+#
+#imageRegistries: 
+# If you need to fetch private images on the registries please override the authentication method and username/password
+# If all your images are comming from your own registry but all the images are coming for example from the DockerHub 
+# or you want to fetch versions by default from one of these registries regardles of the registry specified in the image
+# then please set default to true
+#
+#  dockerHub:
+#    username: 
+#    password:
+#    default: true or false
+#  quay:
+#    username: 
+#    password: 
+#    authType: # Can be basic or token
+#    default: true or false
+#  gcr:
+#    username: 
+#    password: 
+#    authType: # Can be basic or token
+#    default: true or false
+#  gcrK8s:
+#    username: 
+#    password: 
+#    authType: # Can be basic or token
+#    default: true or false
+#  zalando:
+#    username: 
+#    password: 
+#    authType: # Can be basic or token
+#    default: true or false 
 
-# The following image scanning servers are configured. If you leave this out not vulnerabilitie info will be shown
+# If you have a private registry you can configure it here. But if you want to fetch new versions from another registry 
+# you can specify also specify one of the default registries. You can specify multiple urls that need to be overridden.
+#
+#  overrideRegistries: 
+#    - registry: # If you want to specify your registry
+#        url: 
+#        authType: # Can be none, basic or token
+#        username: # Not needed if AuthType set to none
+#        password: # Not needed if AuthType set to none
+#      registryName: # If you want to use a default one, the following is allowed: DockerHub, Quay, Gcr, GcrK8s, Zalando
+#      urls:
+#        - some.url.io
+
+# If only some of the images need to use a different registry then you can specify your own registry or you
+# can select one of the default ones. This always takes precedent above all the above registry configuration
+#
+#  override:   
+#    - registry: # If you want to specify your registry
+#        url: 
+#        authType: # Can be none, basic or token
+#        username: # Not needed if AuthType set to none
+#        password: # Not needed if AuthType set to none
+#      registryName: # If you want to use a default one, the following is allowed: DockerHub, Quay, Gcr, GcrK8s, Zalando
+#      images:
+#        - arminc/something # Name of the image, you can also use regular expressions
+
+# The following image scanning servers are configured. If you leave this out no vulnerability info will be shown
 imageScanners:
   xray:
     hostname: xray.somenonexistingurl.io

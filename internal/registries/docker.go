@@ -17,10 +17,20 @@ import (
 const (
 	// DockerHub is the default name for the DockerHub registry
 	DockerHub = "DockerHub"
+	// Quay is the default name for the Quay registry
+	Quay = "Quay"
+	// Gcr is the default name for the Gcr registry
+	Gcr = "Gcr"
+	// GcrK8s is the default name for the GcrK8s registry
+	GcrK8s = "GcrK8s"
+	// Zalando is the default name for the Zalando registry
+	Zalando = "Zalando"
 	// AuthTypeBasic is the basic auth type
 	AuthTypeBasic = "basic"
 	// AuthTypeToken is the token auth type
 	AuthTypeToken = "token"
+	// AuthTypeNone is no auth
+	AuthTypeNone = "none"
 )
 
 // ErrNoMorePages defines that there are no more pages
@@ -37,12 +47,15 @@ type ImageRegistry struct {
 	AuthType string `koanf:"authType"`
 	Username string `koanf:"username"`
 	Password string `koanf:"password"`
+	Default  bool   `koanf:"default"`
 }
 
 var cacheToken = ""
 
 // GetLatestVersion fetches the latest version of the docker image from docker registry
 func (r ImageRegistry) GetLatestVersion(name string) string {
+	log.Infof("Use registry [%s] to find [%s]", r.Name, name)
+
 	//If docker hub and single name (without /) add library/ to it
 	if r.Name == DockerHub && !strings.Contains(name, "/") {
 		name = "library/" + name
@@ -119,7 +132,7 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *ht
 	}
 
 	if r.AuthType == AuthTypeToken && cacheToken == "" {
-		log.Infof("Fetching auth token")
+		log.Debugf("Fetching auth token")
 		if err := r.getToken(url); err != nil {
 			return nil, nil, err
 		}
