@@ -30,7 +30,9 @@ func ExecuteWithoutFetchingContainers(config config.Config, containers []kuberne
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
 	info = getVulnerabilities(info, config)
 	prettyPrint(info)
-	tools := getLatestVerfionForTools(config.Tools, config.ToolRegistries)
+	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.CommandFlags.LocalKubernetes)
+	prettyPrintChartInfo(charts)
+	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
 	prettyPrintToolInfo(tools)
 }
 
@@ -38,6 +40,24 @@ func ExecuteWithoutFetchingContainers(config config.Config, containers []kuberne
 type ToolInfo struct {
 	Tool          registries.Tool
 	LatestVersion string
+}
+
+// ChartInfo contains helm chart information with the latest version
+type ChartInfo struct {
+	Chart         kubernetes.Chart
+	LatestVersion string
+}
+
+func getLatestVersionsForHelmCharts(namespaces []string, local bool) []ChartInfo {
+	var chartInfo []ChartInfo
+	charts := kubernetes.GetHelmChartsFromNamespaces(namespaces, local)
+	for _, chart := range charts {
+		// TODO call to fetch latest version
+		chartInfo = append(chartInfo, ChartInfo{
+			Chart: chart,
+		})
+	}
+	return chartInfo
 }
 
 func getExtraImages(images []string, containers []kubernetes.Container) []kubernetes.Container {
@@ -50,7 +70,7 @@ func getExtraImages(images []string, containers []kubernetes.Container) []kubern
 	return containers
 }
 
-func getLatestVerfionForTools(tools []registries.Tool, registries registries.ToolRegistries) []ToolInfo {
+func getLatestVersionsForTools(tools []registries.Tool, registries registries.ToolRegistries) []ToolInfo {
 	var toolInfo []ToolInfo
 	for _, tool := range tools {
 		version := registries.GetLatestVersionForTool(tool)
@@ -135,6 +155,26 @@ func prettyPrintToolInfo(tools []ToolInfo) {
 			tool.Tool.Repo,
 			tool.Tool.Version,
 			tool.LatestVersion,
+		}
+		table.Append(row)
+	}
+	table.Render()
+}
+
+func prettyPrintChartInfo(charts []ChartInfo) {
+	sort.Slice(charts, func(i, j int) bool {
+		return charts[i].Chart.Name < charts[j].Chart.Name
+	})
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Chart", "Version", "Latest"})
+	table.SetColumnAlignment([]int{3, 1, 1})
+
+	for _, chart := range charts {
+		row := []string{
+			chart.Chart.Name,
+			chart.Chart.Version,
+			chart.LatestVersion,
 		}
 		table.Append(row)
 	}

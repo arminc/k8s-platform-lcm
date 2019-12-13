@@ -12,13 +12,16 @@ This project helps you keep track of all your software and tools used and runnin
 - [x] Keep track of image vulnerabilities using Jfrog Xray
 - [x] Present the vulnerabilities command line
 - [ ] Possibility to whitelist vulnerabilities so only changes are presented
-- [ ] Possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub
+- [x] Possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub
 - [ ] Keep track of Helm chart deployments and track new versions of the charts
 - [ ] Provide information for Kubernetes version (for example AWS EKS)
 
-### Nice to have
+### Todo
 
-* Specify `ALL` as an option for namespaces, it should find all namespaces and look at all of them
+* Run as a server with an web UI
+* Have a helm chart to deploy the app into Kubernetes
+* List images below the chart
+* Automatically fetch new versions every X time
 * Use Clair as a vulnerabilitie scanning option
 
 ### Issues
