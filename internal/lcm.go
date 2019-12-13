@@ -28,10 +28,10 @@ func Execute(config config.Config) {
 func ExecuteWithoutFetchingContainers(config config.Config, containers []kubernetes.Container) {
 	containers = getExtraImages(config.Images, containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
-	//info = getVulnerabilities(info, config)
+	info = getVulnerabilities(info, config)
 	prettyPrint(info)
-	//tools := getLatestVerfionForTools(config.Tools, config.ToolRegistries)
-	//prettyPrintToolInfo(tools)
+	tools := getLatestVerfionForTools(config.Tools, config.ToolRegistries)
+	prettyPrintToolInfo(tools)
 }
 
 // ToolInfo contains tool information with the latest version
