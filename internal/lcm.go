@@ -26,14 +26,14 @@ func Execute(config config.Config) {
 
 // ExecuteWithoutFetchingContainers used for passing in containers without fetching them from Kubernetes
 func ExecuteWithoutFetchingContainers(config config.Config, containers []kubernetes.Container) {
-	containers = getExtraImages(config.Images, containers)
-	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
-	info = getVulnerabilities(info, config)
-	prettyPrint(info)
+	//containers = getExtraImages(config.Images, containers)
+	//info := getLatestVersionsForContainers(containers, config.ImageRegistries)
+	//info = getVulnerabilities(info, config)
+	//prettyPrint(info)
 	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.CommandFlags.LocalKubernetes)
 	prettyPrintChartInfo(charts)
-	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
-	prettyPrintToolInfo(tools)
+	//tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
+	//prettyPrintToolInfo(tools)
 }
 
 // ToolInfo contains tool information with the latest version
@@ -52,9 +52,10 @@ func getLatestVersionsForHelmCharts(namespaces []string, local bool) []ChartInfo
 	var chartInfo []ChartInfo
 	charts := kubernetes.GetHelmChartsFromNamespaces(namespaces, local)
 	for _, chart := range charts {
-		// TODO call to fetch latest version
+		version := registries.GetLatestVersionFromHelm(chart.Name)
 		chartInfo = append(chartInfo, ChartInfo{
-			Chart: chart,
+			Chart:         chart,
+			LatestVersion: version,
 		})
 	}
 	return chartInfo
