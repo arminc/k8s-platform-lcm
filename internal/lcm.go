@@ -16,12 +16,17 @@ import (
 
 // Execute runs all the checks for LCM
 func Execute(config config.Config) {
-	containers := kubernetes.GetContainersFromNamespaces(config.Namespaces, config.CommandFlags.LocalKubernetes)
-	ExecuteWithoutFetchingContainers(config, containers)
+	if config.CommandFlags.DisableKubernetesFetch {
+		ExecuteWithoutFetchingContainers(config, []kubernetes.Container{})
+	} else {
+		containers := kubernetes.GetContainersFromNamespaces(config.Namespaces, config.CommandFlags.LocalKubernetes)
+		ExecuteWithoutFetchingContainers(config, containers)
+	}
 }
 
 // ExecuteWithoutFetchingContainers used for passing in containers without fetching them from Kubernetes
 func ExecuteWithoutFetchingContainers(config config.Config, containers []kubernetes.Container) {
+	containers = getExtraImages(config.Images, containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
 	//info = getVulnerabilities(info, config)
 	prettyPrint(info)
@@ -33,6 +38,16 @@ func ExecuteWithoutFetchingContainers(config config.Config, containers []kuberne
 type ToolInfo struct {
 	Tool          registries.Tool
 	LatestVersion string
+}
+
+func getExtraImages(images []string, containers []kubernetes.Container) []kubernetes.Container {
+	for _, image := range images {
+		container, err := kubernetes.ImageStringToContainerStruct(image)
+		if err == nil {
+			containers = append(containers, container)
+		}
+	}
+	return containers
 }
 
 func getLatestVerfionForTools(tools []registries.Tool, registries registries.ToolRegistries) []ToolInfo {

@@ -43,7 +43,7 @@ func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Contain
 
 	containers := []Container{}
 	for key := range runningContainers {
-		container, err := containerStringToContainerStruct(key)
+		container, err := ImageStringToContainerStruct(key)
 		if err == nil {
 			containers = append(containers, container)
 		}
@@ -52,7 +52,8 @@ func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Contain
 	return containers
 }
 
-func containerStringToContainerStruct(containerString string) (Container, error) {
+// ImageStringToContainerStruct converts image string to container information
+func ImageStringToContainerStruct(containerString string) (Container, error) {
 	log.Infof("Extract [%s] to struct", containerString)
 	version := "0" // Latest can't be compared
 	URL := ""

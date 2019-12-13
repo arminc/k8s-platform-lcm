@@ -30,6 +30,7 @@ func initFlags() config.CommandFlags {
 	app.Flag("local", "Run locally, default expected behavior is to run in the cluster").BoolVar(&commandFlags.LocalKubernetes)
 	app.Flag("verbose", "Show more information").BoolVar(&commandFlags.Verbose)
 	app.Flag("debug", "Show debug information, debug includes verbose").BoolVar(&commandFlags.Debug)
+	app.Flag("nok8s", "Don't fetch data from kubernetes").BoolVar(&commandFlags.DisableKubernetesFetch)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	return *commandFlags

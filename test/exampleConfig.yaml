@@ -65,7 +65,13 @@ type: yml # default type
 #        password: # Not needed if AuthType set to none
 #      registryName: # If you want to use a default one, the following is allowed: DockerHub, Quay, Gcr, GcrK8s, Zalando
 #      images:
-#        - arminc/something # Name of the image, you can also use regular expressions
+#        - test/something # Name of the image, you can also use regular expressions
+
+# There will always be images that the LCM currently can't find, because you run them somwhere else outside of Kuberneres
+# Until LCM can find them automatically you can specify them by hand
+#images:
+#  - test/some:1.1.2 # please provide the full url unless it's docker hub
+#  - registry.io/test/some:1.2.1
 
 # The following image scanning servers are configured. If you leave this out no vulnerability info will be shown
 imageScanners:

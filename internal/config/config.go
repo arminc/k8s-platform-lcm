@@ -18,13 +18,15 @@ type Config struct {
 	ImageScanners   scanning.ImageScanners     `koanf:"imageScanners"`
 	ToolRegistries  registries.ToolRegistries  `koanf:"toolRegistries"`
 	Tools           []registries.Tool          `koanf:"tools"`
+	Images          []string                   `koanf:"images"`
 }
 
 // CommandFlags are flags to manipulate app behavior from the cli
 type CommandFlags struct {
-	LocalKubernetes bool
-	Verbose         bool
-	Debug           bool
+	LocalKubernetes        bool
+	Verbose                bool
+	Debug                  bool
+	DisableKubernetesFetch bool
 }
 
 // LoadConfiguration loads the configuration from file

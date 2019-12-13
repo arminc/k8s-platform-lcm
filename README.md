@@ -24,6 +24,7 @@ This project helps you keep track of all your software and tools used and runnin
 ### Issues
 
 * AWS ECR "602401143452" which does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
+* Docker Hub Image names that have an . will not work properly because assumption is made that . means there is an url which is not the case with Docker Hub
 
 ## Example output
 
