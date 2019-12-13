@@ -11,19 +11,20 @@ import (
 
 const (
 	validReleaseSemverRegex = "^(v?[0-9]*\\.?[0-9]*\\.?[0-9]*)$"
-	validSemverRegex        = "^(v?[0-9]*\\.?[0-9]*\\.?[0-9]*)(-[a-z0-9.]+)?$"
-	Major                   = "major"
-	Minor                   = "minor"
-	Patch                   = "patch"
-	Same                    = "same"
-	Notfound                = "notfound"
+	//	validSemverRegex        = "^(v?[0-9]*\\.?[0-9]*\\.?[0-9]*)(-[a-z0-9.]+)?$"
+	Major    = "major"
+	Minor    = "minor"
+	Patch    = "patch"
+	Same     = "same"
+	Notfound = "notfound"
 
 	Unknown = "UNKNOWN"
 	Failure = "FAILURE"
 )
 
 var regexRelease *regexp.Regexp
-var regex *regexp.Regexp
+
+//var regex *regexp.Regexp
 
 func init() {
 	var err error
@@ -32,10 +33,10 @@ func init() {
 		log.Fatalf("Could not create regexRelease %v", err)
 	}
 
-	regex, err = regexp.Compile(validSemverRegex)
-	if err != nil {
-		log.Fatalf("Could not create regex %v", err)
-	}
+	/*	regex, err = regexp.Compile(validSemverRegex)
+		if err != nil {
+			log.Fatalf("Could not create regex %v", err)
+		}*/
 }
 
 //FindHigestVersionInList finds the higest version in an list of versions or returns NOTFOUND
