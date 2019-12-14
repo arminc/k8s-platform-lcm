@@ -7,14 +7,13 @@ type: yml # default type
 #  - test
 #  - kube-system
 
-# By default DockerHub, Quay, gcr.io, k8s.gcr.io and Zalando repository are configured
+# By default DockerHub, Quay, gcr.io, k8s.gcr.io, and Zalando repository are configured
 # If your images are using one of these registries the version fetching will work automatically
 #
 #imageRegistries: 
-# If you need to fetch private images on the registries please override the authentication method and username/password
-# If all your images are comming from your own registry but all the images are coming for example from the DockerHub 
-# or you want to fetch versions by default from one of these registries regardles of the registry specified in the image
-# then please set default to true
+# If you need to fetch versions for private images from the default registries please override the authentication method and username/password
+# If the images are on a private registry but all the images are originally from one of the default registries, for example, DockerHub. 
+# You can set one of the default registries to default and it will use that registry to fetch the latest versions regardless of what registry is specified on the image in Kubernetes.    
 #
 #  dockerHub:
 #    username: 
@@ -41,57 +40,59 @@ type: yml # default type
 #    authType: # Can be basic or token
 #    default: true or false 
 
-# If you have a private registry you can configure it here. But if you want to fetch new versions from another registry 
-# you can specify also specify one of the default registries. You can specify multiple urls that need to be overridden.
+# You can configure a private registry here. 
+# You can also specify certain registry URLs that are used by your images to use one of the default registries to fetch the latest version from.
+# You can specify multiple URLs at the same time that need to be overridden.
 #
 #  overrideRegistries: 
-#    - registry: # If you want to specify your registry
+#    - registry: # Use this only when you want to add a private registry
 #        url: 
 #        authType: # Can be none, basic or token
 #        username: # Not needed if AuthType set to none
 #        password: # Not needed if AuthType set to none
-#      registryName: # If you want to use a default one, the following is allowed: DockerHub, Quay, Gcr, GcrK8s, Zalando
+#      registryName: # Use one of the default registries: DockerHub, Quay, Gcr, GcrK8s, Zalando
 #      urls:
 #        - some.url.io
 
-# If only some of the images need to use a different registry then you can specify your own registry or you
-# can select one of the default ones. This always takes precedent above all the above registry configuration
+# If certain images need to use a different registry to fetch the latest version from then you can specify your private registry here or you can select one of the default ones to be used. 
+# This always takes precedence above all the above registry configuration.
 #
 #  override:   
-#    - registry: # If you want to specify your registry
+#    - registry: # Use this only when you want to add a private registry
 #        url: 
 #        authType: # Can be none, basic or token
 #        username: # Not needed if AuthType set to none
 #        password: # Not needed if AuthType set to none
-#      registryName: # If you want to use a default one, the following is allowed: DockerHub, Quay, Gcr, GcrK8s, Zalando
+#      registryName: # Use one of the default registries: DockerHub, Quay, Gcr, GcrK8s, Zalando
 #      images:
 #        - test/something # Name of the image, you can also use regular expressions
 
-# There will always be images that the LCM currently can't find, because you run them somwhere else outside of Kuberneres
-# Until LCM can find them automatically you can specify them by hand
+#If you have images that the LCM currently can't automatically find because you run them somewhere else outside of Kubernetes then you can specify them by hand here
+#
 #images:
-#  - test/some:1.1.2 # please provide the full url unless it's docker hub
+#  - test/some:1.1.2 # Please provide the full URL unless it's docker hub
 #  - registry.io/test/some:1.2.1
 
-# You can enable vulnerabilitie scanning as well
+# LCM can also fetch known vulnerabilities for your images using an external tool and display them. 
+# Currently, only Jfrog Xray is supported. 
 #imageScanners:
 #  xray:  
 #    hostname: xray.somenonexistingurl.io
 #    username: 
 #    password:
-#    prefix: artifactory/docker # Extra key value specific for this scanner, this is an example of the prefix needed by xray 
-#  severity:
+#    prefix: artifactory/docker # Xray uses a prefix to fetch scanning information 
+#  severity: # You can specify which severity levels count al vulnerable
 #    - Critical
 #    - High
 
-# You can configure GitHub
-#toolRegistries:
-#  gitHub: # Optional but you don't specify username/password or token you might hit GitHub limits faster
-#    username: test # Optional
-#    password: test # Optional
-#    token: test # Optional
-
-# You can specify static tools which can't be fetched
+# You can specify static tools for which you want to find the latest versions on GitHub
 #tools:
 #  - repo: hashicorp/terraform                         
 #    version: "0.11.14"
+
+# Looking up latest version on GitHub works out of the box but you can add your username/password or token if you are hitting GitHub limits
+#toolRegistries:
+#  gitHub:
+#    username: test # Optional
+#    password: test # Optional
+#    token: test # Optional
