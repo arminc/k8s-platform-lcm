@@ -1,42 +1,84 @@
 # Kubernetes platform lifecycle management
 
-This project helps you keep track of all your software and tools used and running in and around your Kubernetes platform. It helps you with part of the lifecycle management to keep your software up to data for feature completeness, security or compliance reasons. 
+[![Build Status](https://travis-ci.org/arminc/k8s-platform-lcm.svg?branch=master)](https://travis-ci.org/arminc/k8s-platform-lcm)
+[![Go Report Card](https://goreportcard.com/badge/github.com/arminc/k8s-platform-lcm)](https://goreportcard.com/report/github.com/arminc/k8s-platform-lcm)
+
+<img src="https://github.com/arminc/k8s-platform-lcm/assets/logo.png" width="100">
+This project helps you keep track of all your software and tools that are used or running in and around your Kubernetes platform. It helps you with part of the lifecycle management to keep your software up to data for feature completeness, security or compliance reasons.
 
 ## Features
 
-- [x] Keep track of versions of all the running containers (inclusive init containers) inside the Kubernetes
-- [x] Keep track of new versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory and probably any other Docker registry v2
-- [x] Present the information command line
-- [x] Allow overriding of the registry to search in, for example, if you are using private registry but need to fetch versions from the internet
+- [x] Keep track of versions of all the running containers (including init containers) inside the Kubernetes
+- [x] Keep track of new image versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory by default 
 - [x] Works with private registries and private images
+- [x] Allow overriding of the registry to search latest versions from another registry
 - [x] Keep track of image vulnerabilities using Jfrog Xray
-- [x] Present the vulnerabilities command line
-- [ ] Possibility to whitelist vulnerabilities so only changes are presented
-- [x] Possibility to provide local tool versions (like terraform version and it's plugins) and find the new versions using GitHub
+- [x] Possibility to provide local tool versions (like terraform) and find the new versions on GitHub
 - [x] Keep track of Helm chart deployments and track new versions of the charts
-- [ ] Provide information for Kubernetes version (for example AWS EKS)
+- [x] Present the information command line
 
 ### Todo
 
-* Specify the location of the config file to load
-* Have a Helm chart search instead of direct access
-* Run as a server with a web UI
+* Provide information on Kubernetes version (for example AWS EKS and it's components)
+* Add a possibility to whitelist vulnerabilities so only changes are presented
+* Make config file location configurable
+* Use search option on hub.helm.sh instead of direct access
+* Run as a daemon
+* Automatically fetch new versions every X time
 * Have a helm chart to deploy the app into Kubernetes
 * List images below the chart
-* Automatically fetch new versions every X time
 * Use Clair as a vulnerability scanning option
+* Provide a web UI
+* Add Slack/Teams integration
+* Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
 
 ### Issues
 
-* AWS ECR "602401143452" which does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
-* Docker Hub Image names that have an . will not work properly because assumption is made that . means there is an url which is not the case with Docker Hub
+* AWS ECR "602401143452" does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
+* Docker Hub Image names that have a dot will not work properly because the assumption is made that a dot means there is a URL in front of the image name which is not the case with Docker Hub
+
+## Help (how to run)
+
+For all the configuration options please have a look at the [exampleConfig.yaml](exampleConfig.yaml). 
+
+When running lcm you can provide certain flags which are not available in the config.
+
+```bash
+./lcm --help
+usage: lcm [<flags>]
+
+Kubernetes platform lifecycle management
+
+Flags:
+  --help     Show context-sensitive help (also try --help-long and --help-man).
+  --version  Show application version.
+  --local    Run locally, default expected behavior is to run in the cluster
+  --verbose  Show more information
+  --debug    Show debug information, debug includes verbose
+  --nok8s    Don't fetch data from kubernetes
+```
 
 ## Example output
 
-
-|                 IMAGE                 | VERSION | LATEST  | FETCHED |
-| --------------------------------------|---------|---------|---------|
-| uswitch/kiam                          |  v3.3   |  v3.4   | true    |
-| kubernetes-helm/tiller                | v2.13.0 | v2.16.1 | true    |
-| cluster-proportional-autoscaler-amd64 |  1.1.1  |  1.7.1  | true    |
-| openpolicyagent/opa                   | 0.14.1  | 0.15.1  | true    |
+```bash
++---------------------------------------+-------------------+----------+-------+
+|                 IMAGE                 |      VERSION      |  LATEST  | CVES  |
++---------------------------------------+-------------------+----------+-------+
+| library/alpine                        |      3.10.1       |  3.10.3  | ERROR |
+| openpolicyagent/kube-mgmt             |        0.9        |   0.10   | 0     |
+| openpolicyagent/opa                   |      0.14.1       |  0.15.1  | 0     |
+| velero/velero                         |      v1.1.0       |  v1.2.0  | 0     |
++---------------------------------------+-------------------+----------+-------+
++----------------------------+------------+----------+
+|           CHART            |  VERSION   |  LATEST  |
++----------------------------+------------+----------+
+| opa                        |   0.12.0   |  1.13.1  |
+| velero                     |   2.5.0    |  2.7.0   |
++----------------------------+------------+----------+
++---------------------+---------+----------+
+|        TOOL         | VERSION |  LATEST  |
++---------------------+---------+----------+
+| derailed/popeye     | v0.4.1  |  v0.5.0  |
+| hashicorp/terraform | 0.11.14 | v0.12.18 |
++---------------------+---------+----------+
+```
