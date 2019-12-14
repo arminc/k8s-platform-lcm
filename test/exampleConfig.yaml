@@ -1,7 +1,7 @@
 ---
 type: yml # default type
 
-# Default all namespaces are checked. If you wish you can provide a list of namespaces to check.
+# By default, all namespaces are checked. You can provide a list of namespaces to check instead.
 #
 #namespaces:
 #  - test

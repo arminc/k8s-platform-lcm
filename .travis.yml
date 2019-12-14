@@ -17,7 +17,9 @@ deploy:
   provider: releases
   token: $GITHUB_TOKEN
   file:
-    - dist/lcm-*
+    - dist/lcm-$TRAVIS_TAG-darwin
+    - dist/lcm-$TRAVIS_TAG-linux
+    - dist/lcm-$TRAVIS_TAG-windows
   skip_cleanup: true
   on:
     tags: true
