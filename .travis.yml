@@ -14,3 +14,11 @@ script:
   - golangci-lint run
   - go test ./...
   - ./build.sh
+
+deploy:
+  provider: releases
+  file:
+    - dist/*
+  skip_cleanup: true
+  on:
+    tags: true
