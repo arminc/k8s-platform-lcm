@@ -9,9 +9,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	version = "0.1.0"
-)
+// Version is the current app version
+var Version = "dev"
 
 func initLogging(flags config.CommandFlags) {
 	log.SetOutput(os.Stdout)     // Default to out instead of err
@@ -25,7 +24,7 @@ func initLogging(flags config.CommandFlags) {
 
 func initFlags() config.CommandFlags {
 	app := kingpin.New("lcm", "Kubernetes platform lifecycle management")
-	app.Version(version)
+	app.Version(Version)
 	commandFlags := new(config.CommandFlags)
 	app.Flag("local", "Run locally, default expected behavior is to run in the cluster").BoolVar(&commandFlags.LocalKubernetes)
 	app.Flag("verbose", "Show more information").BoolVar(&commandFlags.Verbose)
@@ -41,6 +40,6 @@ func main() {
 	config := config.LoadConfiguration()
 	config.CommandFlags = commandFlags
 	initLogging(config.CommandFlags)
-	log.Infof("Running version %s", version)
+	log.Infof("Running version %s", Version)
 	internal.Execute(config)
 }
