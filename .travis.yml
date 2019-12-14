@@ -17,7 +17,7 @@ deploy:
   provider: releases
   token: $GITHUB_TOKEN
   file:
-    - dist/*
+    - dist/lcm-*
   skip_cleanup: true
   on:
     tags: true
