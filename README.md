@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/arminc/k8s-platform-lcm.svg?branch=master)](https://travis-ci.org/arminc/k8s-platform-lcm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/arminc/k8s-platform-lcm)](https://goreportcard.com/report/github.com/arminc/k8s-platform-lcm)
 
-<img src="https://github.com/arminc/k8s-platform-lcm/assets/logo.png" width="100">
+<img src="https://github.com/arminc/k8s-platform-lcm/raw/master/assets/logo.png" width="100">
 This project helps you keep track of all your software and tools that are used or running in and around your Kubernetes platform. It helps you with part of the lifecycle management to keep your software up to data for feature completeness, security or compliance reasons.
 
 ## Features
