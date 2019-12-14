@@ -73,23 +73,25 @@ type: yml # default type
 #  - test/some:1.1.2 # please provide the full url unless it's docker hub
 #  - registry.io/test/some:1.2.1
 
-# The following image scanning servers are configured. If you leave this out no vulnerability info will be shown
-imageScanners:
-  xray:
-    hostname: xray.somenonexistingurl.io
-    username: 
-    password:
-    prefix: artifactory/docker # Extra key value specific for this scanner, this is an example of the prefix needed by xray 
-  severity:
-    - Critical
-    - High
+# You can enable vulnerabilitie scanning as well
+#imageScanners:
+#  xray:  
+#    hostname: xray.somenonexistingurl.io
+#    username: 
+#    password:
+#    prefix: artifactory/docker # Extra key value specific for this scanner, this is an example of the prefix needed by xray 
+#  severity:
+#    - Critical
+#    - High
 
-toolRegistries:
-  gitHub: # Optional but you don't specify username/password or token you might hit GitHub limits faster
-    username: test # Optional
-    password: test # Optional
-    token: test # Optional
+# You can configure GitHub
+#toolRegistries:
+#  gitHub: # Optional but you don't specify username/password or token you might hit GitHub limits faster
+#    username: test # Optional
+#    password: test # Optional
+#    token: test # Optional
 
-tools:
-  - repo: hashicorp/terraform                         
-    version: "0.11.14"
+# You can specify static tools which can't be fetched
+#tools:
+#  - repo: hashicorp/terraform                         
+#    version: "0.11.14"

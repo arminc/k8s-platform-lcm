@@ -18,6 +18,10 @@ type ImageScanners struct {
 
 // GetVulnerabilities gets vulnerabilites for alle images using the configured scanner
 func (i ImageScanners) GetVulnerabilities(name, version string) []string {
+	if i.Xray.URL == "" {
+		log.Debug("Xray not enabled")
+		return nil
+	}
 	log.Debugf("Scan image: [%v]", name)
 	vul, err := i.Xray.GetVulnerabilities(name, version)
 	if err != nil {
