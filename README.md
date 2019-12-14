@@ -44,7 +44,7 @@ This project helps you keep track of all your software and tools that are used o
 
 For all the configuration options please have a look at the [exampleConfig.yaml](exampleConfig.yaml). 
 
-When running lcm you can provide certain flags which are not available in the config.
+When running lcm you can provide certain flags which are not available in the config. The application assumes there is a config.yaml available in the same folder.
 
 ```bash
 ./lcm --help
