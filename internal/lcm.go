@@ -29,7 +29,7 @@ func ExecuteWithoutFetchingContainers(config config.Config, containers []kuberne
 	containers = getExtraImages(config.Images, containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
 	info = getVulnerabilities(info, config)
-	prettyPrint(info)
+	prettyPrintContainerInfo(info)
 	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.CommandFlags.LocalKubernetes)
 	prettyPrintChartInfo(charts)
 	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
@@ -94,7 +94,7 @@ func getVulnerabilities(info []ContainerInfo, config config.Config) []ContainerI
 	return infoWithVul
 }
 
-// ContainerInfo contains pod information about the container, its version info and security
+// ContainerInfo contains pod information about the container, its version info, and security
 type ContainerInfo struct {
 	Container     kubernetes.Container
 	LatestVersion string
@@ -116,7 +116,7 @@ func getLatestVersionsForContainers(containers []kubernetes.Container, registrie
 	return info
 }
 
-func prettyPrint(info []ContainerInfo) {
+func prettyPrintContainerInfo(info []ContainerInfo) {
 	sort.Slice(info, func(i, j int) bool {
 		return info[i].Container.Name < info[j].Container.Name
 	})

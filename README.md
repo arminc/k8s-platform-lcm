@@ -18,6 +18,7 @@ This project helps you keep track of all your software and tools used and runnin
 
 ### Todo
 
+* Specify the location of the config file to load
 * Have a Helm chart search instead of direct access
 * Run as a server with a web UI
 * Have a helm chart to deploy the app into Kubernetes

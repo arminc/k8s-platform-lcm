@@ -16,15 +16,7 @@ type Chart struct {
 
 // GetHelmChartsFromNamespaces fetches all charts from the namespaces
 func GetHelmChartsFromNamespaces(namespaces []string, useLocally bool) []Chart {
-
-	kubeClient := getKubernetesClient(useLocally)
-
-	if len(namespaces) == 0 {
-		log.Debug("No namespaces defined, fetching all")
-		namespaces = getAllNamespaces(kubeClient)
-	} else {
-		log.Infof("Get all containers from the namespaces %s", namespaces)
-	}
+	namespaces = getNamespaces(namespaces, getKubernetesClient(useLocally))
 
 	var tmpCharts []Chart
 	for _, namespace := range namespaces {
@@ -33,14 +25,14 @@ func GetHelmChartsFromNamespaces(namespaces []string, useLocally bool) []Chart {
 
 		err := actionConfig.Init(settings.RESTClientGetter(), namespace, os.Getenv("HELM_DRIVER"), log.Infof)
 		if err != nil {
-			log.Errorf("Failed to get Helm action config: %v", err)
+			log.Errorf("Failed to get Helm action config: [%v]", err)
 			continue
 		}
 
 		client := action.NewList(actionConfig)
 		charts, err := client.Run()
 		if err != nil {
-			log.Errorf("Failed to run helm command: %v", err)
+			log.Errorf("Failed to run helm command: [%v]", err)
 			continue
 		}
 		for _, chart := range charts {

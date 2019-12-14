@@ -24,14 +24,7 @@ type Container struct {
 // GetContainersFromNamespaces fetches all containers and init containers
 func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Container {
 	client := getKubernetesClient(useLocally)
-
-	if len(namespaces) == 0 {
-		log.Debug("No namespaces defined, fetching all")
-		namespaces = getAllNamespaces(client)
-	} else {
-		log.Infof("Get all containers from the namespaces %s", namespaces)
-	}
-
+	namespaces = getNamespaces(namespaces, client)
 	runningContainers := make(map[string]bool)
 
 	for _, namespace := range namespaces {
@@ -54,7 +47,7 @@ func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Contain
 
 // ImageStringToContainerStruct converts image string to container information
 func ImageStringToContainerStruct(containerString string) (Container, error) {
-	log.Infof("Extract [%s] to struct", containerString)
+	log.Debugf("Extract [%s] to struct", containerString)
 	version := "0" // Latest can't be compared
 	URL := ""
 	fullPath := containerString
@@ -63,8 +56,8 @@ func ImageStringToContainerStruct(containerString string) (Container, error) {
 	containerString = strings.Replace(containerString, ":443", "", -1) //Remove 443 if it's there
 
 	if strings.Count(containerString, ":") >= 2 {
-		log.Errorf("We do not support urls with ports [%s]", containerString)
-		return Container{}, errors.New("We do not support urls with ports")
+		log.Errorf("We do not support URLs with ports [%s]", containerString)
+		return Container{}, errors.New("We do not support URLs with ports")
 	}
 
 	if strings.Contains(containerString, ":") {
@@ -82,7 +75,6 @@ func ImageStringToContainerStruct(containerString string) (Container, error) {
 		name = urlAndImage[1]
 	}
 
-	//imageAndVersion := strings.Split(urlAndImage[1], ":")
 	return Container{
 		FullPath: fullPath,
 		URL:      URL,
@@ -93,27 +85,27 @@ func ImageStringToContainerStruct(containerString string) (Container, error) {
 
 func getKubernetesClient(useLocally bool) *kubernetes.Clientset {
 	if useLocally {
-		log.Info("Accessing Kubernetes locally")
+		log.Debug("Accessing Kubernetes locally")
 		kubeconfig := filepath.Join(homeDir(), ".kube", "config")
 		config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 		if err != nil {
-			log.Fatalf("Could not find kubernetes config %v", err)
+			log.Fatalf("Could not find kubernetes config [%v]", err)
 		}
 		clientset, err := kubernetes.NewForConfig(config)
 		if err != nil {
-			log.Fatalf("Could not load kubernetes config %v", err)
+			log.Fatalf("Could not load kubernetes config [%v]", err)
 		}
 		return clientset
 	}
-	log.Info("Accessing Kubernetes inside the cluster")
+	log.Debug("Accessing Kubernetes inside the cluster")
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		log.Fatalf("Could not find kubernetes config in the cluster %v", err)
+		log.Fatalf("Could not find kubernetes config in the cluster [%v]", err)
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Fatalf("Could not load kubernetes config in the cluster %v", err)
+		log.Fatalf("Could not load kubernetes config in the cluster [%v]", err)
 	}
 
 	return clientset
@@ -124,27 +116,36 @@ func getRunningContainers(client *kubernetes.Clientset, namespace string) map[st
 	log.Infof("Fetching containers for [%s] namespace", namespace)
 	pods, err := client.CoreV1().Pods(namespace).List(metav1.ListOptions{})
 	if err != nil {
-		log.Fatalf("Could not fetch pods %v", err)
+		log.Fatalf("Could not fetch pods [%v]", err)
 	}
 
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
-			log.Debugf("Container %s", container.Image)
+			log.Debugf("Container [%s]", container.Image)
 			containers[container.Image] = true
 		}
 		for _, container := range pod.Spec.InitContainers {
-			log.Debugf("InitContainer %s", container.Image)
+			log.Debugf("InitContainer [%s]", container.Image)
 			containers[container.Image] = true
 		}
 	}
 	return containers
 }
 
+func getNamespaces(namespaces []string, client *kubernetes.Clientset) []string {
+	if len(namespaces) == 0 {
+		log.Debug("No namespaces defined, fetching all namespaces from Kubernetes")
+		return getAllNamespaces(client)
+	}
+	log.Infof("Get all containers from the namespaces %s", namespaces)
+	return namespaces
+}
+
 func getAllNamespaces(client *kubernetes.Clientset) []string {
 	var ns []string
 	namespaces, err := client.CoreV1().Namespaces().List(metav1.ListOptions{})
 	if err != nil {
-		log.Fatalf("Could not namespaces %v", err)
+		log.Fatalf("Could not fetch namespaces [%v]", err)
 	}
 
 	for _, namespace := range namespaces.Items {

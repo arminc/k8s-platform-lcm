@@ -31,7 +31,7 @@ func (g GitHubConfig) GetLatestVersion(owner, repo, version string) string {
 	release, response, err := client.Repositories.GetLatestRelease(ctx, owner, repo)
 	if err != nil {
 		if _, ok := err.(*github.RateLimitError); ok {
-			log.Errorf("Hit rate limit for [%s/%s]", owner, repo)
+			log.Errorf("Hit the rate limit for [%s/%s]", owner, repo)
 			return versioning.Failure
 		}
 		// If the repository isn't working with releases, just get the latest tag
@@ -63,7 +63,7 @@ func getTags(owner string, repo string, client *github.Client) string {
 		}
 		opt.Page = resp.NextPage
 	}
-	return versioning.FindHigestVersionInList(allTags)
+	return versioning.FindHighestVersionInList(allTags)
 }
 
 func (g GitHubConfig) getClient(ctx context.Context) *github.Client {

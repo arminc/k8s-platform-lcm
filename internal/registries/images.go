@@ -16,14 +16,14 @@ type ImageRegistries struct {
 	OverrideRegistries []OverrideRegistry `koanf:"overrideRegistries"`
 }
 
-// OverrideImage contains information about which registry to use, it overrides the url used in kubernetes
+// OverrideImage contains information about which registry to use, it overrides the URL used in kubernetes
 type OverrideImage struct {
 	Images       []string      `koanf:"images"`
 	Registry     ImageRegistry `koanf:"registry"`
 	RegistryName string        `koanf:"registryName"`
 }
 
-// OverrideRegistry contains information about which registry to use, it overrides the url used in kubernetes
+// OverrideRegistry contains information about which registry to use, it overrides the URL used in kubernetes
 type OverrideRegistry struct {
 	Urls         []string      `koanf:"urls"`
 	Registry     ImageRegistry `koanf:"registry"`
@@ -86,7 +86,7 @@ func (i ImageRegistries) determinRegistry(name, url string) ImageRegistry {
 	return i.FindRegistryByURL(url)
 }
 
-// FindRegistryByOverrideByImage finds if the image has an registry override
+// FindRegistryByOverrideByImage finds if the image has a registry override
 func (i ImageRegistries) FindRegistryByOverrideByImage(name string) (ImageRegistry, bool) {
 	for _, overrideImage := range i.OverrideImages {
 		for _, image := range overrideImage.Images {
@@ -106,7 +106,7 @@ func (i ImageRegistries) FindRegistryByOverrideByImage(name string) (ImageRegist
 	return ImageRegistry{}, false
 }
 
-// FindRegistryByOverrideByURL finds if the url has an registry override
+// FindRegistryByOverrideByURL finds if the URL has a registry override
 func (i ImageRegistries) FindRegistryByOverrideByURL(url string) (ImageRegistry, bool) {
 	for _, overrideRegistry := range i.OverrideRegistries {
 		for _, regURL := range overrideRegistry.Urls {

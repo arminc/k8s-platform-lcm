@@ -11,37 +11,36 @@ import (
 
 const (
 	validReleaseSemverRegex = "^(v?[0-9]*\\.?[0-9]*\\.?[0-9]*)$"
-	//	validSemverRegex        = "^(v?[0-9]*\\.?[0-9]*\\.?[0-9]*)(-[a-z0-9.]+)?$"
-	Major    = "major"
-	Minor    = "minor"
-	Patch    = "patch"
-	Same     = "same"
-	Notfound = "notfound"
-
+	// Major means a major difference between two versions
+	Major = "MAJOR"
+	// Minor means a minor difference between two versions
+	Minor = "MINOR"
+	// Patch means a patch difference between two versions
+	Patch = "PATCH"
+	// Same means two versions are the same
+	Same = "SAME"
+	// Unknown means the difference between the two versions is unknown
 	Unknown = "UNKNOWN"
+
+	// Notfound means a version could not be found
+	Notfound = "NOTFOUND"
+	// Failure means something went wrong went finding the version
 	Failure = "FAILURE"
 )
 
 var regexRelease *regexp.Regexp
 
-//var regex *regexp.Regexp
-
 func init() {
 	var err error
 	regexRelease, err = regexp.Compile(validReleaseSemverRegex)
 	if err != nil {
-		log.Fatalf("Could not create regexRelease %v", err)
+		log.Fatalf("Could not create regexRelease [%v]", err)
 	}
-
-	/*	regex, err = regexp.Compile(validSemverRegex)
-		if err != nil {
-			log.Fatalf("Could not create regex %v", err)
-		}*/
 }
 
-//FindHigestVersionInList finds the higest version in an list of versions or returns NOTFOUND
-func FindHigestVersionInList(versions []string) string {
-	log.Debugf("FindHigestVersionInList [%v]", versions)
+//FindHighestVersionInList finds the highest version in an list of versions or returns NOTFOUND
+func FindHighestVersionInList(versions []string) string {
+	log.Debugf("FindHighestVersionInList [%v]", versions)
 	latestVersion := "0"
 
 	for _, vers := range versions {
@@ -63,7 +62,7 @@ func FindHigestVersionInList(versions []string) string {
 
 // DetermineLifeCycleStatus compares two versions to determin the status of the difference
 func DetermineLifeCycleStatus(latestVersion string, currentVersion string) string {
-	log.Infof("Comparing version [%s] with latest version [%s]", currentVersion, latestVersion)
+	log.Debugf("Comparing version [%s] with latest version [%s]", currentVersion, latestVersion)
 	latest := strings.Split(version.Normalize(latestVersion), ".")
 	curr := strings.Split(version.Normalize(currentVersion), ".")
 

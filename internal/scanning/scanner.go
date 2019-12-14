@@ -16,7 +16,7 @@ type ImageScanners struct {
 	Xray     XrayConfig `koanf:"xray"`
 }
 
-// GetVulnerabilities gets vulnerabilites for alle images using the configured scanner
+// GetVulnerabilities gets vulnerabilities for all images using the configured scanner
 func (i ImageScanners) GetVulnerabilities(name, version string) []string {
 	if i.Xray.URL == "" {
 		log.Debug("Xray not enabled")
@@ -25,7 +25,7 @@ func (i ImageScanners) GetVulnerabilities(name, version string) []string {
 	log.Debugf("Scan image: [%v]", name)
 	vul, err := i.Xray.GetVulnerabilities(name, version)
 	if err != nil {
-		log.Errorf("Could not get vulnerabilities for [%s], error occured: [%v]", name, err)
+		log.Errorf("Could not get vulnerabilities for [%s], an error occurred: [%v]", name, err)
 		return []string{ERROR}
 	}
 	return i.convertXrayToCves(vul)
@@ -35,20 +35,19 @@ func (i ImageScanners) convertXrayToCves(artifacts []xray.SummaryArtifact) []str
 	cves := []string{}
 	for _, issue := range artifacts[0].GetIssues() {
 		log.Debugf("Issue: [%s]", issue.GetSummary())
-		if i.IsSeverityEnabled(issue.GetSeverity()) && issue.GetSeverity() != "" {
+		if i.isSeverityEnabled(issue.GetSeverity()) && issue.GetSeverity() != "" {
 			for _, c := range issue.GetCves() {
 				log.Debugf("CVE: [%s]", c.GetCve())
 				cves = append(cves, c.GetCve())
 			}
 		} else {
-			log.Infof("Severity not enabled: [%s]", issue.GetSeverity())
+			log.Debugf("Severity not enabled: [%s]", issue.GetSeverity())
 		}
 	}
 	return cves
 }
 
-// IsSeverityEnabled checks if the severity is configured
-func (i ImageScanners) IsSeverityEnabled(severity string) bool {
+func (i ImageScanners) isSeverityEnabled(severity string) bool {
 	for _, s := range i.Severity {
 		if s == severity {
 			return true

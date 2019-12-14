@@ -32,12 +32,13 @@ type CommandFlags struct {
 // LoadConfiguration loads the configuration from file
 func LoadConfiguration() Config {
 	fileName := "config.yaml"
+	log.Debugf("Loading config file [%s]", fileName)
 
 	var lcmConfig Config
 	k := koanf.New(".")
 
 	if err := k.Load(file.Provider(fileName), yaml.Parser()); err != nil {
-		log.Fatalf("Error loading config: %v", err)
+		log.Fatalf("Error loading config: [%v]", err)
 	}
 	err := k.Unmarshal("", &lcmConfig)
 	if err != nil {

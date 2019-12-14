@@ -9,21 +9,24 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Charts is data structure coming from hub.helm.sh
 type Charts struct {
 	Data []Chart `json:"data"`
 }
 
+// Chart contains attribute information for a chart coming from hub.helm.sh
 type Chart struct {
 	Attributes Attributes `json:"attributes"`
 }
 
+// Attributes contains version information for a chart coming from hub.helm.sh
 type Attributes struct {
 	Version string `json:"version"`
 }
 
-// GetLatestVersionFromHelm fetches latest version of the helm chart
+// GetLatestVersionFromHelm fetches the latest version of the helm chart
 func GetLatestVersionFromHelm(chart string) string {
-	log.Infof("Fetching version for chart [%s]", chart)
+	log.Debugf("Fetching version for chart [%s]", chart)
 	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/stable/%s/versions", chart)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -44,5 +47,5 @@ func GetLatestVersionFromHelm(chart string) string {
 	for _, data := range chartsData.Data {
 		versions = append(versions, data.Attributes.Version)
 	}
-	return versioning.FindHigestVersionInList(versions)
+	return versioning.FindHighestVersionInList(versions)
 }

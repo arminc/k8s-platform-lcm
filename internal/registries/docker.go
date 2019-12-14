@@ -1,6 +1,6 @@
 package registries
 
-// Parts of the code here are comming from github.com/heroku/docker-registry-client
+// Parts of the code here are coming from github.com/heroku/docker-registry-client
 
 import (
 	"encoding/json"
@@ -52,9 +52,9 @@ type ImageRegistry struct {
 
 var cacheToken = ""
 
-// GetLatestVersion fetches the latest version of the docker image from docker registry
+// GetLatestVersion fetches the latest version of the docker image from Docker registry
 func (r ImageRegistry) GetLatestVersion(name string) string {
-	log.Infof("Use registry [%s] to find [%s]", r.Name, name)
+	log.Debugf("Use registry [%s] to find [%s]", r.Name, name)
 
 	//If docker hub and single name (without /) add library/ to it
 	if r.Name == DockerHub && !strings.Contains(name, "/") {
@@ -70,7 +70,7 @@ func (r ImageRegistry) GetLatestVersion(name string) string {
 		log.Debugf("Could not fetch tags [%v]", err)
 		return versioning.Notfound
 	}
-	return versioning.FindHigestVersionInList(tags)
+	return versioning.FindHighestVersionInList(tags)
 }
 
 func (r ImageRegistry) fetch(pathSuffix string) ([]string, error) {
@@ -90,7 +90,7 @@ func (r ImageRegistry) fetch(pathSuffix string) ([]string, error) {
 			tags = append(tags, response.Tags...)
 			continue
 		default:
-			log.Debug("Error occured, stop fetching")
+			log.Debug("An error occurred, stop fetching")
 			return nil, err
 		}
 	}
@@ -120,7 +120,7 @@ func (r ImageRegistry) getPaginatedJSON(pathSuffix string, response interface{})
 
 func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *http.Request, error) {
 	url := fmt.Sprintf("https://%s%s", r.URL, pathSuffix)
-	log.Debugf("try fetching the following [%s]", url)
+	log.Debugf("Try fetching the following [%s]", url)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -226,15 +226,12 @@ func parsHeaders(headers http.Header) (string, error) {
 	if len(authHeader) > 1 {
 		return "", fmt.Errorf("Not expecting more than one auth header [%v]", authHeader)
 	}
-	log.Debugf("Auth: [%s]", authHeader[0])
+	log.Debugf("Incoming auth header: [%s]", authHeader[0])
 	url := strings.ReplaceAll(authHeader[0], "Bearer realm=", "") // Default registries
 	url = strings.ReplaceAll(url, "Basic realm=", "")             //ECR
-	log.Debugf("Url: [%s]", url)
 	url = strings.Replace(url, ",", "?", 1)
-	log.Debugf("Url: [%s]", url)
 	url = strings.ReplaceAll(url, ",", "&")
-	log.Debugf("Url: [%s]", url)
 	url = strings.ReplaceAll(url, "\"", "")
-	log.Debugf("Url: [%s]", url)
+	log.Debugf("Url to get the token from: [%s]", url)
 	return url, nil
 }
