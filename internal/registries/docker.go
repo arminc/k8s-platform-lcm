@@ -54,7 +54,7 @@ var cacheToken = ""
 
 // GetLatestVersion fetches the latest version of the docker image from Docker registry
 func (r ImageRegistry) GetLatestVersion(name string) string {
-	log.Debugf("Use registry [%s] to find [%s]", r.Name, name)
+	log.WithField("registry", r.Name).WithField("image", name).Debug("Get latest version for Docker image")
 
 	//If docker hub and single name (without /) add library/ to it
 	if r.Name == DockerHub && !strings.Contains(name, "/") {
@@ -66,8 +66,7 @@ func (r ImageRegistry) GetLatestVersion(name string) string {
 	pathSuffix := fmt.Sprintf("/v2/%s/tags/list", name)
 	tags, err := r.fetch(pathSuffix)
 	if err != nil {
-		log.Errorf("Could not fetch tags for [%s]", name)
-		log.Debugf("Could not fetch tags [%v]", err)
+		log.WithError(err).WithField("name", name).Error("Could not fetch tags")
 		return versioning.Notfound
 	}
 	return versioning.FindHighestVersionInList(tags)
@@ -82,15 +81,12 @@ func (r ImageRegistry) fetch(pathSuffix string) ([]string, error) {
 		pathSuffix, err = r.getPaginatedJSON(pathSuffix, &response)
 		switch err {
 		case ErrNoMorePages:
-			log.Debug("No more pages")
 			tags = append(tags, response.Tags...)
 			return tags, nil
 		case nil:
-			log.Debug("Fetch next page")
 			tags = append(tags, response.Tags...)
 			continue
 		default:
-			log.Debug("An error occurred, stop fetching")
 			return nil, err
 		}
 	}
@@ -120,7 +116,7 @@ func (r ImageRegistry) getPaginatedJSON(pathSuffix string, response interface{})
 
 func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *http.Request, error) {
 	url := fmt.Sprintf("https://%s%s", r.URL, pathSuffix)
-	log.Debugf("Try fetching the following [%s]", url)
+	log.WithField("url", url).Debugf("Try fetching url")
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -132,7 +128,7 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *ht
 	}
 
 	if r.AuthType == AuthTypeToken && cacheToken == "" {
-		log.Debugf("Fetching auth token")
+		log.Debug("Need to fetch the auth token")
 		if err := r.getToken(url); err != nil {
 			return nil, nil, err
 		}
@@ -186,7 +182,7 @@ func (r ImageRegistry) getToken(url string) error {
 		return err
 	}
 
-	log.Debugf("Token url [%s]", tokenURL)
+	log.WithField("url", tokenURL).Debug("Token url")
 	client = &http.Client{}
 	req, err = http.NewRequest("GET", tokenURL, nil)
 	if err != nil {
@@ -226,12 +222,11 @@ func parsHeaders(headers http.Header) (string, error) {
 	if len(authHeader) > 1 {
 		return "", fmt.Errorf("Not expecting more than one auth header [%v]", authHeader)
 	}
-	log.Debugf("Incoming auth header: [%s]", authHeader[0])
+	log.WithField("header", authHeader[0]).Debug("Incoming auth header]")
 	url := strings.ReplaceAll(authHeader[0], "Bearer realm=", "") // Default registries
 	url = strings.ReplaceAll(url, "Basic realm=", "")             //ECR
 	url = strings.Replace(url, ",", "?", 1)
 	url = strings.ReplaceAll(url, ",", "&")
 	url = strings.ReplaceAll(url, "\"", "")
-	log.Debugf("Url to get the token from: [%s]", url)
 	return url, nil
 }

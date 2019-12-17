@@ -25,7 +25,7 @@ func (t Tool) getRepoAndOwner() (string, string) {
 
 // GetLatestVersionForTool gets the latest version for tool
 func (t ToolRegistries) GetLatestVersionForTool(tool Tool) string {
-	log.Debugf("Finding the latest version for [%s]", tool.Repo)
+	log.WithField("tool", tool.Repo).Debug("Finding the latest version for tool")
 	owner, repo := tool.getRepoAndOwner()
 	return t.GitHub.GetLatestVersion(owner, repo, tool.Version)
 }

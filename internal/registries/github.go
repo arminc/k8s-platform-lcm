@@ -31,14 +31,14 @@ func (g GitHubConfig) GetLatestVersion(owner, repo, version string) string {
 	release, response, err := client.Repositories.GetLatestRelease(ctx, owner, repo)
 	if err != nil {
 		if _, ok := err.(*github.RateLimitError); ok {
-			log.Errorf("Hit the rate limit for [%s/%s]", owner, repo)
+			log.WithField("tool", owner+"/"+repo).Error("Hit the rate limit")
 			return versioning.Failure
 		}
 		// If the repository isn't working with releases, just get the latest tag
 		return getTags(owner, repo, client)
 	}
 	if response.StatusCode != 200 {
-		log.Errorf("Response code was not oke but [%v], for [%s/%s]", response.StatusCode, owner, repo)
+		log.WithField("tool", owner+"/"+repo).WithField("code", response.StatusCode).Error("Response code was not oke")
 		return versioning.Failure
 	}
 	return release.GetTagName()
@@ -51,8 +51,7 @@ func getTags(owner string, repo string, client *github.Client) string {
 	for {
 		tags, resp, err := client.Repositories.ListTags(context.Background(), owner, repo, opt)
 		if err != nil {
-			log.Errorf("Could not fetch version for [%s/%s]", owner, repo)
-			log.Debugf("Could not fetch version [%v]", err)
+			log.WithField("tool", owner+"/"+repo).WithError(err).Error("Could not fetch version")
 			return versioning.Notfound
 		}
 		for _, tag := range tags {

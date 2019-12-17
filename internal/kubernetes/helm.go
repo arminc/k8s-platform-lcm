@@ -18,29 +18,29 @@ type Chart struct {
 func GetHelmChartsFromNamespaces(namespaces []string, useLocally bool) []Chart {
 	namespaces = getNamespaces(namespaces, getKubernetesClient(useLocally))
 
-	var tmpCharts []Chart
+	var charts []Chart
 	for _, namespace := range namespaces {
 		settings := cli.New()
 		actionConfig := new(action.Configuration)
 
 		err := actionConfig.Init(settings.RESTClientGetter(), namespace, os.Getenv("HELM_DRIVER"), log.Infof)
 		if err != nil {
-			log.Errorf("Failed to get Helm action config: [%v]", err)
+			log.WithError(err).Error("Failed to get Helm action config")
 			continue
 		}
 
 		client := action.NewList(actionConfig)
-		charts, err := client.Run()
+		chartsInNamespace, err := client.Run()
 		if err != nil {
 			log.Errorf("Failed to run helm command: [%v]", err)
 			continue
 		}
-		for _, chart := range charts {
-			tmpCharts = append(tmpCharts, Chart{
+		for _, chart := range chartsInNamespace {
+			charts = append(charts, Chart{
 				Name:    chart.Name,
 				Version: chart.Chart.Metadata.Version,
 			})
 		}
 	}
-	return tmpCharts
+	return charts
 }

@@ -22,16 +22,17 @@ This project helps you keep track of all your software and tools that are used o
 
 ### Todo
 
-* Provide information on Kubernetes version (for example AWS EKS and it's components)
-* Add a possibility to whitelist vulnerabilities so only changes are presented
-* Make config file location configurable
-* Use search option on hub.helm.sh instead of direct access
+* Use docker image name parsing from docker
 * Run as a daemon
-* Automatically fetch new versions every X time
-* Have a helm chart to deploy the app into Kubernetes
-* List images below the chart
-* Use Clair as a vulnerability scanning option
 * Provide a web UI
+* Have a helm chart to deploy the app into Kubernetes
+* Use search option on hub.helm.sh instead of direct access
+* Automatically fetch new versions every X time
+* Add a possibility to whitelist vulnerabilities so only changes are presented
+* Provide information on Kubernetes version (for example AWS EKS and it's components)
+* Add tests (unit or integration)
+
+* Use Clair as a vulnerability scanning option
 * Add Slack/Teams integration
 * Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
 

@@ -34,13 +34,13 @@ func init() {
 	var err error
 	regexRelease, err = regexp.Compile(validReleaseSemverRegex)
 	if err != nil {
-		log.Fatalf("Could not create regexRelease [%v]", err)
+		log.WithError(err).Fatal("Could not create regexRelease")
 	}
 }
 
 //FindHighestVersionInList finds the highest version in an list of versions or returns NOTFOUND
 func FindHighestVersionInList(versions []string) string {
-	log.Debugf("FindHighestVersionInList [%v]", versions)
+	log.WithField("versions", versions).Debug("FindHighestVersionInList")
 	latestVersion := "0"
 
 	for _, vers := range versions {
@@ -62,7 +62,7 @@ func FindHighestVersionInList(versions []string) string {
 
 // DetermineLifeCycleStatus compares two versions to determin the status of the difference
 func DetermineLifeCycleStatus(latestVersion string, currentVersion string) string {
-	log.Debugf("Comparing version [%s] with latest version [%s]", currentVersion, latestVersion)
+	log.WithField("version", currentVersion).WithField("latestVersion", latestVersion).Debug("Determin status for version")
 	latest := strings.Split(version.Normalize(latestVersion), ".")
 	curr := strings.Split(version.Normalize(currentVersion), ".")
 

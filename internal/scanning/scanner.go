@@ -25,7 +25,7 @@ func (i ImageScanners) GetVulnerabilities(name, version string) []string {
 	log.Debugf("Scan image: [%v]", name)
 	vul, err := i.Xray.GetVulnerabilities(name, version)
 	if err != nil {
-		log.Errorf("Could not get vulnerabilities for [%s], an error occurred: [%v]", name, err)
+		log.WithField("image", name).WithError(err).Error("Could not get vulnerabilities")
 		return []string{ERROR}
 	}
 	return i.convertXrayToCves(vul)
@@ -34,14 +34,14 @@ func (i ImageScanners) GetVulnerabilities(name, version string) []string {
 func (i ImageScanners) convertXrayToCves(artifacts []xray.SummaryArtifact) []string {
 	cves := []string{}
 	for _, issue := range artifacts[0].GetIssues() {
-		log.Debugf("Issue: [%s]", issue.GetSummary())
+		log.WithField("summary", issue.GetSummary()).Debug("Issue")
 		if i.isSeverityEnabled(issue.GetSeverity()) && issue.GetSeverity() != "" {
 			for _, c := range issue.GetCves() {
-				log.Debugf("CVE: [%s]", c.GetCve())
+				log.WithField("cve", c.GetCve()).Debug("CVE")
 				cves = append(cves, c.GetCve())
 			}
 		} else {
-			log.Debugf("Severity not enabled: [%s]", issue.GetSeverity())
+			log.WithField("severity", issue.GetSeverity()).Debug("Severity not enabled")
 		}
 	}
 	return cves

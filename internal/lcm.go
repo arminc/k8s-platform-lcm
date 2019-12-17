@@ -11,30 +11,7 @@ import (
 	"github.com/arminc/k8s-platform-lcm/internal/scanning"
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	"github.com/olekukonko/tablewriter"
-	log "github.com/sirupsen/logrus"
 )
-
-// Execute runs all the checks for LCM
-func Execute(config config.Config) {
-	if config.CommandFlags.DisableKubernetesFetch {
-		ExecuteWithoutFetchingContainers(config, []kubernetes.Container{})
-	} else {
-		containers := kubernetes.GetContainersFromNamespaces(config.Namespaces, config.CommandFlags.LocalKubernetes)
-		ExecuteWithoutFetchingContainers(config, containers)
-	}
-}
-
-// ExecuteWithoutFetchingContainers used for passing in containers without fetching them from Kubernetes
-func ExecuteWithoutFetchingContainers(config config.Config, containers []kubernetes.Container) {
-	containers = getExtraImages(config.Images, containers)
-	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
-	info = getVulnerabilities(info, config)
-	prettyPrintContainerInfo(info)
-	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.CommandFlags.LocalKubernetes)
-	prettyPrintChartInfo(charts)
-	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
-	prettyPrintToolInfo(tools)
-}
 
 // ToolInfo contains tool information with the latest version
 type ToolInfo struct {
@@ -48,6 +25,69 @@ type ChartInfo struct {
 	LatestVersion string
 }
 
+// ContainerInfo contains pod information about the container, its version info, and security
+type ContainerInfo struct {
+	Container     kubernetes.Container
+	LatestVersion string
+	VersionStatus string
+	Fetched       bool
+	Cves          []string
+}
+
+// Execute runs all the checks for LCM
+func Execute(config config.Config) {
+	var containers = []kubernetes.Container{}
+	if config.IsKubernetesFetchEnabled() {
+		containers = kubernetes.GetContainersFromNamespaces(config.Namespaces, config.RunningLocally())
+	}
+	containers = getExtraImages(config.Images, containers)
+	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
+	info = getVulnerabilities(info, config)
+	if config.PrettyPrintAllowed() {
+		prettyPrintContainerInfo(info)
+	}
+	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.RunningLocally())
+	if config.PrettyPrintAllowed() {
+		prettyPrintChartInfo(charts)
+	}
+	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
+	if config.PrettyPrintAllowed() {
+		prettyPrintToolInfo(tools)
+	}
+}
+
+func getExtraImages(images []string, containers []kubernetes.Container) []kubernetes.Container {
+	for _, image := range images {
+		container, err := kubernetes.ImageStringToContainerStruct(image)
+		if err == nil {
+			containers = append(containers, container)
+		}
+	}
+	return containers
+}
+
+func getLatestVersionsForContainers(containers []kubernetes.Container, registries registries.ImageRegistries) []ContainerInfo {
+	containerInfo := []ContainerInfo{}
+	for _, container := range containers {
+		version := registries.GetLatestVersionForImage(container.Name, container.URL)
+		containerInfo = append(containerInfo, ContainerInfo{
+			Container:     container,
+			LatestVersion: version,
+			VersionStatus: versioning.DetermineLifeCycleStatus(version, container.Version),
+		})
+	}
+	return containerInfo
+}
+
+func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []ContainerInfo {
+	containerInfoWithVul := []ContainerInfo{}
+	for _, ci := range containerInfo {
+		vulnerabilities := config.ImageScanners.GetVulnerabilities(ci.Container.Name, ci.Container.Version)
+		ci.Cves = vulnerabilities
+		containerInfoWithVul = append(containerInfoWithVul, ci)
+	}
+	return containerInfoWithVul
+}
 func getLatestVersionsForHelmCharts(namespaces []string, local bool) []ChartInfo {
 	var chartInfo []ChartInfo
 	charts := kubernetes.GetHelmChartsFromNamespaces(namespaces, local)
@@ -61,16 +101,6 @@ func getLatestVersionsForHelmCharts(namespaces []string, local bool) []ChartInfo
 	return chartInfo
 }
 
-func getExtraImages(images []string, containers []kubernetes.Container) []kubernetes.Container {
-	for _, image := range images {
-		container, err := kubernetes.ImageStringToContainerStruct(image)
-		if err == nil {
-			containers = append(containers, container)
-		}
-	}
-	return containers
-}
-
 func getLatestVersionsForTools(tools []registries.Tool, registries registries.ToolRegistries) []ToolInfo {
 	var toolInfo []ToolInfo
 	for _, tool := range tools {
@@ -81,39 +111,6 @@ func getLatestVersionsForTools(tools []registries.Tool, registries registries.To
 		})
 	}
 	return toolInfo
-}
-
-func getVulnerabilities(info []ContainerInfo, config config.Config) []ContainerInfo {
-	infoWithVul := []ContainerInfo{}
-	for _, ci := range info {
-		vulnerabilities := config.ImageScanners.GetVulnerabilities(ci.Container.Name, ci.Container.Version)
-		ci.Cves = vulnerabilities
-		infoWithVul = append(infoWithVul, ci)
-		log.Infof("print me %v", ci)
-	}
-	return infoWithVul
-}
-
-// ContainerInfo contains pod information about the container, its version info, and security
-type ContainerInfo struct {
-	Container     kubernetes.Container
-	LatestVersion string
-	VersionStatus string
-	Fetched       bool
-	Cves          []string
-}
-
-func getLatestVersionsForContainers(containers []kubernetes.Container, registries registries.ImageRegistries) []ContainerInfo {
-	info := []ContainerInfo{}
-	for _, container := range containers {
-		version := registries.GetLatestVersionForImage(container.Name, container.URL)
-		info = append(info, ContainerInfo{
-			Container:     container,
-			LatestVersion: version,
-			VersionStatus: versioning.DetermineLifeCycleStatus(version, container.Version),
-		})
-	}
-	return info
 }
 
 func prettyPrintContainerInfo(info []ContainerInfo) {
