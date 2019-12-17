@@ -26,10 +26,12 @@ type Config struct {
 
 // AppConfig is the config for the app which can be set trough cli and config
 type AppConfig struct {
-	Locally    bool
-	ConfigFile string
-	Verbose    bool `koanf:"verbose"`
-	Debug      bool `koanf:"debug"`
+	Locally            bool
+	ConfigFile         string
+	JsonLoggingEnabled bool   `koanf:"jsonLoggingEnabled"`
+	LogFile            string `koanf:"logFile"`
+	Verbose            bool   `koanf:"verbose"`
+	Debug              bool   `koanf:"debug"`
 }
 
 // LoadConfiguration loads the configuration from file
@@ -42,6 +44,7 @@ func LoadConfiguration(configFile string) Config {
 	// load defaults
 	if err := k.Load(confmap.Provider(map[string]interface{}{
 		"kubernetesFetchEnabled": "true",
+		"jsonLoggingEnabled":     "false",
 	}, "."), nil); err != nil {
 		log.WithError(err).Fatal("Error loading config")
 	}
@@ -76,4 +79,25 @@ func (c Config) IsKubernetesFetchEnabled() bool {
 // RunningLocally returns true when running locally instead of in Kubernetes
 func (c Config) RunningLocally() bool {
 	return c.CliFlags.Locally
+}
+
+// IsJsonLoggingEnabled returns true when json logging is enabled
+func (c Config) IsJsonLoggingEnabled() bool {
+	return c.AppConfig.JsonLoggingEnabled || c.CliFlags.JsonLoggingEnabled
+}
+
+// LogToFilePath returns true and the log file path when log file is provided
+func (c Config) LogToFilePath() (bool, string) {
+	if c.CliFlags.LogFile != "" {
+		return true, c.CliFlags.LogFile
+	} else if c.AppConfig.LogFile != "" {
+		return true, c.AppConfig.LogFile
+	}
+	return false, ""
+}
+
+// PrettyPrintAllowed returns true when pretty print is allowed
+func (c Config) PrettyPrintAllowed() bool {
+	logFileEnabled := c.CliFlags.LogFile != "" || c.AppConfig.LogFile != ""
+	return !logFileEnabled || !c.IsJsonLoggingEnabled()
 }

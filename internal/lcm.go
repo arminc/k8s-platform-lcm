@@ -43,11 +43,17 @@ func Execute(config config.Config) {
 	containers = getExtraImages(config.Images, containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
 	info = getVulnerabilities(info, config)
-	prettyPrintContainerInfo(info)
+	if config.PrettyPrintAllowed() {
+		prettyPrintContainerInfo(info)
+	}
 	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.RunningLocally())
-	prettyPrintChartInfo(charts)
+	if config.PrettyPrintAllowed() {
+		prettyPrintChartInfo(charts)
+	}
 	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
-	prettyPrintToolInfo(tools)
+	if config.PrettyPrintAllowed() {
+		prettyPrintToolInfo(tools)
+	}
 }
 
 func getExtraImages(images []string, containers []kubernetes.Container) []kubernetes.Container {

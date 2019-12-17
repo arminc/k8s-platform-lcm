@@ -24,7 +24,6 @@ This project helps you keep track of all your software and tools that are used o
 
 * Provide information on Kubernetes version (for example AWS EKS and it's components)
 * Add a possibility to whitelist vulnerabilities so only changes are presented
-* Make config file location configurable
 * Use search option on hub.helm.sh instead of direct access
 * Run as a daemon
 * Automatically fetch new versions every X time

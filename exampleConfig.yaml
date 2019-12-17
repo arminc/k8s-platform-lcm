@@ -5,6 +5,8 @@ type: yml # default type
 #app:
 #  verbose: true # Enable more logging, default is false
 #  debug: true # Enable debug logging, default is false
+#  jsonLoggingEnabled: true # Enable json logging format, default is false. When logging to json format no output table is shown
+#  logFile: /path/where/to/log.json # Path to log to a file. No standard output is available anymore. When logging to json format no output table is shown
 
 # Don't check for information in Kubernetes cluster, default is true
 #kubernetesFetchEnabled: false 
