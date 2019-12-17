@@ -26,11 +26,11 @@ type Attributes struct {
 
 // GetLatestVersionFromHelm fetches the latest version of the helm chart
 func GetLatestVersionFromHelm(chart string) string {
-	log.Debugf("Fetching version for chart [%s]", chart)
+	log.WithField("chart", chart).Debug("Fetching version for chart")
 	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/stable/%s/versions", chart)
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Errorf("Failed to fetch chart info [%v]", err)
+		log.WithError(err).Error("Failed to fetch chart info")
 		return versioning.Failure
 	}
 

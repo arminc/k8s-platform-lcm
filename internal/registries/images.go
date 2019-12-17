@@ -92,9 +92,8 @@ func (i ImageRegistries) FindRegistryByOverrideByImage(name string) (ImageRegist
 		for _, image := range overrideImage.Images {
 			match, err := regexp.MatchString(image, name)
 			if err != nil {
-				log.Fatalf("Image regexp not valid [%v]", err)
+				log.WithError(err).Fatal("Image regexp not valid")
 			}
-			log.Debugf("FindRegistryByOverrideByImage name [%s], image [%s], bool [%v]", name, image, match)
 			if match {
 				if overrideImage.RegistryName != "" {
 					return i.FindRegistryByName(overrideImage.RegistryName), true
