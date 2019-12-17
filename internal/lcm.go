@@ -124,8 +124,14 @@ func prettyPrintContainerInfo(info []ContainerInfo) {
 
 	for _, container := range info {
 		cve := strconv.Itoa(len(container.Cves))
-		if len(container.Cves) == 1 && container.Cves[0] == scanning.ERROR {
-			cve = scanning.ERROR
+
+		if len(container.Cves) == 1 {
+			switch container.Cves[0] {
+			case scanning.ERROR:
+				cve = scanning.ERROR
+			case scanning.NODATA:
+				cve = scanning.NODATA
+			}
 		}
 
 		row := []string{
