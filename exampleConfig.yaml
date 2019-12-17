@@ -1,6 +1,14 @@
 ---
 type: yml # default type
 
+# Application configuration, these settings can be overridden with the command-line flags
+#app:
+#  verbose: true # Enable more logging, default is false
+#  debug: true # Enable debug logging, default is false
+
+# Don't check for information in Kubernetes cluster, default is true
+#kubernetesFetchEnabled: false 
+
 # By default, all namespaces are checked. You can provide a list of namespaces to check instead.
 #
 #namespaces:

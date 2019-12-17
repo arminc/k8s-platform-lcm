@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/arminc/k8s-platform-lcm/internal"
 	"github.com/arminc/k8s-platform-lcm/internal/config"
 	log "github.com/sirupsen/logrus"
 )
@@ -12,34 +11,33 @@ import (
 // Version is the current app version
 var Version = "dev"
 
-func initLogging(flags config.CommandFlags) {
+func initLogging(config config.Config) {
 	log.SetOutput(os.Stdout)     // Default to out instead of err
 	log.SetLevel(log.ErrorLevel) // Default only Errors
-	if flags.Verbose {
+	if config.IsVerboseLoggingEnabled() {
 		log.SetLevel(log.InfoLevel)
-	} else if flags.Debug {
+	} else if config.IsDebugLoggingEnabled() {
 		log.SetLevel(log.DebugLevel)
 	}
 }
 
-func initFlags() config.CommandFlags {
+func initFlags() config.AppConfig {
 	app := kingpin.New("lcm", "Kubernetes platform lifecycle management")
 	app.Version(Version)
-	commandFlags := new(config.CommandFlags)
-	app.Flag("local", "Run locally, default expected behavior is to run in the cluster").BoolVar(&commandFlags.LocalKubernetes)
-	app.Flag("verbose", "Show more information").BoolVar(&commandFlags.Verbose)
-	app.Flag("debug", "Show debug information, debug includes verbose").BoolVar(&commandFlags.Debug)
-	app.Flag("nok8s", "Don't fetch data from kubernetes").BoolVar(&commandFlags.DisableKubernetesFetch)
+	cliFlags := new(config.AppConfig)
+	app.Flag("local", "Run locally, default expected behavior is to run in the Kubernetes cluster").BoolVar(&cliFlags.Locally)
+	app.Flag("verbose", "Show more information. This overrides the config setting").BoolVar(&cliFlags.Verbose)
+	app.Flag("debug", "Show debug information, debug includes verbose. This overrides the config setting").BoolVar(&cliFlags.Debug)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	return *commandFlags
+	return *cliFlags
 }
 
 func main() {
-	commandFlags := initFlags()
+	cliFlags := initFlags()
 	config := config.LoadConfiguration()
-	config.CommandFlags = commandFlags
-	initLogging(config.CommandFlags)
-	log.Infof("Running version %s", Version)
-	internal.Execute(config)
+	config.CliFlags = cliFlags // Add cli flags to config object
+	initLogging(config)
+	//log.WithField("version", Version).Info("Running version")
+	//internal.Execute(config)
 }

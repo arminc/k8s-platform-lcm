@@ -11,15 +11,14 @@ import (
 	"github.com/arminc/k8s-platform-lcm/internal/scanning"
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	"github.com/olekukonko/tablewriter"
-	log "github.com/sirupsen/logrus"
 )
 
 // Execute runs all the checks for LCM
 func Execute(config config.Config) {
-	if config.CommandFlags.DisableKubernetesFetch {
+	if config.IsKubernetesFetchEnabled() {
 		ExecuteWithoutFetchingContainers(config, []kubernetes.Container{})
 	} else {
-		containers := kubernetes.GetContainersFromNamespaces(config.Namespaces, config.CommandFlags.LocalKubernetes)
+		containers := kubernetes.GetContainersFromNamespaces(config.Namespaces, config.RunningLocally())
 		ExecuteWithoutFetchingContainers(config, containers)
 	}
 }
@@ -30,7 +29,7 @@ func ExecuteWithoutFetchingContainers(config config.Config, containers []kuberne
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
 	info = getVulnerabilities(info, config)
 	prettyPrintContainerInfo(info)
-	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.CommandFlags.LocalKubernetes)
+	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.RunningLocally())
 	prettyPrintChartInfo(charts)
 	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
 	prettyPrintToolInfo(tools)
@@ -89,7 +88,6 @@ func getVulnerabilities(info []ContainerInfo, config config.Config) []ContainerI
 		vulnerabilities := config.ImageScanners.GetVulnerabilities(ci.Container.Name, ci.Container.Version)
 		ci.Cves = vulnerabilities
 		infoWithVul = append(infoWithVul, ci)
-		log.Infof("print me %v", ci)
 	}
 	return infoWithVul
 }
