@@ -28,6 +28,7 @@ func initFlags() config.AppConfig {
 	app.Flag("local", "Run locally, default expected behavior is to run in the Kubernetes cluster").BoolVar(&cliFlags.Locally)
 	app.Flag("verbose", "Show more information. This overrides the config setting").BoolVar(&cliFlags.Verbose)
 	app.Flag("debug", "Show debug information, debug includes verbose. This overrides the config setting").BoolVar(&cliFlags.Debug)
+	app.Flag("config", "Provide the path to the config file. Default is config.yaml which is in the same folder as lcm").Default("config.yaml").StringVar(&cliFlags.ConfigFile)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	return *cliFlags
@@ -35,7 +36,7 @@ func initFlags() config.AppConfig {
 
 func main() {
 	cliFlags := initFlags()
-	config := config.LoadConfiguration()
+	config := config.LoadConfiguration(cliFlags.ConfigFile)
 	config.CliFlags = cliFlags // Add cli flags to config object
 	initLogging(config)
 	//log.WithField("version", Version).Info("Running version")

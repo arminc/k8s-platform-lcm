@@ -26,15 +26,15 @@ type Config struct {
 
 // AppConfig is the config for the app which can be set trough cli and config
 type AppConfig struct {
-	Locally bool
-	Verbose bool `koanf:"verbose"`
-	Debug   bool `koanf:"debug"`
+	Locally    bool
+	ConfigFile string
+	Verbose    bool `koanf:"verbose"`
+	Debug      bool `koanf:"debug"`
 }
 
 // LoadConfiguration loads the configuration from file
-func LoadConfiguration() Config {
-	fileName := "config.yaml"
-	log.WithField("configFile", fileName).Debug("Loading config file")
+func LoadConfiguration(configFile string) Config {
+	log.WithField("configFile", configFile).Debug("Loading config file")
 
 	var lcmConfig Config
 	k := koanf.New(".")
@@ -46,7 +46,7 @@ func LoadConfiguration() Config {
 		log.WithError(err).Fatal("Error loading config")
 	}
 
-	if err := k.Load(file.Provider(fileName), yaml.Parser()); err != nil {
+	if err := k.Load(file.Provider(configFile), yaml.Parser()); err != nil {
 		log.WithError(err).Fatal("Error loading config")
 	}
 
