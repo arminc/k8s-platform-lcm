@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/arminc/k8s-platform-lcm/internal"
 	"github.com/arminc/k8s-platform-lcm/internal/config"
 	log "github.com/sirupsen/logrus"
 )
@@ -39,6 +40,6 @@ func main() {
 	config := config.LoadConfiguration(cliFlags.ConfigFile)
 	config.CliFlags = cliFlags // Add cli flags to config object
 	initLogging(config)
-	//log.WithField("version", Version).Info("Running version")
-	//internal.Execute(config)
+	log.WithField("version", Version).Info("Running version")
+	internal.Execute(config)
 }

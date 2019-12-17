@@ -65,7 +65,7 @@ func (c Config) IsVerboseLoggingEnabled() bool {
 
 // IsDebugLoggingEnabled returns true when debug logging is enabled
 func (c Config) IsDebugLoggingEnabled() bool {
-	return c.AppConfig.Verbose || c.CliFlags.Verbose
+	return c.AppConfig.Debug || c.CliFlags.Debug
 }
 
 // IsKubernetesFetchEnabled returns true when Kubernetes fetch is enabled
