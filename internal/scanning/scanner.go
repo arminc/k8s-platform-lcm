@@ -8,6 +8,8 @@ import (
 const (
 	// ERROR defines error for not able to fetch cve
 	ERROR = "ERROR"
+	// NODATA indicates that no scanners are configured
+	NODATA = "NODATA"
 )
 
 // ImageScanners contains all the information about the vulnerability scanners
@@ -20,7 +22,7 @@ type ImageScanners struct {
 func (i ImageScanners) GetVulnerabilities(name, version string) []string {
 	if i.Xray.URL == "" {
 		log.Debug("Xray not enabled")
-		return nil
+		return []string{NODATA}
 	}
 	log.Debugf("Scan image: [%v]", name)
 	vul, err := i.Xray.GetVulnerabilities(name, version)
