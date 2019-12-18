@@ -2,17 +2,24 @@ package scanning
 
 import (
 	"fmt"
+	"regexp"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/target/go-arty/xray"
 )
 
 // XrayConfig contains all the information about the xray
 type XrayConfig struct {
-	Name     string `koanf:"name"`
-	URL      string `koanf:"url"`
-	Username string `koanf:"username"`
-	Password string `koanf:"password"`
-	Prefix   string `koanf:"prefix"`
+	Name     string   `koanf:"name"`
+	URL      string   `koanf:"url"`
+	Username string   `koanf:"username"`
+	Password string   `koanf:"password"`
+	Prefixes []Prefix `koanf:"prefixes"`
+}
+
+type Prefix struct {
+	Prefix string   `koanf:"prefix"`
+	Images []string `koanf:"images"`
 }
 
 // GetVulnerabilities gets vulnerabilities from xray
@@ -20,7 +27,7 @@ func (x XrayConfig) GetVulnerabilities(name, version string) ([]xray.SummaryArti
 	url := "https://" + x.URL
 	client, _ := xray.NewClient(url, nil)
 
-	path := fmt.Sprintf("%s/%s/%s", x.Prefix, name, version)
+	path := fmt.Sprintf("%s/%s/%s", x.getPrefix(name), name, version)
 	arty := &xray.SummaryArtifactRequest{
 		Paths: &[]string{path},
 	}
@@ -36,4 +43,23 @@ func (x XrayConfig) GetVulnerabilities(name, version string) ([]xray.SummaryArti
 		return nil, fmt.Errorf("Got an error from xray for [%s]m error [%s]", name, *sum.GetErrors()[0].Error)
 	}
 	return sum.GetArtifacts(), nil
+}
+
+func (x XrayConfig) getPrefix(name string) string {
+	if len(x.Prefixes) == 1 {
+		return x.Prefixes[0].Prefix
+	}
+	for _, prefix := range x.Prefixes {
+		for _, image := range prefix.Images {
+			match, err := regexp.MatchString(image, name)
+			if err != nil {
+				log.WithError(err).Warn("Image regexp not valid")
+			}
+			if match {
+				return prefix.Prefix
+			}
+		}
+	}
+
+	return ""
 }

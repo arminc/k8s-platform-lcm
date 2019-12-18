@@ -97,8 +97,12 @@ type: yml # default type
 #    hostname: xray.somenonexistingurl.io
 #    username: 
 #    password:
-#    prefix: artifactory/docker # Xray uses a prefix to fetch scanning information 
-#  severity: # You can specify which severity levels count al vulnerable
+#    prefixes: # Xray uses a prefix to fetch scanning information, you can provide the prefixes to use per container
+#      - prefix: artifactory/docker  
+#        images: # You can specify certain images or you can use regular expressions
+#          - chamber
+#          - ssl-cert 
+#  severity: # You can specify which severity levels count as vulnerable
 #    - Critical
 #    - High
 
