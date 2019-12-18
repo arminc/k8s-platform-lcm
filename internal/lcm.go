@@ -46,9 +46,11 @@ func Execute(config config.Config) {
 	if config.PrettyPrintAllowed() {
 		prettyPrintContainerInfo(info)
 	}
-	charts := getLatestVersionsForHelmCharts(config.Namespaces, config.RunningLocally())
-	if config.PrettyPrintAllowed() {
-		prettyPrintChartInfo(charts)
+	if config.IsKubernetesFetchEnabled() {
+		charts := getLatestVersionsForHelmCharts(config.Namespaces, config.RunningLocally())
+		if config.PrettyPrintAllowed() {
+			prettyPrintChartInfo(charts)
+		}
 	}
 	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
 	if config.PrettyPrintAllowed() {

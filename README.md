@@ -22,7 +22,6 @@ This project helps you keep track of all your software and tools that are used o
 
 ### Todo
 
-* Use docker image name parsing from docker
 * Run as a daemon
 * Provide a web UI
 * Have a helm chart to deploy the app into Kubernetes
@@ -39,7 +38,6 @@ This project helps you keep track of all your software and tools that are used o
 ### Issues
 
 * AWS ECR "602401143452" does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
-* Docker Hub Image names that have a dot will not work properly because the assumption is made that a dot means there is a URL in front of the image name which is not the case with Docker Hub
 
 ## Help (how to run)
 

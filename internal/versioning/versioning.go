@@ -11,6 +11,7 @@ import (
 
 const (
 	validReleaseSemverRegex = "^(v?[0-9]*\\.?[0-9]*\\.?[0-9]*)$"
+	validSemverRegex        = "^(v?[0-9]*\\.?[0-9]*\\.?[0-9]*)(-[a-z0-9.]+)?$"
 	// Major means a major difference between two versions
 	Major = "MAJOR"
 	// Minor means a minor difference between two versions
@@ -29,6 +30,7 @@ const (
 )
 
 var regexRelease *regexp.Regexp
+var regex *regexp.Regexp
 
 func init() {
 	var err error
@@ -36,18 +38,28 @@ func init() {
 	if err != nil {
 		log.WithError(err).Fatal("Could not create regexRelease")
 	}
+
+	regex, err = regexp.Compile(validSemverRegex)
+	if err != nil {
+		log.WithError(err).Fatalf("Could not create regex")
+	}
 }
 
 //FindHighestVersionInList finds the highest version in an list of versions or returns NOTFOUND
-func FindHighestVersionInList(versions []string) string {
+func FindHighestVersionInList(versions []string, allowAllReleases bool) string {
 	log.WithField("versions", versions).Debug("FindHighestVersionInList")
 	latestVersion := "0"
+
+	regexpToUse := regexRelease
+	if allowAllReleases {
+		regexpToUse = regex
+	}
 
 	for _, vers := range versions {
 		if !strings.Contains(vers, ".") {
 			continue
 		}
-		if regexRelease.MatchString(vers) {
+		if regexpToUse.MatchString(vers) {
 			if version.CompareSimple(version.Normalize(vers), version.Normalize(latestVersion)) == 1 {
 				latestVersion = vers
 			}

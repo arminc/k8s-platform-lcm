@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
+	github.com/docker/distribution v2.7.1+incompatible
 	github.com/google/go-github/v28 v28.1.1
 	github.com/heroku/docker-registry-client v0.0.0-20190909225348-afc9e1acc3d5
 	github.com/jfrog/jfrog-client-go v0.5.9

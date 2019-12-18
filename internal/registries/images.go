@@ -14,20 +14,23 @@ type ImageRegistries struct {
 	Zalando            ImageRegistry      `koanf:"zalando"`
 	OverrideImages     []OverrideImage    `koanf:"override"`
 	OverrideRegistries []OverrideRegistry `koanf:"overrideRegistries"`
+	OverrideImageNames map[string]string  `koanf:"overrideImageNames"`
 }
 
 // OverrideImage contains information about which registry to use, it overrides the URL used in kubernetes
 type OverrideImage struct {
-	Images       []string      `koanf:"images"`
-	Registry     ImageRegistry `koanf:"registry"`
-	RegistryName string        `koanf:"registryName"`
+	Images           []string      `koanf:"images"`
+	Registry         ImageRegistry `koanf:"registry"`
+	RegistryName     string        `koanf:"registryName"`
+	AllowAllReleases bool          `koanf:"allowAllReleases"`
 }
 
 // OverrideRegistry contains information about which registry to use, it overrides the URL used in kubernetes
 type OverrideRegistry struct {
-	Urls         []string      `koanf:"urls"`
-	Registry     ImageRegistry `koanf:"registry"`
-	RegistryName string        `koanf:"registryName"`
+	Urls             []string      `koanf:"urls"`
+	Registry         ImageRegistry `koanf:"registry"`
+	RegistryName     string        `koanf:"registryName"`
+	AllowAllReleases bool          `koanf:"allowAllReleases"`
 }
 
 // DefaultRegistries sets default values for registries
@@ -64,6 +67,7 @@ func (i *ImageRegistries) DefaultRegistries() {
 // GetLatestVersionForImage gets the latest version for image
 func (i ImageRegistries) GetLatestVersionForImage(name, url string) string {
 	registry := i.determinRegistry(name, url)
+	name = i.findImageNameOverride(name)
 	return registry.GetLatestVersion(name)
 }
 
@@ -86,6 +90,14 @@ func (i ImageRegistries) determinRegistry(name, url string) ImageRegistry {
 	return i.FindRegistryByURL(url)
 }
 
+func (i ImageRegistries) findImageNameOverride(name string) string {
+	overrideName := i.OverrideImageNames[name]
+	if overrideName == "" {
+		return name
+	}
+	return overrideName
+}
+
 // FindRegistryByOverrideByImage finds if the image has a registry override
 func (i ImageRegistries) FindRegistryByOverrideByImage(name string) (ImageRegistry, bool) {
 	for _, overrideImage := range i.OverrideImages {
@@ -96,9 +108,13 @@ func (i ImageRegistries) FindRegistryByOverrideByImage(name string) (ImageRegist
 			}
 			if match {
 				if overrideImage.RegistryName != "" {
-					return i.FindRegistryByName(overrideImage.RegistryName), true
+					registry := i.FindRegistryByName(overrideImage.RegistryName)
+					registry.AllowAllReleases = overrideImage.AllowAllReleases
+					return registry, true
 				}
-				return overrideImage.Registry, true
+				registry := overrideImage.Registry
+				registry.AllowAllReleases = overrideImage.AllowAllReleases
+				return registry, true
 			}
 		}
 	}
