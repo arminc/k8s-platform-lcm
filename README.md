@@ -52,12 +52,14 @@ usage: lcm [<flags>]
 Kubernetes platform lifecycle management
 
 Flags:
-  --help     Show context-sensitive help (also try --help-long and --help-man).
-  --version  Show application version.
-  --local    Run locally, default expected behavior is to run in the cluster
-  --verbose  Show more information
-  --debug    Show debug information, debug includes verbose
-  --nok8s    Don't fetch data from kubernetes
+  --help                  Show context-sensitive help (also try --help-long and --help-man).
+  --version               Show application version.
+  --config="config.yaml"  Provide the path to the config file. Default is config.yaml which is in the same folder as lcm
+  --local                 Run locally, default expected behavior is to run in the Kubernetes cluster
+  --verbose               Show more information. This overrides the config setting
+  --debug                 Show debug information, debug includes verbose. This overrides the config setting
+  --jsonLogging           Log in json format
+  --logFile=LOGFILE       Log file path
 ```
 
 ## Example output
