@@ -14,6 +14,7 @@ type ImageRegistries struct {
 	Zalando            ImageRegistry      `koanf:"zalando"`
 	OverrideImages     []OverrideImage    `koanf:"override"`
 	OverrideRegistries []OverrideRegistry `koanf:"overrideRegistries"`
+	OverrideImageNames map[string]string  `koanf:"overrideImageNames"`
 }
 
 // OverrideImage contains information about which registry to use, it overrides the URL used in kubernetes
@@ -64,6 +65,7 @@ func (i *ImageRegistries) DefaultRegistries() {
 // GetLatestVersionForImage gets the latest version for image
 func (i ImageRegistries) GetLatestVersionForImage(name, url string) string {
 	registry := i.determinRegistry(name, url)
+	name = i.findImageNameOverride(name)
 	return registry.GetLatestVersion(name)
 }
 
@@ -84,6 +86,14 @@ func (i ImageRegistries) determinRegistry(name, url string) ImageRegistry {
 	}
 
 	return i.FindRegistryByURL(url)
+}
+
+func (i ImageRegistries) findImageNameOverride(name string) string {
+	overrideName := i.OverrideImageNames[name]
+	if overrideName == "" {
+		return name
+	}
+	return overrideName
 }
 
 // FindRegistryByOverrideByImage finds if the image has a registry override

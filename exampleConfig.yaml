@@ -77,6 +77,11 @@ type: yml # default type
 #      images:
 #        - test/something # Name of the image, you can also use regular expressions
 
+# If the image names in the private repo and online are not the same then they can be overridden here. 
+# Note this is only used to fetch the latest version everything else is based on the private name 
+#  overrideImageNames:
+#    test: test/test
+
 #If you have images that the LCM currently can't automatically find because you run them somewhere else outside of Kubernetes then you can specify them by hand here
 #
 #images:
