@@ -1,10 +1,8 @@
 package kubernetes
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,43 +41,6 @@ func GetContainersFromNamespaces(namespaces []string, useLocally bool) []Contain
 	}
 	log.Info("Finished fecthing all containers")
 	return containers
-}
-
-// ImageStringToContainerStruct converts image string to container information
-func ImageStringToContainerStruct(containerString string) (Container, error) {
-	version := "0" // Latest can't be compared
-	URL := ""
-	fullPath := containerString
-	name := containerString
-
-	containerString = strings.Replace(containerString, ":443", "", -1) //Remove 443 if it's there
-
-	if strings.Count(containerString, ":") >= 2 {
-		log.WithField("image", containerString).Error("We do not support URLs with ports")
-		return Container{}, errors.New("We do not support URLs with ports")
-	}
-
-	if strings.Contains(containerString, ":") {
-		//Has a version
-		subAndVersion := strings.Split(containerString, ":")
-		version = subAndVersion[1]
-		containerString = subAndVersion[0]
-		name = subAndVersion[0]
-	}
-	// We assume that image names do not contain a dot
-	// When there is a dot it means it has a hostname in front of the image
-	if strings.Contains(containerString, ".") {
-		urlAndImage := strings.SplitN(containerString, "/", 2)
-		URL = urlAndImage[0]
-		name = urlAndImage[1]
-	}
-
-	return Container{
-		FullPath: fullPath,
-		URL:      URL,
-		Name:     name,
-		Version:  version,
-	}, nil
 }
 
 func getKubernetesClient(useLocally bool) *kubernetes.Clientset {

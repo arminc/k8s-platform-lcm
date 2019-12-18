@@ -22,7 +22,6 @@ This project helps you keep track of all your software and tools that are used o
 
 ### Todo
 
-* Use docker image name parsing from docker
 * Run as a daemon
 * Provide a web UI
 * Have a helm chart to deploy the app into Kubernetes
