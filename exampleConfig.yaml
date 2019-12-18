@@ -102,7 +102,7 @@ type: yml # default type
 #        images: # You can specify certain images or you can use regular expressions
 #          - chamber
 #          - ssl-cert 
-#  severity: # You can specify which severity levels count al vulnerable
+#  severity: # You can specify which severity levels count as vulnerable
 #    - Critical
 #    - High
 
