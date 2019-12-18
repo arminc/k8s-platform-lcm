@@ -63,6 +63,7 @@ type: yml # default type
 #      registryName: # Use one of the default registries: DockerHub, Quay, Gcr, GcrK8s, Zalando
 #      urls:
 #        - some.url.io
+#      allowAllReleases: true # This allows all semver versions, like release candidates or custom suffixes. Default is false
 
 # If certain images need to use a different registry to fetch the latest version from then you can specify your private registry here or you can select one of the default ones to be used. 
 # This always takes precedence above all the above registry configuration.
@@ -76,6 +77,7 @@ type: yml # default type
 #      registryName: # Use one of the default registries: DockerHub, Quay, Gcr, GcrK8s, Zalando
 #      images:
 #        - test/something # Name of the image, you can also use regular expressions
+#      allowAllReleases: true # This allows all semver versions, like release candidates or custom suffixes. Default is false
 
 # If the image names in the private repo and online are not the same then they can be overridden here. 
 # Note this is only used to fetch the latest version everything else is based on the private name 

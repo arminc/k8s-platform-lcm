@@ -47,5 +47,5 @@ func GetLatestVersionFromHelm(chart string) string {
 	for _, data := range chartsData.Data {
 		versions = append(versions, data.Attributes.Version)
 	}
-	return versioning.FindHighestVersionInList(versions)
+	return versioning.FindHighestVersionInList(versions, false)
 }

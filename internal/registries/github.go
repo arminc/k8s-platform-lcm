@@ -62,7 +62,7 @@ func getTags(owner string, repo string, client *github.Client) string {
 		}
 		opt.Page = resp.NextPage
 	}
-	return versioning.FindHighestVersionInList(allTags)
+	return versioning.FindHighestVersionInList(allTags, false)
 }
 
 func (g GitHubConfig) getClient(ctx context.Context) *github.Client {

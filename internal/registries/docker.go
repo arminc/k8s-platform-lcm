@@ -42,12 +42,13 @@ type tagsResponse struct {
 
 // ImageRegistry contains all the information about the registry
 type ImageRegistry struct {
-	Name     string `koanf:"name"`
-	URL      string `koanf:"url"`
-	AuthType string `koanf:"authType"`
-	Username string `koanf:"username"`
-	Password string `koanf:"password"`
-	Default  bool   `koanf:"default"`
+	Name             string `koanf:"name"`
+	URL              string `koanf:"url"`
+	AuthType         string `koanf:"authType"`
+	Username         string `koanf:"username"`
+	Password         string `koanf:"password"`
+	Default          bool   `koanf:"default"`
+	AllowAllReleases bool
 }
 
 var cacheToken = ""
@@ -69,7 +70,7 @@ func (r ImageRegistry) GetLatestVersion(name string) string {
 		log.WithError(err).WithField("name", name).Error("Could not fetch tags")
 		return versioning.Notfound
 	}
-	return versioning.FindHighestVersionInList(tags)
+	return versioning.FindHighestVersionInList(tags, r.AllowAllReleases)
 }
 
 func (r ImageRegistry) fetch(pathSuffix string) ([]string, error) {

@@ -19,16 +19,18 @@ type ImageRegistries struct {
 
 // OverrideImage contains information about which registry to use, it overrides the URL used in kubernetes
 type OverrideImage struct {
-	Images       []string      `koanf:"images"`
-	Registry     ImageRegistry `koanf:"registry"`
-	RegistryName string        `koanf:"registryName"`
+	Images           []string      `koanf:"images"`
+	Registry         ImageRegistry `koanf:"registry"`
+	RegistryName     string        `koanf:"registryName"`
+	AllowAllReleases bool          `koanf:"allowAllReleases"`
 }
 
 // OverrideRegistry contains information about which registry to use, it overrides the URL used in kubernetes
 type OverrideRegistry struct {
-	Urls         []string      `koanf:"urls"`
-	Registry     ImageRegistry `koanf:"registry"`
-	RegistryName string        `koanf:"registryName"`
+	Urls             []string      `koanf:"urls"`
+	Registry         ImageRegistry `koanf:"registry"`
+	RegistryName     string        `koanf:"registryName"`
+	AllowAllReleases bool          `koanf:"allowAllReleases"`
 }
 
 // DefaultRegistries sets default values for registries
@@ -106,9 +108,13 @@ func (i ImageRegistries) FindRegistryByOverrideByImage(name string) (ImageRegist
 			}
 			if match {
 				if overrideImage.RegistryName != "" {
-					return i.FindRegistryByName(overrideImage.RegistryName), true
+					registry := i.FindRegistryByName(overrideImage.RegistryName)
+					registry.AllowAllReleases = overrideImage.AllowAllReleases
+					return registry, true
 				}
-				return overrideImage.Registry, true
+				registry := overrideImage.Registry
+				registry.AllowAllReleases = overrideImage.AllowAllReleases
+				return registry, true
 			}
 		}
 	}
