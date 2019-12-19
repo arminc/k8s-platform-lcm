@@ -25,7 +25,6 @@ This project helps you keep track of all your software and tools that are used o
 * Run as a daemon
 * Provide a web UI
 * Have a helm chart to deploy the app into Kubernetes
-* Use search option on hub.helm.sh instead of direct access
 * Automatically fetch new versions every X time
 * Add a possibility to whitelist vulnerabilities so only changes are presented
 * Provide information on Kubernetes version (for example AWS EKS and it's components)

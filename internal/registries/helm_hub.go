@@ -9,10 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type HelmRegistries struct {
-	OverrideChartNames map[string]string `koanf:"overrideChartNames"`
-}
-
 // Charts is data structure coming from hub.helm.sh
 type Charts struct {
 	Data []Chart `json:"data"`
@@ -38,21 +34,18 @@ type ChartSearchResult struct {
 	Id string `json:"id"`
 }
 
-// GetLatestVersionFromHelm fetches the latest version of the helm chart
-func (h HelmRegistries) GetLatestVersionFromHelm(chart string) string {
-	log.WithField("chart", chart).Debug("Fetching version for chart")
-
+func (h HelmRegistries) useHelmHub(chart string) string {
 	chartName := h.OverrideChartNames[chart]
 	if chartName == "" {
 		var err error
-		chartName, err = h.findChart(chart)
+		chartName, err = findChart(chart)
 		if err != nil {
 			log.WithError(err).WithField("chart", chart).Error("Failed to search chart info")
 			return versioning.Failure
 		}
 	}
 
-	versions, err := h.getChartVersions(chartName)
+	versions, err := getChartVersions(chartName)
 	if err != nil {
 		log.WithError(err).WithField("chart", chart).Error("Failed to fetch chart info")
 		return versioning.Failure
@@ -61,7 +54,7 @@ func (h HelmRegistries) GetLatestVersionFromHelm(chart string) string {
 	return versioning.FindHighestVersionInList(versions, false)
 }
 
-func (h HelmRegistries) findChart(chart string) (string, error) {
+func findChart(chart string) (string, error) {
 	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/search?q=%s", chart)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -84,7 +77,7 @@ func (h HelmRegistries) findChart(chart string) (string, error) {
 	return "", fmt.Errorf("More than one result %v", searchData)
 }
 
-func (h HelmRegistries) getChartVersions(chart string) ([]string, error) {
+func getChartVersions(chart string) ([]string, error) {
 	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/%s/versions", chart)
 	resp, err := http.Get(url)
 	if err != nil {

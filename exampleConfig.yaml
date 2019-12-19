@@ -92,9 +92,21 @@ type: yml # default type
 
 # Helm charts names don't contain the 'repository' they are originating from. Therefore hub.helm.sh can contain the same names. 
 # You can use this to provide the full name inclusive repository name.
+#
 #helmRegistries:
 #  overrideChartNames:
 #    test: stable/test
+
+# If the helm charts are not stored on hub.helm.sh then a custom registry can be configured here.
+# Currently only index.yaml registry is supported (helm supports other registries as well)
+#
+#  override: 
+#    - registry:
+#        url: https://some.url/index.yaml # Url to the index file
+#      charts: # Chart names
+#        - splunk
+#        - falco-eks-audit-bridge
+#      allowAllReleases: true # This allows all semver versions, like release candidates or custom suffixes. Default is false
 
 # LCM can also fetch known vulnerabilities for your images using an external tool and display them. 
 # Currently, only Jfrog Xray is supported. 

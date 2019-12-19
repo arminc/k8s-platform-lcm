@@ -16,6 +16,7 @@ require (
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	google.golang.org/appengine v1.6.5
+	gopkg.in/yaml.v2 v2.2.4
 	helm.sh/helm/v3 v3.0.1
 	k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8
 	k8s.io/client-go v0.0.0-20191016111102-bec269661e48
