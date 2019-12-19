@@ -22,6 +22,7 @@ type Config struct {
 	ToolRegistries         registries.ToolRegistries  `koanf:"toolRegistries"`
 	Tools                  []registries.Tool          `koanf:"tools"`
 	Images                 []string                   `koanf:"images"`
+	HelmRegistries         registries.HelmRegistries  `koanf:"helmRegistries"`
 }
 
 // AppConfig is the config for the app which can be set trough cli and config

@@ -84,11 +84,17 @@ type: yml # default type
 #  overrideImageNames:
 #    test: test/test
 
-#If you have images that the LCM currently can't automatically find because you run them somewhere else outside of Kubernetes then you can specify them by hand here
+# If you have images that the LCM currently can't automatically find because you run them somewhere else outside of Kubernetes then you can specify them by hand here
 #
 #images:
 #  - test/some:1.1.2 # Please provide the full URL unless it's docker hub
 #  - registry.io/test/some:1.2.1
+
+# Helm charts names don't contain the 'repository' they are originating from. Therefore hub.helm.sh can contain the same names. 
+# You can use this to provide the full name inclusive repository name.
+#helmRegistries:
+#  overrideChartNames:
+#    test: stable/test
 
 # LCM can also fetch known vulnerabilities for your images using an external tool and display them. 
 # Currently, only Jfrog Xray is supported. 
