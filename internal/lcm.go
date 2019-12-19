@@ -47,7 +47,7 @@ func Execute(config config.Config) {
 		prettyPrintContainerInfo(info)
 	}
 	if config.IsKubernetesFetchEnabled() {
-		charts := getLatestVersionsForHelmCharts(config.Namespaces, config.RunningLocally())
+		charts := getLatestVersionsForHelmCharts(config.HelmRegistries, config.Namespaces, config.RunningLocally())
 		if config.PrettyPrintAllowed() {
 			prettyPrintChartInfo(charts)
 		}
@@ -90,11 +90,11 @@ func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []C
 	}
 	return containerInfoWithVul
 }
-func getLatestVersionsForHelmCharts(namespaces []string, local bool) []ChartInfo {
+func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, namespaces []string, local bool) []ChartInfo {
 	var chartInfo []ChartInfo
 	charts := kubernetes.GetHelmChartsFromNamespaces(namespaces, local)
 	for _, chart := range charts {
-		version := registries.GetLatestVersionFromHelm(chart.Name)
+		version := helmRegistries.GetLatestVersionFromHelm(chart.Name)
 		chartInfo = append(chartInfo, ChartInfo{
 			Chart:         chart,
 			LatestVersion: version,
