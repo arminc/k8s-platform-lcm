@@ -24,28 +24,75 @@ type Attributes struct {
 	Version string `json:"version"`
 }
 
+// SearchResultData contains search results from hub.helm.sh
+type SearchResultData struct {
+	Data []ChartSearchResult `json:"data"`
+}
+
+// ChartSearchResult contains chart search results from hub.helm.sh
+type ChartSearchResult struct {
+	Id string `json:"id"`
+}
+
 // GetLatestVersionFromHelm fetches the latest version of the helm chart
 func GetLatestVersionFromHelm(chart string) string {
 	log.WithField("chart", chart).Debug("Fetching version for chart")
-	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/stable/%s/versions", chart)
+
+	chartName, err := findChart(chart)
+	if err != nil {
+		log.WithError(err).WithField("chart", chart).Error("Failed to search chart info")
+		return versioning.Failure
+	}
+	versions, err := getChartVersions(chartName)
+	if err != nil {
+		log.WithError(err).WithField("chart", chart).Error("Failed to fetch chart info")
+		return versioning.Failure
+	}
+
+	return versioning.FindHighestVersionInList(versions, false)
+}
+
+func findChart(chart string) (string, error) {
+	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/search?q=%s", chart)
 	resp, err := http.Get(url)
 	if err != nil {
-		log.WithError(err).Error("Failed to fetch chart info")
-		return versioning.Failure
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	searchData := SearchResultData{}
+	err = json.NewDecoder(resp.Body).Decode(&searchData)
+	if err != nil {
+		return "", err
+	}
+
+	if len(searchData.Data) == 0 {
+		return "", fmt.Errorf("Could not find the chart")
+	} else if len(searchData.Data) == 1 {
+		return searchData.Data[0].Id, nil
+	}
+	return "", fmt.Errorf("More than one result %v", searchData)
+}
+
+func getChartVersions(chart string) ([]string, error) {
+	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/%s/versions", chart)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	chartsData := Charts{}
-
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&chartsData)
+	err = json.NewDecoder(resp.Body).Decode(&chartsData)
 	if err != nil {
-		return versioning.Failure
+		return nil, err
 	}
+
 	var versions []string
 	for _, data := range chartsData.Data {
 		versions = append(versions, data.Attributes.Version)
 	}
-	return versioning.FindHighestVersionInList(versions, false)
+	return versions, nil
 }
