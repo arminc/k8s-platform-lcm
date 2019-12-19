@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/static/styles.css">
+    <meta charset="UTF-8">
+    <title>LCM</title>
+</head>
+<body>
+<h1>Life Cycle Management dashboard</h1>
+<div>
+Status: {{ .Status }} <br/>
+Last run: {{ .LastTimeFetched }}
+</div>
+
+<h2>Images</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Current Version</th>
+            <th>Latest Version</th>
+            <th>Vulnerabilities</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{range .ContainerInfo}}
+        <tr class="{{.GetStatus}}">
+            <td>{{.Container.Name}}</td>
+            <td>{{.Container.Version}}</td>
+            <td>{{.LatestVersion}}</td>
+            <td>{{.GetCveStatus}}</td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+
+<h2>Charts</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Chart</th>
+            <th>Current Version</th>
+            <th>Latest Version</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{range .ChartInfo}}
+        <tr class="{{.GetStatus}}">
+            <td>{{.Chart.Name}}</td>
+            <td>{{.Chart.Version}}</td>
+            <td>{{.LatestVersion}}</td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+
+<h2>Tools</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Tool</th>
+            <th>Current Version</th>
+            <th>Latest Version</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{range .ToolInfo}}
+        <tr class="{{.GetStatus}}">
+            <td>{{.Tool.Repo}}</td>
+            <td>{{.Tool.Version}}</td>
+            <td>{{.LatestVersion}}</td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+</body>

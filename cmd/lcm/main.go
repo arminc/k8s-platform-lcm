@@ -44,6 +44,7 @@ func initFlags() config.AppConfig {
 	app.Flag("debug", "Show debug information, debug includes verbose. This overrides the config setting").BoolVar(&cliFlags.Debug)
 	app.Flag("jsonLogging", "Log in json format").BoolVar(&cliFlags.JsonLoggingEnabled)
 	app.Flag("logFile", "Log file path").StringVar(&cliFlags.LogFile)
+	app.Flag("server", "Start the server").BoolVar(&cliFlags.StartServer)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	return *cliFlags
@@ -56,4 +57,7 @@ func main() {
 	initLogging(config)
 	log.WithField("version", Version).Info("Running version")
 	internal.Execute(config)
+	if config.CliFlags.StartServer {
+		internal.StartServer()
+	}
 }
