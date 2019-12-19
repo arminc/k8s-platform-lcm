@@ -19,17 +19,17 @@ This project helps you keep track of all your software and tools that are used o
 - [x] Possibility to provide local tool versions (like terraform) and find the new versions on GitHub
 - [x] Keep track of Helm chart deployments and track new versions of the charts
 - [x] Present the information command line
+- [x] Present the information trough a web UI
 
 ### Todo
 
-* Run as a daemon
-* Provide a web UI
 * Have a helm chart to deploy the app into Kubernetes
 * Automatically fetch new versions every X time
 * Add a possibility to whitelist vulnerabilities so only changes are presented
 * Provide information on Kubernetes version (for example AWS EKS and it's components)
 * Add tests (unit or integration)
 
+* Architecture diagram
 * Use Clair as a vulnerability scanning option
 * Add Slack/Teams integration
 * Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
@@ -59,9 +59,12 @@ Flags:
   --debug                 Show debug information, debug includes verbose. This overrides the config setting
   --jsonLogging           Log in json format
   --logFile=LOGFILE       Log file path
+  --server                Start the server
 ```
 
 ## Example output
+
+### Command Line
 
 ```bash
 +---------------------------------------+-------------------+----------+-------+
@@ -85,3 +88,7 @@ Flags:
 | hashicorp/terraform | 0.11.14 | v0.12.18 |
 +---------------------+---------+----------+
 ```
+
+### Web UI
+
+<img src="assets/screenshot.png" width="800">

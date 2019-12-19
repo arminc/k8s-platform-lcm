@@ -6,6 +6,8 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/docker/distribution v2.7.1+incompatible
 	github.com/google/go-github/v28 v28.1.1
+	github.com/gorilla/mux v1.7.3
+	github.com/heptiolabs/healthcheck v0.0.0-20180807145615-6ff867650f40
 	github.com/heroku/docker-registry-client v0.0.0-20190909225348-afc9e1acc3d5
 	github.com/jfrog/jfrog-client-go v0.5.9
 	github.com/knadh/koanf v0.6.0
@@ -14,6 +16,7 @@ require (
 	github.com/prometheus/common v0.7.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
+	github.com/urfave/negroni v1.0.0
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	google.golang.org/appengine v1.6.5
 	gopkg.in/yaml.v2 v2.2.4

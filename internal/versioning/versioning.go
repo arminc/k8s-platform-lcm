@@ -27,6 +27,8 @@ const (
 	Notfound = "NOTFOUND"
 	// Failure means something went wrong went finding the version
 	Failure = "FAILURE"
+	// Nodata indicates there was not a failure but there wasn't any data
+	Nodata = "NODATA"
 )
 
 var regexRelease *regexp.Regexp

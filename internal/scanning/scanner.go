@@ -1,15 +1,9 @@
 package scanning
 
 import (
+	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	log "github.com/sirupsen/logrus"
 	"github.com/target/go-arty/xray"
-)
-
-const (
-	// ERROR defines error for not able to fetch cve
-	ERROR = "ERROR"
-	// NODATA indicates that no scanners are configured
-	NODATA = "NODATA"
 )
 
 // ImageScanners contains all the information about the vulnerability scanners
@@ -22,13 +16,13 @@ type ImageScanners struct {
 func (i ImageScanners) GetVulnerabilities(name, version string) []string {
 	if i.Xray.URL == "" {
 		log.Debug("Xray not enabled")
-		return []string{NODATA}
+		return []string{versioning.Nodata}
 	}
 	log.Debugf("Scan image: [%v]", name)
 	vul, err := i.Xray.GetVulnerabilities(name, version)
 	if err != nil {
 		log.WithField("image", name).WithError(err).Error("Could not get vulnerabilities")
-		return []string{ERROR}
+		return []string{versioning.Failure}
 	}
 	return i.convertXrayToCves(vul)
 }

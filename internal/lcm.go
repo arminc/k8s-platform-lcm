@@ -1,16 +1,12 @@
 package internal
 
 import (
-	"os"
 	"sort"
-	"strconv"
+	"time"
 
 	"github.com/arminc/k8s-platform-lcm/internal/config"
 	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
-	"github.com/arminc/k8s-platform-lcm/internal/scanning"
-	"github.com/arminc/k8s-platform-lcm/internal/versioning"
-	"github.com/olekukonko/tablewriter"
 )
 
 // ToolInfo contains tool information with the latest version
@@ -29,33 +25,43 @@ type ChartInfo struct {
 type ContainerInfo struct {
 	Container     kubernetes.Container
 	LatestVersion string
-	VersionStatus string
 	Fetched       bool
 	Cves          []string
 }
 
 // Execute runs all the checks for LCM
 func Execute(config config.Config) {
+
+	WebDataVar.Status = "Running"
+
 	var containers = []kubernetes.Container{}
 	if config.IsKubernetesFetchEnabled() {
 		containers = kubernetes.GetContainersFromNamespaces(config.Namespaces, config.RunningLocally())
 	}
+
 	containers = getExtraImages(config.Images, containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
 	info = getVulnerabilities(info, config)
 	if config.PrettyPrintAllowed() {
 		prettyPrintContainerInfo(info)
 	}
+	WebDataVar.ContainerInfo = info
+
 	if config.IsKubernetesFetchEnabled() {
 		charts := getLatestVersionsForHelmCharts(config.HelmRegistries, config.Namespaces, config.RunningLocally())
 		if config.PrettyPrintAllowed() {
 			prettyPrintChartInfo(charts)
 		}
+		WebDataVar.ChartInfo = charts
 	}
+
 	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
 	if config.PrettyPrintAllowed() {
 		prettyPrintToolInfo(tools)
 	}
+	WebDataVar.ToolInfo = tools
+	WebDataVar.Status = "Done"
+	WebDataVar.LastTimeFetched = time.Now().Format("15:04:05 02-01-2006")
 }
 
 func getExtraImages(images []string, containers []kubernetes.Container) []kubernetes.Container {
@@ -75,9 +81,12 @@ func getLatestVersionsForContainers(containers []kubernetes.Container, registrie
 		containerInfo = append(containerInfo, ContainerInfo{
 			Container:     container,
 			LatestVersion: version,
-			VersionStatus: versioning.DetermineLifeCycleStatus(version, container.Version),
 		})
 	}
+
+	sort.Slice(containerInfo, func(i, j int) bool {
+		return containerInfo[i].Container.Name < containerInfo[j].Container.Name
+	})
 	return containerInfo
 }
 
@@ -88,8 +97,13 @@ func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []C
 		ci.Cves = vulnerabilities
 		containerInfoWithVul = append(containerInfoWithVul, ci)
 	}
+
+	sort.Slice(containerInfoWithVul, func(i, j int) bool {
+		return containerInfoWithVul[i].Container.Name < containerInfoWithVul[j].Container.Name
+	})
 	return containerInfoWithVul
 }
+
 func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, namespaces []string, local bool) []ChartInfo {
 	var chartInfo []ChartInfo
 	charts := kubernetes.GetHelmChartsFromNamespaces(namespaces, local)
@@ -100,6 +114,10 @@ func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, na
 			LatestVersion: version,
 		})
 	}
+
+	sort.Slice(chartInfo, func(i, j int) bool {
+		return chartInfo[i].Chart.Name < chartInfo[j].Chart.Name
+	})
 	return chartInfo
 }
 
@@ -112,77 +130,9 @@ func getLatestVersionsForTools(tools []registries.Tool, registries registries.To
 			LatestVersion: version,
 		})
 	}
+
+	sort.Slice(toolInfo, func(i, j int) bool {
+		return toolInfo[i].Tool.Repo < toolInfo[j].Tool.Repo
+	})
 	return toolInfo
-}
-
-func prettyPrintContainerInfo(info []ContainerInfo) {
-	sort.Slice(info, func(i, j int) bool {
-		return info[i].Container.Name < info[j].Container.Name
-	})
-
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Image", "Version", "Latest", "Cves"})
-	table.SetColumnAlignment([]int{3, 1, 1, 3})
-
-	for _, container := range info {
-		cve := strconv.Itoa(len(container.Cves))
-
-		if len(container.Cves) == 1 {
-			switch container.Cves[0] {
-			case scanning.ERROR:
-				cve = scanning.ERROR
-			case scanning.NODATA:
-				cve = scanning.NODATA
-			}
-		}
-
-		row := []string{
-			container.Container.Name,
-			container.Container.Version,
-			container.LatestVersion,
-			cve,
-		}
-		table.Append(row)
-	}
-	table.Render()
-}
-
-func prettyPrintToolInfo(tools []ToolInfo) {
-	sort.Slice(tools, func(i, j int) bool {
-		return tools[i].Tool.Repo < tools[j].Tool.Repo
-	})
-
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Tool", "Version", "Latest"})
-	table.SetColumnAlignment([]int{3, 1, 1})
-
-	for _, tool := range tools {
-		row := []string{
-			tool.Tool.Repo,
-			tool.Tool.Version,
-			tool.LatestVersion,
-		}
-		table.Append(row)
-	}
-	table.Render()
-}
-
-func prettyPrintChartInfo(charts []ChartInfo) {
-	sort.Slice(charts, func(i, j int) bool {
-		return charts[i].Chart.Name < charts[j].Chart.Name
-	})
-
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Chart", "Version", "Latest"})
-	table.SetColumnAlignment([]int{3, 1, 1})
-
-	for _, chart := range charts {
-		row := []string{
-			chart.Chart.Name,
-			chart.Chart.Version,
-			chart.LatestVersion,
-		}
-		table.Append(row)
-	}
-	table.Render()
 }
