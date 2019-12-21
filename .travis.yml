@@ -15,8 +15,6 @@ script:
 
 before_deploy:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  on:
-    tags: true
 
 deploy:
   - provider: releases
