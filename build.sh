@@ -7,3 +7,7 @@ export GOOS=linux && go build -ldflags="-s -w -X cmd.lcm.main.Version=$TRAVIS_TA
 export GOOS=windows && go build -ldflags="-s -w -X cmd.lcm.main.Version=$TRAVIS_TAG" -o dist/lcm-$TRAVIS_TAG-windows cmd/lcm/main.go
 
 ls -la dist
+
+docker build --build-arg VERSION=$TRAVIS_TAG -t arminc/lcm:$TRAVIS_TAG .
+docker tag arminc/lcm:$TRAVIS_TAG arminc/lcm
+docker push arminc/lcm

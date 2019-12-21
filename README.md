@@ -41,8 +41,18 @@ This project helps you keep track of all your software and tools that are used o
 ## Help (how to run)
 
 For all the configuration options please have a look at the [exampleConfig.yaml](exampleConfig.yaml). 
+By default the application assumes there is a config.yaml available in the same folder.
 
-When running lcm you can provide certain flags which are not available in the config. The application assumes there is a config.yaml available in the same folder.
+### Kubernetes
+
+The application can be run inside the Kubernetes using the provided Docker image (soon with Helm). The web UI can be used to get information about the scan.
+The docker image is available at: 
+
+### Command line
+
+The application can also be run command-line locally instead of in Kubernetes. The preferred way of running it locally is to have command-line output to show the scanned result. But it is also possible to start the server locally and look at the web UI. Note: To locally run the server you will need to download the templates and static folder so the web UI can work.
+
+### Application options
 
 ```bash
 ./lcm --help

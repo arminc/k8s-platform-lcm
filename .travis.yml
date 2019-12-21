@@ -13,13 +13,24 @@ script:
   - go test ./...
   - ./build.sh
 
-deploy:
-  provider: releases
-  token: $GITHUB_TOKEN
-  file:
-    - dist/lcm-$TRAVIS_TAG-darwin
-    - dist/lcm-$TRAVIS_TAG-linux
-    - dist/lcm-$TRAVIS_TAG-windows
-  skip_cleanup: true
+before_deploy:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   on:
     tags: true
+
+deploy:
+  - provider: releases
+    token: $GITHUB_TOKEN
+    file:
+      - dist/lcm-$TRAVIS_TAG-darwin
+      - dist/lcm-$TRAVIS_TAG-linux
+      - dist/lcm-$TRAVIS_TAG-windows
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: script
+    script:
+      docker push arminc/lcm:$TRAVIS_TAG &&
+      docker push arminc/lcm:latest
+    on:
+      tags: true

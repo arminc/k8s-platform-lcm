@@ -1,0 +1,6 @@
+assets
+cmd
+internal
+test
+dist/*windows
+dist/*darwin
