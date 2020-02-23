@@ -24,7 +24,6 @@ type WebData struct {
 
 var (
 	WebDataVar = WebData{}
-	templates  = template.Must(template.ParseGlob("templates/*"))
 )
 
 func StartServer() {
@@ -75,6 +74,7 @@ func StartServer() {
 }
 
 func index(w http.ResponseWriter, req *http.Request) {
+	templates := template.Must(template.ParseGlob("templates/*"))
 	err := templates.ExecuteTemplate(w, "index.gohtml", WebDataVar)
 	if err != nil {
 		log.WithError(err).Error("Could not server index template")
