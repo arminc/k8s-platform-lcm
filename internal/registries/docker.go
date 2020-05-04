@@ -140,7 +140,6 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *ht
 		log.Debug("Using cached token")
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", cacheToken))
 	}
-
 	return client, req, nil
 }
 
