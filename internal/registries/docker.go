@@ -25,6 +25,8 @@ const (
 	GcrK8s = "GcrK8s"
 	// Zalando is the default name for the Zalando registry
 	Zalando = "Zalando"
+	// Gitlab is the default name for the Gitlab registry
+	Gitlab = "Gitlab"
 	// AuthTypeBasic is the basic auth type
 	AuthTypeBasic = "basic"
 	// AuthTypeToken is the token auth type
@@ -138,6 +140,7 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *ht
 		log.Debug("Using cached token")
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", cacheToken))
 	}
+
 	return client, req, nil
 }
 

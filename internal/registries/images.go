@@ -12,6 +12,7 @@ type ImageRegistries struct {
 	Gcr                ImageRegistry      `koanf:"gcr"`
 	GcrK8s             ImageRegistry      `koanf:"gcrK8s"`
 	Zalando            ImageRegistry      `koanf:"zalando"`
+	Gitlab             ImageRegistry      `koanf:"gitlab"`
 	OverrideImages     []OverrideImage    `koanf:"override"`
 	OverrideRegistries []OverrideRegistry `koanf:"overrideRegistries"`
 	OverrideImageNames map[string]string  `koanf:"overrideImageNames"`
@@ -61,6 +62,12 @@ func (i *ImageRegistries) DefaultRegistries() {
 	i.Zalando.URL = "registry.opensource.zalan.do"
 	if i.Zalando.AuthType == "" {
 		i.Zalando.AuthType = AuthTypeNone
+	}
+
+	i.Gitlab.Name = Gitlab
+	i.Gitlab.URL = "registry.gitlab.com"
+	if i.Gitlab.AuthType == "" {
+		i.Gitlab.AuthType = AuthTypeNone
 	}
 }
 
@@ -148,6 +155,8 @@ func (i ImageRegistries) GetDefaultRegistry() (ImageRegistry, bool) {
 		return i.Zalando, true
 	} else if i.DockerHub.Default {
 		return i.DockerHub, true
+	} else if i.Gitlab.Default {
+		return i.Gitlab, true
 	}
 	return ImageRegistry{}, false
 }
@@ -162,6 +171,8 @@ func (i ImageRegistries) FindRegistryByURL(url string) ImageRegistry {
 		return i.GcrK8s
 	} else if i.Zalando.URL == url {
 		return i.Zalando
+	} else if i.Gitlab.URL == url {
+		return i.Gitlab
 	}
 	return i.DockerHub
 }
@@ -176,6 +187,8 @@ func (i ImageRegistries) FindRegistryByName(name string) ImageRegistry {
 		return i.GcrK8s
 	} else if i.Zalando.Name == name {
 		return i.Zalando
+	} else if i.Gitlab.Name == name {
+		return i.Gitlab
 	}
 	return i.DockerHub
 }
