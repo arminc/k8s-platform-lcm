@@ -10,7 +10,7 @@ require (
 	github.com/heptiolabs/healthcheck v0.0.0-20180807145615-6ff867650f40
 	github.com/heroku/docker-registry-client v0.0.0-20190909225348-afc9e1acc3d5
 	github.com/jfrog/jfrog-client-go v0.5.9
-	github.com/knadh/koanf v0.6.0
+	github.com/knadh/koanf v0.10.0
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/prometheus/common v0.7.0
