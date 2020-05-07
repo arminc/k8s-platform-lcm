@@ -57,6 +57,7 @@ func prettyPrintChartInfo(charts []ChartInfo) {
 	table.Render()
 }
 
+// GetCveStatus shows the status based on the cve's
 func (c ContainerInfo) GetCveStatus() string {
 	cve := strconv.Itoa(len(c.Cves))
 
@@ -71,6 +72,7 @@ func (c ContainerInfo) GetCveStatus() string {
 	return cve
 }
 
+// GetStatus shows the status based on version and cve status
 func (c ContainerInfo) GetStatus() string {
 	if c.LatestVersion == versioning.Notfound {
 		return c.LatestVersion
@@ -82,6 +84,7 @@ func (c ContainerInfo) GetStatus() string {
 	return versioning.DetermineLifeCycleStatus(c.LatestVersion, c.Container.Version)
 }
 
+// GetStatus shows status for the chart
 func (c ChartInfo) GetStatus() string {
 	if c.LatestVersion == versioning.Failure {
 		return c.LatestVersion
@@ -89,6 +92,7 @@ func (c ChartInfo) GetStatus() string {
 	return versioning.DetermineLifeCycleStatus(c.LatestVersion, c.Chart.Version)
 }
 
+// GetStatus shows the status for the tool
 func (t ToolInfo) GetStatus() string {
 	if t.LatestVersion == versioning.Notfound || t.LatestVersion == versioning.Failure {
 		return t.LatestVersion

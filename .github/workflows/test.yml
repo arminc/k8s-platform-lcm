@@ -42,3 +42,6 @@ jobs:
 
     - name: Build
       run: go build -v cmd/lcm/main.go
+
+    - name: Go report card
+      uses: creekorful/goreportcard-action@v1.0
