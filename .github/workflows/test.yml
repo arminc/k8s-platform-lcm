@@ -3,8 +3,18 @@ name: test
 on:
   push:
     branches: [ master ]
+    paths:
+      - '!.gitignore'
+      - '!LICENSE'
+      - '!README.md'
+      - '!exampleConfig.yaml'
   pull_request:
     branches: [ master ]
+    paths:
+      - '!.gitignore'
+      - '!LICENSE'
+      - '!README.md'
+      - '!exampleConfig.yaml'
 
 jobs:
 
