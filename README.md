@@ -1,8 +1,7 @@
 # Kubernetes platform lifecycle management
 
-[![Build Status](https://travis-ci.org/arminc/k8s-platform-lcm.svg?branch=master)](https://travis-ci.org/arminc/k8s-platform-lcm)
+![Build](https://github.com/arminc/k8s-platform-lcm/workflows/test/badge.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/arminc/k8s-platform-lcm)](https://goreportcard.com/report/github.com/arminc/k8s-platform-lcm)
-
 [![CodeFactor](https://www.codefactor.io/repository/github/arminc/k8s-platform-lcm/badge)](https://www.codefactor.io/repository/github/arminc/k8s-platform-lcm)
 
 <img src="https://github.com/arminc/k8s-platform-lcm/raw/master/assets/logo.png" width="100">
