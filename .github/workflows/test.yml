@@ -37,10 +37,10 @@ jobs:
     - name: Get dependencies
       run: go get -v -t -d ./...
       
-    - name: Go linter
-      run: |
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.26.0
-        golangci-lint run
+    - name: golangci-lint
+      uses: actions-contrib/golangci-lint@v1
+      with:
+        golangci_lint_version: v1.26
 
     - name: Test
       run: go test -v ./...
