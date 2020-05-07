@@ -13,7 +13,7 @@ require (
 	github.com/knadh/koanf v0.6.0
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/prometheus/common v0.7.0
+	github.com/prometheus/common v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
 	github.com/urfave/negroni v1.0.0
