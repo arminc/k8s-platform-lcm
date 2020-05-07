@@ -39,8 +39,6 @@ jobs:
       
     - name: golangci-lint
       uses: actions-contrib/golangci-lint@v1
-      with:
-        golangci_lint_version: v1.26
 
     - name: Test
       run: go test -v ./...
