@@ -4,6 +4,7 @@ on:
   push:
     branches: [ master ]
     paths:
+      - '**'
       - '!.gitignore'
       - '!LICENSE'
       - '!README.md'
@@ -11,6 +12,7 @@ on:
   pull_request:
     branches: [ master ]
     paths:
+      - '**'
       - '!.gitignore'
       - '!LICENSE'
       - '!README.md'
