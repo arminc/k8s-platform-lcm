@@ -14,6 +14,7 @@ import (
 	"github.com/urfave/negroni"
 )
 
+// WebData is all the information web page needs to show the data
 type WebData struct {
 	Status          string
 	LastTimeFetched string
@@ -23,9 +24,11 @@ type WebData struct {
 }
 
 var (
+	// WebDataVar makes the WebData available
 	WebDataVar = WebData{}
 )
 
+// StartServer starts the server
 func StartServer() {
 	r := mux.NewRouter()
 

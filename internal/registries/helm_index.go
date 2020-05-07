@@ -9,10 +9,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// IndexEntries contains configured Helm indexes
 type IndexEntries struct {
 	Entries map[string][]IndexEntry `yaml:"entries"`
 }
 
+// IndexEntry the actual Helm index information
 type IndexEntry struct {
 	Name    string `yaml:"name"`
 	Version string `yaml:"version"`

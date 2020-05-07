@@ -17,6 +17,7 @@ type XrayConfig struct {
 	Prefixes []Prefix `koanf:"prefixes"`
 }
 
+// Prefix information about the index used by Xray
 type Prefix struct {
 	Prefix string   `koanf:"prefix"`
 	Images []string `koanf:"images"`
