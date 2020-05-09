@@ -30,7 +30,7 @@ type AppConfig struct {
 	Locally            bool
 	ConfigFile         string
 	StartServer        bool   `koanf:"startServer"`
-	JsonLoggingEnabled bool   `koanf:"jsonLoggingEnabled"`
+	JSONLoggingEnabled bool   `koanf:"jsonLoggingEnabled"`
 	LogFile            string `koanf:"logFile"`
 	Verbose            bool   `koanf:"verbose"`
 	Debug              bool   `koanf:"debug"`
@@ -83,9 +83,9 @@ func (c Config) RunningLocally() bool {
 	return c.CliFlags.Locally
 }
 
-// IsJsonLoggingEnabled returns true when json logging is enabled
-func (c Config) IsJsonLoggingEnabled() bool {
-	return c.AppConfig.JsonLoggingEnabled || c.CliFlags.JsonLoggingEnabled
+// IsJSONLoggingEnabled returns true when json logging is enabled
+func (c Config) IsJSONLoggingEnabled() bool {
+	return c.AppConfig.JSONLoggingEnabled || c.CliFlags.JSONLoggingEnabled
 }
 
 // LogToFilePath returns true and the log file path when log file is provided
@@ -101,5 +101,5 @@ func (c Config) LogToFilePath() (bool, string) {
 // PrettyPrintAllowed returns true when pretty print is allowed
 func (c Config) PrettyPrintAllowed() bool {
 	logFileEnabled := c.CliFlags.LogFile != "" || c.AppConfig.LogFile != ""
-	return !logFileEnabled && !c.IsJsonLoggingEnabled() && !c.CliFlags.StartServer
+	return !logFileEnabled && !c.IsJSONLoggingEnabled() && !c.CliFlags.StartServer
 }

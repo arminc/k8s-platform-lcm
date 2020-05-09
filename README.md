@@ -25,20 +25,20 @@ This project helps you keep track of all your software and tools that are used o
 
 ### Todo
 
-* Have a helm chart to deploy the app into Kubernetes
-* Automatically fetch new versions every X time
-* Add a possibility to whitelist vulnerabilities so only changes are presented
-* Provide information on Kubernetes version (for example AWS EKS and it's components)
-* Add tests (unit or integration)
+- Have a helm chart to deploy the app into Kubernetes
+- Automatically fetch new versions every X time
+- Add a possibility to whitelist vulnerabilities so only changes are presented
+- Provide information on Kubernetes version (for example AWS EKS and it's components)
+- Add tests (unit or integration)
 
-* Architecture diagram
-* Use Clair as a vulnerability scanning option
-* Add Slack/Teams integration
-* Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
+- Architecture diagram
+- Use Clair as a vulnerability scanning option
+- Add Slack/Teams integration
+- Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
 
 ### Issues
 
-* AWS ECR "602401143452" does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
+- AWS ECR "602401143452" does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
 
 ## Help (how to run)
 

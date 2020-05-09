@@ -21,7 +21,7 @@ func initLogging(config config.Config) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if config.IsJsonLoggingEnabled() {
+	if config.IsJSONLoggingEnabled() {
 		log.SetFormatter(&log.JSONFormatter{})
 	}
 	enabled, logFile := config.LogToFilePath()
@@ -42,7 +42,7 @@ func initFlags() config.AppConfig {
 	app.Flag("local", "Run locally, default expected behavior is to run in the Kubernetes cluster").BoolVar(&cliFlags.Locally)
 	app.Flag("verbose", "Show more information. This overrides the config setting").BoolVar(&cliFlags.Verbose)
 	app.Flag("debug", "Show debug information, debug includes verbose. This overrides the config setting").BoolVar(&cliFlags.Debug)
-	app.Flag("jsonLogging", "Log in json format").BoolVar(&cliFlags.JsonLoggingEnabled)
+	app.Flag("jsonLogging", "Log in json format").BoolVar(&cliFlags.JSONLoggingEnabled)
 	app.Flag("logFile", "Log file path").StringVar(&cliFlags.LogFile)
 	app.Flag("server", "Start the server").BoolVar(&cliFlags.StartServer)
 	kingpin.MustParse(app.Parse(os.Args[1:]))

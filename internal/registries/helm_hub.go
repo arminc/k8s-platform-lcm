@@ -31,7 +31,7 @@ type SearchResultData struct {
 
 // ChartSearchResult contains chart search results from hub.helm.sh
 type ChartSearchResult struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 func (h HelmRegistries) useHelmHub(chart string) string {
@@ -72,7 +72,7 @@ func findChart(chart string) (string, error) {
 	if len(searchData.Data) == 0 {
 		return "", fmt.Errorf("Could not find the chart")
 	} else if len(searchData.Data) == 1 {
-		return searchData.Data[0].Id, nil
+		return searchData.Data[0].ID, nil
 	}
 	return "", fmt.Errorf("More than one result %v", searchData)
 }
