@@ -4,65 +4,65 @@ body {
   background-size: contain;
   background-attachment: fixed;
   background-position: bottom, center;
-
-  font-family: Arial;
+  font-family: Arial, sans-serif;;
   color: black;
 }
+
 h1 {
-color: #fbf7f5;
-text-align: center;
+  color: #fbf7f5;
+  text-align: center;
 }
 
 h2 {
-color: #fbf7f5;
-text-align: center;
+  color: #fbf7f5;
+  text-align: center;
 }
 
 table {
-border-collapse: collapse;
-width: 50%;
-margin-right: auto;
-margin-left: auto;
+  border-collapse: collapse;
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 th, td {
-padding: 8px;
-text-align: left;
-border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 th {
-color: #fbf7f5;
+  color: #fbf7f5;
 }
 
 .FAILURE {
-  background-color: red
+  background-color: red;
 }
 
 .MAJOR {
-  background-color: red
+  background-color: red;
 }
 
 .MINOR {
-  background-color: orange
+  background-color: orange;
 }
 
 .PATCH {
-  background-color: yellow
+  background-color: yellow;
 }
 
 .SAME {
-  background-color: lightgreen
+  background-color: lightgreen;
 }
 
 .NOTFOUND {
-  background-color: skyblue
+  background-color: skyblue;
 }
 
 .UNKNOWN {
-  background-color: skyblue
+  background-color: skyblue;
 }
 
 .NODATA {
-  background-color: skyblue
+  background-color: skyblue;
 }
