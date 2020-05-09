@@ -1,6 +1,7 @@
 # Kubernetes platform lifecycle management
 
 ![Build](https://github.com/arminc/k8s-platform-lcm/workflows/test/badge.svg?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/bf91530a165c4113b1691353ae51ae1d)](https://app.codacy.com/manual/armin/k8s-platform-lcm?utm_source=github.com&utm_medium=referral&utm_content=arminc/k8s-platform-lcm&utm_campaign=Badge_Grade_Dashboard)
 [![Go Report Card](https://goreportcard.com/badge/github.com/arminc/k8s-platform-lcm)](https://goreportcard.com/report/github.com/arminc/k8s-platform-lcm)
 [![CodeFactor](https://www.codefactor.io/repository/github/arminc/k8s-platform-lcm/badge)](https://www.codefactor.io/repository/github/arminc/k8s-platform-lcm) 
 
