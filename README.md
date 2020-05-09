@@ -12,32 +12,32 @@ This project helps you keep track of all your software and tools that are used o
 
 ## Features
 
-- [x] Keep track of versions of all the running containers (including init containers) inside the Kubernetes
-- [x] Keep track of new image versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory by default 
-- [x] Works with private registries and private images
-- [x] Allow overriding of the registry to search latest versions from another registry
-- [x] Keep track of image vulnerabilities using Jfrog Xray
-- [x] Possibility to provide local tool versions (like terraform) and find the new versions on GitHub
-- [x] Keep track of Helm chart deployments and track new versions of the charts
-- [x] Present the information command line
-- [x] Present the information trough a web UI
+  - [x] Keep track of versions of all the running containers (including init containers) inside the Kubernetes
+  - [x] Keep track of new image versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory by default 
+  - [x] Works with private registries and private images
+  - [x] Allow overriding of the registry to search latest versions from another registry
+  - [x] Keep track of image vulnerabilities using Jfrog Xray
+  - [x] Possibility to provide local tool versions (like terraform) and find the new versions on GitHub
+  - [x] Keep track of Helm chart deployments and track new versions of the charts
+  - [x] Present the information command line
+  - [x] Present the information trough a web UI
 
 ### Todo
 
-* Have a helm chart to deploy the app into Kubernetes
-* Automatically fetch new versions every X time
-* Add a possibility to whitelist vulnerabilities so only changes are presented
-* Provide information on Kubernetes version (for example AWS EKS and it's components)
-* Add tests (unit or integration)
+  - Have a helm chart to deploy the app into Kubernetes
+  - Automatically fetch new versions every X time
+  - Add a possibility to whitelist vulnerabilities so only changes are presented
+  - Provide information on Kubernetes version (for example AWS EKS and it's components)
+  - Add tests (unit or integration)
 
-* Architecture diagram
-* Use Clair as a vulnerability scanning option
-* Add Slack/Teams integration
-* Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
+  - Architecture diagram
+  - Use Clair as a vulnerability scanning option
+  - Add Slack/Teams integration
+  - Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
 
 ### Issues
 
-* AWS ECR "602401143452" does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
+  - AWS ECR "602401143452" does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
 
 ## Help (how to run)
 
