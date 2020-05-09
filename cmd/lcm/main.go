@@ -50,6 +50,9 @@ func initFlags() config.AppConfig {
 	return *cliFlags
 }
 
+func images(configura config.Config) {
+}
+
 func main() {
 	cliFlags := initFlags()
 	config := config.LoadConfiguration(cliFlags.ConfigFile)
