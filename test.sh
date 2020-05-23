@@ -6,6 +6,7 @@ RUNALL=false
 DEPENDENCIES=false
 TESTS=false
 BUILD=false
+LINTER=false
 
 print_usage() {
   echo "Program usage: [./script.sh flags]
@@ -14,12 +15,13 @@ print_usage() {
         Flag: -d [Get dependencies]
         Flag: -t [Run tests with coverage]
         Flag: -b [Run a build as test]
+        Flag: -l [Run golangci-lint]
 
         Flag: -h [Print help message]
         "
 }
 
-while getopts 'hadtb' flag; do
+while getopts 'hadtbl' flag; do
   case "${flag}" in
     h) print_usage
         exit 0 ;;
@@ -27,6 +29,7 @@ while getopts 'hadtb' flag; do
     d) DEPENDENCIES=true ;;
     t) TESTS=true ;;
     b) BUILD=true ;;
+    l) LINTER=true ;;
     *) print_usage
        exit 1 ;;
   esac
@@ -35,6 +38,11 @@ done
 if [[ ${DEPENDENCIES} == true || ${RUNALL} == true ]]; then
   echo "Get dependencies"
   go get -v -t -d ./...
+fi
+
+if [[ ${LINTER} == true || ${RUNALL} == true ]]; then
+  echo "Run golangci-lint"
+  golangci-lint run
 fi
 
 if [[ ${TESTS} == true || ${RUNALL} == true ]]; then

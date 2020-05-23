@@ -1,16 +1,16 @@
-name: go-mod-tidy-pr
+name: Weekly schedule
 
 on:
   schedule:
-    - cron: "0 0 * * 1" # Weekly build
+    - cron: "0 0 * * 1"
 
 jobs:
-  go-mod-tidy-pr:
-    name: go-mod-tidy-pr
+  weekly:
+    name: Golang mod tidy check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Run go-mod-tidy-pr
         uses: sue445/go-mod-tidy-pr@master
         with:

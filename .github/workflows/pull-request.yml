@@ -27,4 +27,9 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run test steps
-      run: ./test.sh -a
+      run: ./test.sh -d -t -b
+
+    - name: golangci-lint
+      uses: reviewdog/action-golangci-lint@v1
+      with:
+        github_token: ${{ secrets.TOKEN_REPO }}
