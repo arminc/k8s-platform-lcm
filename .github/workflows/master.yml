@@ -27,22 +27,25 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install golangci-lint
-      run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
+      uses: ls -la
 
-    - name: Run test steps
-      run: ./test.sh -a
+    # - name: Install golangci-lint
+    #   run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.txt
-        flags: unittests
-        fail_ci_if_error: true
+    # - name: Run test steps
+    #   run: ./test.sh -a
 
-    - name: Go report card
-      uses: creekorful/goreportcard-action@v1.0
+    # - name: Upload coverage to Codecov
+    #   uses: codecov/codecov-action@v1
+    #   with:
+    #     file: ./coverage.txt
+    #     flags: unittests
+    #     fail_ci_if_error: true
 
-    - name: Release drafter
-      uses: release-drafter/release-drafter@v5
-      env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
+    # - name: Go report card
+    #   uses: creekorful/goreportcard-action@v1.0
+
+    # - name: Release drafter
+    #   uses: release-drafter/release-drafter@v5
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
