@@ -3,3 +3,5 @@ cmd/fake
 todo.md
 .vscode/**
 dist
+main
+coverage.txt

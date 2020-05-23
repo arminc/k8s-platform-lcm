@@ -7,3 +7,6 @@ export GOOS=linux && go build -ldflags="-s -w -X cmd.lcm.main.Version=${TRAVIS_T
 export GOOS=windows && go build -ldflags="-s -w -X cmd.lcm.main.Version=${TRAVIS_TAG}" -o dist/lcm-"${TRAVIS_TAG}"-windows cmd/lcm/main.go
 
 ls -la dist
+
+
+go get -v -t -d ./...

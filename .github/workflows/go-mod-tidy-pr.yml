@@ -7,12 +7,10 @@ on:
 jobs:
   go-mod-tidy-pr:
     name: go-mod-tidy-pr
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
+      
       - name: Run go-mod-tidy-pr
         uses: sue445/go-mod-tidy-pr@master
         with:
