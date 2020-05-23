@@ -42,7 +42,7 @@ fi
 
 if [[ ${LINTER} == true || ${RUNALL} == true ]]; then
   echo "Run golangci-lint"
-  golangci-lint run
+  golangci-lint run --timeout 3m
 fi
 
 if [[ ${TESTS} == true || ${RUNALL} == true ]]; then
