@@ -1,0 +1,30 @@
+name: Pull request test
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - '**'
+      - '!.gitignore'
+      - '!LICENSE'
+      - '!*.md'
+      - '!exampleConfig.yaml'
+      - '!assets'
+
+jobs:
+  test:
+    name: Test 
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.14
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Run test steps
+      run: ./test.sh -a
