@@ -29,11 +29,14 @@ jobs:
     - name: Install golangci-lint
       run: ls -la
 
-    # - name: Install golangci-lint
-    #   run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
+    - name: Install golangci-lint
+      run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
 
-    # - name: Run test steps
-    #   run: ./test.sh -a
+    - name: Run test steps
+      run: ./test.sh -d
+
+    - name: Install golangci-lint
+      run: ls -la
 
     # - name: Upload coverage to Codecov
     #   uses: codecov/codecov-action@v1
