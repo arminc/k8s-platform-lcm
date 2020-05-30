@@ -32,17 +32,17 @@ jobs:
     - name: Run test steps
       run: ./test.sh -a
 
-    # - name: Upload coverage to Codecov
-    #   uses: codecov/codecov-action@v1
-    #   with:
-    #     file: ./coverage.txt
-    #     flags: unittests
-    #     fail_ci_if_error: true
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.txt
+        flags: unittests
+        fail_ci_if_error: true
 
-    # - name: Go report card
-    #   uses: creekorful/goreportcard-action@v1.0
+    - name: Go report card
+      uses: creekorful/goreportcard-action@v1.0
 
-    # - name: Release drafter
-    #   uses: release-drafter/release-drafter@v5
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
+    - name: Release drafter
+      uses: release-drafter/release-drafter@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
