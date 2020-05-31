@@ -28,9 +28,25 @@ archives:
     - LICENSE
     - exampleConfig.yaml
     - templates/*
+    - static/*
 
 checksum:
   name_template: 'checksums.txt'
 
 changelog:
   skip: true
+
+dockers:
+-
+  image_templates:
+    - "arminc/lcm:latest"
+    - "arminc/lcm:{{ .Tag }}"
+  build_flag_templates:
+    - "--pull"
+    - "--label=org.opencontainers.image.created={{.Date}}"
+    - "--label=org.opencontainers.image.name={{.ProjectName}}"
+    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    - "--label=org.opencontainers.image.version={{.Version}}"
+  extra_files:
+    - templates
+    - static
