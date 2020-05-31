@@ -5,7 +5,7 @@ before:
     - go mod download
 
 builds:
-- 
+-
   env:
     - CGO_ENABLED=0
   main: ./cmd/lcm/main.go  
@@ -17,7 +17,7 @@ builds:
     - amd64
 
 archives:
-- 
+-
   replacements:
     darwin: Darwin
     linux: Linux
