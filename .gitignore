@@ -5,3 +5,4 @@ todo.md
 dist
 main
 coverage.txt
+.DS_Store
