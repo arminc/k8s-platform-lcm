@@ -24,22 +24,6 @@ This project helps you keep track of all your software and tools that are used o
 -   [x] Present the information command line
 -   [x] Present the information trough a web UI
 
-### Todo
-
--   Have a helm chart to deploy the app into Kubernetes
--   Automatically fetch new versions every X time
--   Add a possibility to whitelist vulnerabilities so only changes are presented
--   Provide information on Kubernetes version (for example AWS EKS and it's components)
--   Add tests (unit or integration)
--   Architecture diagram
--   Use Clair as a vulnerability scanning option
--   Add Slack/Teams integration
--   Push changes/vulnerabilities list to a ConfigMap so anyone with kubectl access can see it
-
-### Issues
-
--   AWS ECR "602401143452" does not allow to list tags so it's not possible to get the latest version. (ECR uses basic auth)
-
 ## Help (how to run)
 
 For all the configuration options please have a look at the [exampleConfig.yaml](exampleConfig.yaml). 
@@ -62,6 +46,16 @@ Flags:
   --jsonLogging           Log in json format
   --logFile=LOGFILE       Log file path
   --server                Start the server
+```
+
+**Note:** If you are using `--server` option please make sure the `templates` and `static` folder are next to the binary so it can serve the page.
+
+### Docker
+
+Docker image is available at **arminc/lcm:VERSION** or **arminc/lcm:latest**. It is packaged with the template and css. Run it as following, and add any necessary flags you want or use the yaml file.
+
+```bash
+docker run -it -v $(pwd)/config.yaml:/config.yaml -p 7321:7321 arminc/lcm:latest --local --server
 ```
 
 ## Example output
