@@ -10,7 +10,7 @@ import (
 )
 
 // Version is the current app version
-var Version = "dev"
+var version = "dev"
 
 func initLogging(config config.Config) {
 	log.SetOutput(os.Stdout)     // Default to out instead of err
@@ -36,7 +36,7 @@ func initLogging(config config.Config) {
 
 func initFlags() config.AppConfig {
 	app := kingpin.New("lcm", "Kubernetes platform lifecycle management")
-	app.Version(Version)
+	app.Version(version)
 	cliFlags := new(config.AppConfig)
 	app.Flag("config", "Provide the path to the config file. Default is config.yaml which is in the same folder as lcm").Default("config.yaml").StringVar(&cliFlags.ConfigFile)
 	app.Flag("local", "Run locally, default expected behavior is to run in the Kubernetes cluster").BoolVar(&cliFlags.Locally)
@@ -55,7 +55,7 @@ func main() {
 	config := config.LoadConfiguration(cliFlags.ConfigFile)
 	config.CliFlags = cliFlags // Add cli flags to config object
 	initLogging(config)
-	log.WithField("version", Version).Info("Running version")
+	log.WithField("version", version).Info("Running version")
 	internal.Execute(config)
 	if config.CliFlags.StartServer {
 		internal.StartServer()
