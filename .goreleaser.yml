@@ -37,7 +37,7 @@ changelog:
   skip: true
 
 dockers:
-- 
+-
   image_templates:
     - "arminc/lcm:latest"
     - "arminc/lcm:{{ .Tag }}"
