@@ -52,7 +52,7 @@ Flags:
 
 ### Docker
 
-Docker image is available at **arminc/lcm:VERSION** or **arminc/lcm:latest**. It is packaged with the template and css. Run it as following, and add any necessery flags you want or use the yaml file.
+Docker image is available at **arminc/lcm:VERSION** or **arminc/lcm:latest**. It is packaged with the template and css. Run it as following, and add any necessary flags you want or use the yaml file.
 
 ```bash
 docker run -it -v $(pwd)/config.yaml:/config.yaml -p 7321:7321 arminc/lcm:latest --local --server
