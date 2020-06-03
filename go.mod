@@ -17,10 +17,11 @@ require (
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/prometheus/common v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.6.0
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.0
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
 	github.com/urfave/negroni v1.0.0
 	github.com/xenolf/lego v2.7.2+incompatible
+	go.etcd.io/etcd v3.3.22+incompatible
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	google.golang.org/appengine v1.6.6 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect

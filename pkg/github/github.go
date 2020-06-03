@@ -2,20 +2,22 @@ package github
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/go-github/v31/github"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
-// TODO add documentation
-// specify proper version fo github.com/stretchr/testify/assert + logrus + oauth2
-
+// RepoVersionGetter is an interface that wrapps calls to GitHub
 type RepoVersionGetter interface {
 	GetLatestVersion(ctx context.Context, owner, repo string) (string, error)
 }
 
+// Credentials represents different credential options that can be used when calling GitHub
+// Username/Password is an combination, Token is standalone and is prefered
 type Credentials struct {
 	Username string
 	Password string
@@ -33,6 +35,7 @@ type githubClient struct {
 	client *github.Client
 }
 
+// NewGithubClient returns an implementation of the GitHub client represented as the RepoVersionGetter interface
 func NewGithubClient(ctx context.Context, cred Credentials) RepoVersionGetter {
 	if cred.isUserNamePasswordSet() {
 		auth := github.BasicAuthTransport{
@@ -56,20 +59,60 @@ func NewGithubClient(ctx context.Context, cred Credentials) RepoVersionGetter {
 	}
 }
 
+// GetLatestVersion returns the latest release version from GitHub
+// The latest release is the most recent non-prerelease, non-draft release, sorted by the created_at attribute. The created_at attribute is the date of the commit used for the release, and not the date when the release was drafted or published.
 func (gc *githubClient) GetLatestVersion(ctx context.Context, owner, repo string) (string, error) {
-	return gc.getLatestReleaseVersion(ctx, owner, repo)
+	var err error
+	version := ""
+
+	err = retryWhenRateLimited(func() error {
+		version, err = gc.getLatestReleaseVersion(ctx, owner, repo)
+		return err
+	})
+
+	return version, err
 }
 
-// The latest release is the most recent non-prerelease, non-draft release, sorted by the created_at attribute. The created_at attribute is the date of the commit used for the release, and not the date when the release was drafted or published.
 func (gc *githubClient) getLatestReleaseVersion(ctx context.Context, owner string, repo string) (string, error) {
 	release, response, err := gc.client.Repositories.GetLatestRelease(ctx, owner, repo)
 	if err != nil {
-		log.WithField("repo", owner+"/"+repo).Errorf("Error fetching latest version: err: %s", err)
+		log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest version: err: %s", err)
 		return "", err
 	}
 	if response.StatusCode != 200 {
-		log.WithField("repo", owner+"/"+repo).Errorf("Error fetching latest version: http-status: %s", response.Status)
+		log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest version: http-status: %s", response.Status)
 		return "", fmt.Errorf("Error fetching latest version: %s", response.Status)
 	}
 	return release.GetTagName(), nil
+}
+
+func retryWhenRateLimited(cb func() error) error {
+	retries := 0
+	for {
+		if retries > 5 {
+			return errors.New("To many retries, stopping")
+		}
+		retries++
+
+		err := cb()
+		if err != nil {
+			rerr, ok := err.(*github.RateLimitError)
+			if ok {
+				var d = time.Until(rerr.Rate.Reset.Time)
+				log.Warnf("hit rate limit, sleeping for %.0f min", d.Minutes())
+				time.Sleep(d)
+				continue
+			}
+			aerr, ok := err.(*github.AbuseRateLimitError)
+			if ok {
+				var d = aerr.GetRetryAfter()
+				log.Warnf("hit abuse mechanism, sleeping for %.f min", d.Minutes())
+				time.Sleep(d)
+				continue
+			}
+			log.Warnf("Error calling github web-api: %s", err)
+			return err
+		}
+		return nil
+	}
 }
