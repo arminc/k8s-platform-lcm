@@ -1,3 +1,4 @@
+// Package github is used to access GitHub to find latest version in repositories
 package github
 
 import (
@@ -18,46 +19,38 @@ type RepoVersionGetter interface {
 	GetLatestVersionFromTag(ctx context.Context, owner, repo string) (string, error)
 }
 
-// Credentials represents different credential options that can be used when calling GitHub
-// Username/Password is an combination, Token is standalone and is prefered
-type Credentials struct {
-	Username string
-	Password string
-	Token    string
-}
-
-func (c Credentials) isUserNamePasswordSet() bool {
-	return (c.Username != "" && c.Password != "")
-}
-func (c Credentials) isTokenSet() bool {
-	return c.Token != ""
-}
-
 type githubClient struct {
 	client *github.Client
 }
 
-// NewGithubClient returns an implementation of the GitHub client represented as the RepoVersionGetter interface
-func NewGithubClient(ctx context.Context, cred Credentials) RepoVersionGetter {
-	if cred.isUserNamePasswordSet() {
-		auth := github.BasicAuthTransport{
-			Username: cred.Username,
-			Password: cred.Password,
-		}
-		return &githubClient{
-			client: github.NewClient(auth.Client()),
-		}
-	}
-	if cred.isTokenSet() {
-		auth := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: cred.Token},
-		)
-		return &githubClient{
-			github.NewClient(oauth2.NewClient(ctx, auth)),
-		}
-	}
+// NewGithubClient is used for anonymous access to Github
+// It returns an implementation of the GitHub client represented as the RepoVersionGetter interface
+func NewGithubClientAnonymous(ctx context.Context) RepoVersionGetter {
 	return &githubClient{
 		github.NewClient(nil),
+	}
+}
+
+// NewGithubClientUserPass is used for access to GitHub with username and password combination
+// It returns an implementation of the GitHub client represented as the RepoVersionGetter interface
+func NewGithubClientUserPass(ctx context.Context, username, password string) RepoVersionGetter {
+	auth := github.BasicAuthTransport{
+		Username: username,
+		Password: password,
+	}
+	return &githubClient{
+		client: github.NewClient(auth.Client()),
+	}
+}
+
+// NewGithubClient is the default way to access GitHub by using a token
+// It returns an implementation of the GitHub client represented as the RepoVersionGetter interface
+func NewGithubClient(ctx context.Context, token string) RepoVersionGetter {
+	auth := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	return &githubClient{
+		github.NewClient(oauth2.NewClient(ctx, auth)),
 	}
 }
 
@@ -75,6 +68,7 @@ func (gc *githubClient) GetLatestVersion(ctx context.Context, owner, repo string
 	return version, err
 }
 
+// Actual call to GitHub
 func (gc *githubClient) getLatestReleaseVersion(ctx context.Context, owner string, repo string) (string, error) {
 	release, response, err := gc.client.Repositories.GetLatestRelease(ctx, owner, repo)
 	if err != nil {
@@ -102,6 +96,7 @@ func (gc *githubClient) GetLatestVersionFromTag(ctx context.Context, owner, repo
 	return version, err
 }
 
+// Actual call to GitHub
 func (gc *githubClient) getLatestTag(ctx context.Context, owner string, repo string) (string, error) {
 	opt := &github.ListOptions{PerPage: 10}
 	var allTags []string
@@ -126,6 +121,7 @@ func (gc *githubClient) getLatestTag(ctx context.Context, owner string, repo str
 	return versioning.FindHighestSemVer(allTags)
 }
 
+// Retry for 5 times if there is an RateLimit error
 func retryWhenRateLimited(cb func() error) error {
 	retries := 0
 	for {

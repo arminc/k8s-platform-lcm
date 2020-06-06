@@ -1,3 +1,4 @@
+// Package versioning is used to handle SemVer
 package versioning
 
 import (
@@ -7,8 +8,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// FindHighestSemVer finds the higest SemVer according the spec
-// Note that build numbers are ingored and it will takes the last one in the array
+// FindHighestSemVer finds the higest version according to the SemVer spec
+// Note that build numbers are ingored and it will take the last one in the array, this might be lower build number
 func FindHighestSemVer(versions []string) (string, error) {
 	var versionSet = false
 	var semverVersion semver.Version
