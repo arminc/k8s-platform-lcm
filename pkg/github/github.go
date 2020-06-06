@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/arminc/k8s-platform-lcm/pkg/versioning"
 	"github.com/google/go-github/v31/github"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -14,6 +15,7 @@ import (
 // RepoVersionGetter is an interface that wrapps calls to GitHub
 type RepoVersionGetter interface {
 	GetLatestVersion(ctx context.Context, owner, repo string) (string, error)
+	GetLatestVersionFromTag(ctx context.Context, owner, repo string) (string, error)
 }
 
 // Credentials represents different credential options that can be used when calling GitHub
@@ -84,6 +86,44 @@ func (gc *githubClient) getLatestReleaseVersion(ctx context.Context, owner strin
 		return "", fmt.Errorf("Error fetching latest version: %s", response.Status)
 	}
 	return release.GetTagName(), nil
+}
+
+// GetLatestVersionFromTag returns the latest version from GitHub using tags
+// For now this works by comparing all tags to vind the latest, which means tags need to follow semver
+func (gc *githubClient) GetLatestVersionFromTag(ctx context.Context, owner, repo string) (string, error) {
+	var err error
+	version := ""
+
+	err = retryWhenRateLimited(func() error {
+		version, err = gc.getLatestTag(ctx, owner, repo)
+		return err
+	})
+
+	return version, err
+}
+
+func (gc *githubClient) getLatestTag(ctx context.Context, owner string, repo string) (string, error) {
+	opt := &github.ListOptions{PerPage: 10}
+	var allTags []string
+	for {
+		tags, response, err := gc.client.Repositories.ListTags(ctx, owner, repo, opt)
+		if err != nil {
+			log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest tags: err: %s", err)
+			return "", err
+		}
+		if response.StatusCode != 200 {
+			log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest tags: http-status: %s", response.Status)
+			return "", fmt.Errorf("Error fetching latest tag: %s", response.Status)
+		}
+		for _, tag := range tags {
+			allTags = append(allTags, *tag.Name)
+		}
+		if response.NextPage == 0 {
+			break
+		}
+		opt.Page = response.NextPage
+	}
+	return versioning.FindHighestSemVer(allTags)
 }
 
 func retryWhenRateLimited(cb func() error) error {
