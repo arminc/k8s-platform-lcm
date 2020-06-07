@@ -25,16 +25,16 @@ func prettyPrintContainerInfo(info []ContainerInfo) {
 	table.Render()
 }
 
-func prettyPrintToolInfo(tools []ToolInfo) {
+func prettyPrintGitHubInfo(gitHub []GitHubInfo) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Tool", "Version", "Latest"})
 	table.SetColumnAlignment([]int{3, 1, 1})
 
-	for _, tool := range tools {
+	for _, info := range gitHub {
 		row := []string{
-			tool.Tool.Repo,
-			tool.Tool.Version,
-			tool.LatestVersion,
+			info.Repo,
+			info.Version,
+			info.LatestVersion,
 		}
 		table.Append(row)
 	}
@@ -93,9 +93,9 @@ func (c ChartInfo) GetStatus() string {
 }
 
 // GetStatus shows the status for the tool
-func (t ToolInfo) GetStatus() string {
+func (t GitHubInfo) GetStatus() string {
 	if t.LatestVersion == versioning.Notfound || t.LatestVersion == versioning.Failure {
 		return t.LatestVersion
 	}
-	return versioning.DetermineLifeCycleStatus(t.LatestVersion, t.Tool.Version)
+	return versioning.DetermineLifeCycleStatus(t.LatestVersion, t.Version)
 }

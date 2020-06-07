@@ -1,0 +1,29 @@
+---
+
+dictionaries:
+  - en
+
+excluded_files:
+  - go.mod
+  - go.sum
+
+excluded_words:
+  - repo
+  - repos
+  - sirupsen
+  - logrus
+  - gitHubRepos
+  - NewRepoVersionGetter
+  - Warnf
+  - Errorf
+  - rerr
+  - aerr
+  - stretchr
+  - SemVer
+  - FindHighestSemVer
+  - TestHighestPre
+  - TestHighestPreAndBuild
+  - pre
+  - TestHighestNotSemVer
+
+spellcheck_filenames: true
