@@ -1,12 +1,11 @@
 package xray
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"github.com/target/go-arty/xray"
 )
 
 func getConfig() Config {
@@ -24,14 +23,19 @@ func TestConfigWrong(t *testing.T) {
 
 func TestGetVulnerability(t *testing.T) {
 	if os.Getenv("xrayurl") == "" {
-		t.Skip("Skipping testing in CI environment")
+		t.Skip("Skipping testing if no Xray configured")
 	}
 	client, _ := NewXray(getConfig())
-	vul, err := client.GetXrayResults(xray.SummaryArtifactRequest{
-		Paths: &[]string{fmt.Sprintf("%s/%s/%s", os.Getenv("xrayprefix"), "alpine", "3.10")},
-	})
+	prefixes := []Prefix{
+		{
+			Prefix: os.Getenv("xrayprefix"),
+			Images: []string{"awscli"},
+		},
+	}
+	vul, err := client.GetVulnerabilities("awscli", "1.16.238-1", prefixes)
 	assert.NoError(t, err, "No error espected")
-	assert.Equal(t, 1, len(vul), "Should have 1 vulnerabilities")
+	log.Info(vul)
+	assert.Equal(t, 5, len(vul), "Should have 5 vulnerabilities")
 }
 
 func TestPrefixNoMatchOne(t *testing.T) {
