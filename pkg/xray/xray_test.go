@@ -10,7 +10,7 @@ import (
 
 func getConfig() Config {
 	return Config{
-		Url:      os.Getenv("xrayurl"),
+		URL:      os.Getenv("xrayurl"),
 		Username: os.Getenv("xrayusername"),
 		Password: os.Getenv("xraypassword"),
 	}

@@ -24,7 +24,7 @@ type Prefix struct {
 	Images []string `koanf:"images"`
 }
 
-// XrayScanner is an interface that wraps calls to Xray
+// Scanner is an interface that wraps calls to Xray
 type Scanner interface {
 	GetVulnerabilities(name, version string, prefixes []Prefix) ([]vulnerabilities.Vulnerability, error)
 	GetXrayResults(request xray.SummaryArtifactRequest) (xray.SummaryArtifact, error)
