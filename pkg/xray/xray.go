@@ -24,8 +24,8 @@ type Prefix struct {
 }
 
 type XrayScanner interface {
-	GetVulnerabilities() ([]vulnerabilities.Vulnerability, error)
-	GetXrayResults(request xray.SummaryArtifactRequest) ([]xray.SummaryArtifact, error)
+	GetVulnerabilities(name, version string, prefixes []Prefix) ([]vulnerabilities.Vulnerability, error)
+	GetXrayResults(request xray.SummaryArtifactRequest) (xray.SummaryArtifact, error)
 }
 
 type xrayClient struct {
@@ -43,27 +43,44 @@ func NewXray(config Config) (XrayScanner, error) {
 	}, nil
 }
 
-func (x *xrayClient) GetVulnerabilities() ([]vulnerabilities.Vulnerability, error) {
-	// xrayVulnerabilities, _ := x.GetXrayResults(xray.SummaryArtifactRequest{})
-	// for vul, _ := range xrayVulnerabilities {
-	// 	fmt.Println("bla ")
-	// }
-	return []vulnerabilities.Vulnerability{}, nil
-}
-
-func (x *xrayClient) GetXrayResults(request xray.SummaryArtifactRequest) ([]xray.SummaryArtifact, error) {
-	sum, response, err := x.client.Summary.Artifact(&request)
+func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix) ([]vulnerabilities.Vulnerability, error) {
+	path := fmt.Sprintf("%s/%s/%s", findPrefix(name, prefixes), name, version)
+	xrayVulnerabilities, err := x.GetXrayResults(xray.SummaryArtifactRequest{
+		Paths: &[]string{path},
+	})
 	if err != nil {
 		return nil, err
 	}
+
+	var allVulnerabilities []vulnerabilities.Vulnerability
+	for _, issue := range xrayVulnerabilities.GetIssues() {
+		for _, cve := range issue.GetCves() {
+			vulnerability := vulnerabilities.Vulnerability{
+				Identifier:  cve.GetCve(),
+				Description: *issue.Description,
+			}
+			allVulnerabilities = append(allVulnerabilities, vulnerability)
+		}
+	}
+	return allVulnerabilities, nil
+}
+
+func (x *xrayClient) GetXrayResults(request xray.SummaryArtifactRequest) (xray.SummaryArtifact, error) {
+	sum, response, err := x.client.Summary.Artifact(&request)
+	if err != nil {
+		return xray.SummaryArtifact{}, err
+	}
 	if response.StatusCode != 200 {
 		log.WithField("request", request).Warnf("Error fetching xray vulnerabilities: http-status: %s", response.Status)
-		return nil, fmt.Errorf("Error fetching xray vulnerabilities, http-status: %s", response.Status)
+		return xray.SummaryArtifact{}, fmt.Errorf("Error fetching xray vulnerabilities, http-status: %s", response.Status)
 	}
 	if len(sum.GetErrors()) >= 1 {
-		return nil, fmt.Errorf("Got an error from xray for [%v] error [%s]", request, *sum.GetErrors()[0].Error)
+		return xray.SummaryArtifact{}, fmt.Errorf("Got an error from xray for [%v] error [%s]", request, *sum.GetErrors()[0].Error)
 	}
-	return sum.GetArtifacts(), nil
+	if len(sum.GetArtifacts()) > 0 {
+		return sum.GetArtifacts()[0], nil
+	}
+	return xray.SummaryArtifact{}, nil
 }
 
 // findPrefix returns the prefix used by Xray for the image
