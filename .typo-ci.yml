@@ -24,5 +24,6 @@ excluded_words:
   - TestHighestPre
   - TestHighestPreAndBuild
   - pre
+  - TestHighestNotSemVer
 
 spellcheck_filenames: true
