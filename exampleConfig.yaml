@@ -132,7 +132,7 @@ type: yml # default type
 
 # You can specify static tools/applications for which you want to find the latest versions on GitHub
 #github:
-  # Looking up latest version on GitHub works out of the box but you can add your username/password or token 
+  # Looking up latest version on GitHub works out of the box but you can add your username/password or token
   # if you are hitting GitHub limits or want to access private repositories
   # Use username/password which is an older way or use a GitHub token which is preferred
   # credentials: # Optional
@@ -140,7 +140,7 @@ type: yml # default type
   #   password:
   #   token:
   # repos:
-  #   - repo: hashicorp/terraform                         
+  #   - repo: hashicorp/terraform
   #     version: "0.11.14"
   #   - repo: hashicorp/terraform-provider-archive
   #     version: "1.1.0"
