@@ -9,6 +9,8 @@ import (
 	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
 	"github.com/arminc/k8s-platform-lcm/pkg/github"
+	"github.com/arminc/k8s-platform-lcm/pkg/xray"
+	"github.com/containerd/containerd/log"
 )
 
 // GitHubInfo contains information with the latest version from GitHub repo
@@ -96,10 +98,23 @@ func getLatestVersionsForContainers(containers []kubernetes.Container, registrie
 
 func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []ContainerInfo {
 	containerInfoWithVul := []ContainerInfo{}
-	for _, ci := range containerInfo {
-		vulnerabilities := config.ImageScanners.GetVulnerabilities(ci.Container.Name, ci.Container.Version)
-		ci.Cves = vulnerabilities
-		containerInfoWithVul = append(containerInfoWithVul, ci)
+	xray, err := xray.NewXray(config.Xray)
+	if err == nil {
+		for _, ci := range containerInfo {
+			vulnerabilities, err := xray.GetVulnerabilities(ci.Container.Name, ci.Container.Version, config.Xray.Prefixes)
+			if err != nil {
+				log.L.WithError(err).WithField("image", ci.Container.Name).Warn("Could not fetch vulnerabilities")
+			} else {
+				var vul []string
+				for _, v := range vulnerabilities {
+					vul = append(vul, v.Identifier)
+				}
+				ci.Cves = vul
+				containerInfoWithVul = append(containerInfoWithVul, ci)
+			}
+		}
+	} else {
+		log.L.WithError(err).Warn("Could not create Xray client")
 	}
 
 	sort.Slice(containerInfoWithVul, func(i, j int) bool {

@@ -111,7 +111,7 @@ func (gc *githubClient) getLatestReleaseVersion(ctx context.Context, owner strin
 	}
 	if response.StatusCode != 200 {
 		log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest version: http-status: %s", response.Status)
-		return "", fmt.Errorf("Error fetching latest version: %s", response.Status)
+		return "", fmt.Errorf("Error fetching latest version: http-status: %s", response.Status)
 	}
 	return release.GetTagName(), nil
 }
@@ -142,7 +142,7 @@ func (gc *githubClient) getLatestTag(ctx context.Context, owner string, repo str
 		}
 		if response.StatusCode != 200 {
 			log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest tags: http-status: %s", response.Status)
-			return "", fmt.Errorf("Error fetching latest tag: %s", response.Status)
+			return "", fmt.Errorf("Error fetching latest tag: http-status: %s", response.Status)
 		}
 		for _, tag := range tags {
 			allTags = append(allTags, *tag.Name)

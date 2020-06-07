@@ -4,6 +4,8 @@ go 1.13
 
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
+	github.com/blang/semver/v4 v4.0.0
+	github.com/containerd/containerd v1.3.0
 	github.com/docker/distribution v2.7.1+incompatible
 	github.com/franela/goblin v0.0.0-20200409142057-1def193310bb // indirect
 	github.com/gin-gonic/gin v1.6.3 // indirect
@@ -30,7 +32,6 @@ require (
 	helm.sh/helm/v3 v3.0.1
 	k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8
 	k8s.io/client-go v0.0.0-20191016111102-bec269661e48
-	github.com/blang/semver/v4 v4.0.0
 )
 
 replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309
