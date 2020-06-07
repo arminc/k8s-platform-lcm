@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/arminc/k8s-platform-lcm/pkg/versioning"
@@ -13,50 +14,82 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// GitHubRepos contains all the GitHub repositories and security information to watch for new versions on GitHub
+type GitHubRepos struct {
+	Credentials Credentials  `koanf:"credentials"`
+	Repos       []GitHubRepo `koanf:"repos"`
+}
+
+type Credentials struct {
+	Username string `koanf:"username"`
+	Password string `koanf:"password"`
+	Token    string `koanf:"token"`
+}
+
+// GitHubRepo contains repositories that need to be checked for a new version
+type GitHubRepo struct {
+	Repo    string `koanf:"repo"`
+	Version string `koanf:"version"`
+	UseTag  bool   `koanf:"useTag"`
+}
+
 // RepoVersionGetter is an interface that wrapps calls to GitHub
 type RepoVersionGetter interface {
-	GetLatestVersion(ctx context.Context, owner, repo string) (string, error)
-	GetLatestVersionFromTag(ctx context.Context, owner, repo string) (string, error)
+	GetLatestVersion(ctx context.Context, gitRepo GitHubRepo) (string, error)
+	GetLatestVersionFromRelease(ctx context.Context, owner string, repo string) (string, error)
+	GetLatestVersionFromTag(ctx context.Context, owner string, repo string) (string, error)
 }
 
 type githubClient struct {
 	client *github.Client
 }
 
-// NewGithubClient is used for anonymous access to Github
+// NewRepoVersionGetter is used to construct authenticated or unauthenticated access to GitHub
 // It returns an implementation of the GitHub client represented as the RepoVersionGetter interface
-func NewGithubClientAnonymous(ctx context.Context) RepoVersionGetter {
+func NewRepoVersionGetter(ctx context.Context, creds Credentials) RepoVersionGetter {
+	if creds.Username != "" && creds.Password != "" {
+		auth := github.BasicAuthTransport{
+			Username: creds.Username,
+			Password: creds.Password,
+		}
+		return &githubClient{
+			client: github.NewClient(auth.Client()),
+		}
+	}
+
+	if creds.Token != "" {
+		auth := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: creds.Token},
+		)
+		return &githubClient{
+			github.NewClient(oauth2.NewClient(ctx, auth)),
+		}
+	}
+
 	return &githubClient{
 		github.NewClient(nil),
 	}
 }
 
-// NewGithubClientUserPass is used for access to GitHub with username and password combination
-// It returns an implementation of the GitHub client represented as the RepoVersionGetter interface
-func NewGithubClientUserPass(ctx context.Context, username, password string) RepoVersionGetter {
-	auth := github.BasicAuthTransport{
-		Username: username,
-		Password: password,
-	}
-	return &githubClient{
-		client: github.NewClient(auth.Client()),
-	}
+// getRepoAndOwner splits repo "owner/repo" to owner and repo
+func (g GitHubRepo) getRepoAndOwner() (string, string) {
+	owner := strings.Split(g.Repo, "/")[0]
+	repo := strings.Split(g.Repo, "/")[1]
+	return owner, repo
 }
 
-// NewGithubClient is the default way to access GitHub by using a token
-// It returns an implementation of the GitHub client represented as the RepoVersionGetter interface
-func NewGithubClient(ctx context.Context, token string) RepoVersionGetter {
-	auth := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	return &githubClient{
-		github.NewClient(oauth2.NewClient(ctx, auth)),
+// GetLatestVersion returns lates version from release or tag depending on the setting
+func (gc *githubClient) GetLatestVersion(ctx context.Context, gitRepo GitHubRepo) (string, error) {
+	owner, repo := gitRepo.getRepoAndOwner()
+	if gitRepo.UseTag {
+		return gc.GetLatestVersionFromTag(ctx, owner, repo)
 	}
+	return gc.GetLatestVersionFromRelease(ctx, owner, repo)
 }
 
-// GetLatestVersion returns the latest release version from GitHub
+// GetLatestVersionFromRelease returns the latest release version from GitHub
 // The latest release is the most recent non-prerelease, non-draft release, sorted by the created_at attribute. The created_at attribute is the date of the commit used for the release, and not the date when the release was drafted or published.
-func (gc *githubClient) GetLatestVersion(ctx context.Context, owner, repo string) (string, error) {
+func (gc *githubClient) GetLatestVersionFromRelease(ctx context.Context, owner string, repo string) (string, error) {
 	var err error
 	version := ""
 
@@ -84,7 +117,7 @@ func (gc *githubClient) getLatestReleaseVersion(ctx context.Context, owner strin
 
 // GetLatestVersionFromTag returns the latest version from GitHub using tags
 // For now this works by comparing all tags to vind the latest, which means tags need to follow semver
-func (gc *githubClient) GetLatestVersionFromTag(ctx context.Context, owner, repo string) (string, error) {
+func (gc *githubClient) GetLatestVersionFromTag(ctx context.Context, owner string, repo string) (string, error) {
 	var err error
 	version := ""
 

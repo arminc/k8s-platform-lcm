@@ -5,6 +5,7 @@ import (
 
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
 	"github.com/arminc/k8s-platform-lcm/internal/scanning"
+	"github.com/arminc/k8s-platform-lcm/pkg/github"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/confmap"
@@ -19,8 +20,7 @@ type Config struct {
 	Namespaces             []string                   `koanf:"namespaces"`
 	ImageRegistries        registries.ImageRegistries `koanf:"imageRegistries"`
 	ImageScanners          scanning.ImageScanners     `koanf:"imageScanners"`
-	ToolRegistries         registries.ToolRegistries  `koanf:"toolRegistries"`
-	Tools                  []registries.Tool          `koanf:"tools"`
+	GitHub                 github.GitHubRepos         `koanf:"github"`
 	Images                 []string                   `koanf:"images"`
 	HelmRegistries         registries.HelmRegistries  `koanf:"helmRegistries"`
 }

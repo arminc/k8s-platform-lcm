@@ -14,7 +14,7 @@ func FindHighestSemVer(versions []string) (string, error) {
 	var versionSet = false
 	var semverVersion semver.Version
 	for _, v := range versions {
-		version, err := semver.Parse(v)
+		version, err := semver.ParseTolerant(v)
 		if err == nil {
 			if version.GTE(semverVersion) {
 				semverVersion = version

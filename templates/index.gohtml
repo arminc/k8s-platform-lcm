@@ -64,10 +64,10 @@ Last run: {{ .LastTimeFetched }}
         </tr>
     </thead>
     <tbody>
-    {{range .ToolInfo}}
+    {{range .GitHubInfo}}
         <tr class="{{.GetStatus}}">
-            <td>{{.Tool.Repo}}</td>
-            <td>{{.Tool.Version}}</td>
+            <td>{{.Repo}}</td>
+            <td>{{.Version}}</td>
             <td>{{.LatestVersion}}</td>
         </tr>
     {{end}}

@@ -1,17 +1,20 @@
 package internal
 
 import (
+	"context"
 	"sort"
 	"time"
 
 	"github.com/arminc/k8s-platform-lcm/internal/config"
 	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
+	"github.com/arminc/k8s-platform-lcm/pkg/github"
 )
 
-// ToolInfo contains tool information with the latest version
-type ToolInfo struct {
-	Tool          registries.Tool
+// GitHubInfo contains information with the latest version from GitHub repo
+type GitHubInfo struct {
+	Repo          string
+	Version       string
 	LatestVersion string
 }
 
@@ -31,6 +34,7 @@ type ContainerInfo struct {
 
 // Execute runs all the checks for LCM
 func Execute(config config.Config) {
+	ctx := context.Background()
 
 	WebDataVar.Status = "Running"
 
@@ -55,11 +59,11 @@ func Execute(config config.Config) {
 		WebDataVar.ChartInfo = charts
 	}
 
-	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
+	github := getLatestVersionsForGitHub(ctx, config.GitHub)
 	if config.PrettyPrintAllowed() {
-		prettyPrintToolInfo(tools)
+		prettyPrintGitHubInfo(github)
 	}
-	WebDataVar.ToolInfo = tools
+	WebDataVar.GitHubInfo = github
 	WebDataVar.Status = "Done"
 	WebDataVar.LastTimeFetched = time.Now().Format("15:04:05 02-01-2006")
 }
@@ -121,18 +125,20 @@ func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, na
 	return chartInfo
 }
 
-func getLatestVersionsForTools(tools []registries.Tool, registries registries.ToolRegistries) []ToolInfo {
-	var toolInfo []ToolInfo
-	for _, tool := range tools {
-		version := registries.GetLatestVersionForTool(tool)
-		toolInfo = append(toolInfo, ToolInfo{
-			Tool:          tool,
+func getLatestVersionsForGitHub(ctx context.Context, gitHubRepos github.GitHubRepos) []GitHubInfo {
+	var gitHubInfo []GitHubInfo
+	for _, repo := range gitHubRepos.Repos {
+		gitHub := github.NewRepoVersionGetter(ctx, gitHubRepos.Credentials)
+		version, _ := gitHub.GetLatestVersion(ctx, repo)
+		gitHubInfo = append(gitHubInfo, GitHubInfo{
+			Repo:          repo.Repo,
+			Version:       repo.Version,
 			LatestVersion: version,
 		})
 	}
 
-	sort.Slice(toolInfo, func(i, j int) bool {
-		return toolInfo[i].Tool.Repo < toolInfo[j].Tool.Repo
+	sort.Slice(gitHubInfo, func(i, j int) bool {
+		return gitHubInfo[i].Repo < gitHubInfo[j].Repo
 	})
-	return toolInfo
+	return gitHubInfo
 }

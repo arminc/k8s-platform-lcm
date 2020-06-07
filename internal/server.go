@@ -20,7 +20,7 @@ type WebData struct {
 	LastTimeFetched string
 	ContainerInfo   []ContainerInfo
 	ChartInfo       []ChartInfo
-	ToolInfo        []ToolInfo
+	GitHubInfo      []GitHubInfo
 }
 
 var (
