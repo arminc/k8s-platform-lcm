@@ -1,4 +1,4 @@
-// Package xray is used to access Xray to find vulerabilities for images
+// Package xray is used to access Xray to find vulnerabilities for images
 package xray
 
 import (
@@ -87,7 +87,7 @@ func (x *xrayClient) GetXrayResults(request xray.SummaryArtifactRequest) (xray.S
 		return xray.SummaryArtifact{}, fmt.Errorf("Got an error from xray for [%v] error [%s]", request, *sum.GetErrors()[0].Error)
 	}
 
-	// Currentyl we only fetch one image a a time, therefore we can just grab the first arftiact
+	// Currently we only fetch one image a a time, therefore we can just grab the first artifact
 	if len(sum.GetArtifacts()) > 0 {
 		return sum.GetArtifacts()[0], nil
 	}
