@@ -14,7 +14,7 @@ import (
 type Config struct {
 	Username string   `koanf:"username"`
 	Password string   `koanf:"password"`
-	Url      string   `koanf:"url"`
+	URL      string   `koanf:"url"`
 	Prefixes []Prefix `koanf:"prefixes"`
 }
 
@@ -25,7 +25,7 @@ type Prefix struct {
 }
 
 // XrayScanner is an interface that wraps calls to Xray
-type XrayScanner interface {
+type Scanner interface {
 	GetVulnerabilities(name, version string, prefixes []Prefix) ([]vulnerabilities.Vulnerability, error)
 	GetXrayResults(request xray.SummaryArtifactRequest) (xray.SummaryArtifact, error)
 }
@@ -35,9 +35,9 @@ type xrayClient struct {
 }
 
 // NewXray constructs access to Xray
-// It returns an implementation of the Xray client represented as the XrayScanner interface
-func NewXray(config Config) (XrayScanner, error) {
-	client, err := xray.NewClient(config.Url, nil)
+// It returns an implementation of the Xray client represented as the Scanner interface
+func NewXray(config Config) (Scanner, error) {
+	client, err := xray.NewClient(config.URL, nil)
 	if err != nil {
 		return &xrayClient{}, err
 	}
