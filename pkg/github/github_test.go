@@ -21,7 +21,7 @@ func TestGetReleaseNonExistingRepo(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestGetReleaseNonExistend(t *testing.T) {
+func TestGetReleaseNonExisted(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
 	_, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/lcm_empty", false))
 	assert.Error(t, err)
@@ -40,7 +40,7 @@ func TestGetTagsNonExistingRepo(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestGetTagsNonExistend(t *testing.T) {
+func TestGetTagsNonExisted(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
 	_, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/lcm_empty", true))
 	assert.Error(t, err)

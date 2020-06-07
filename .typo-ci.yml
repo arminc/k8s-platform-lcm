@@ -14,5 +14,15 @@ excluded_words:
   - logrus
   - gitHubRepos
   - NewRepoVersionGetter
+  - Warnf
+  - Errorf
+  - rerr
+  - aerr
+  - stretchr
+  - SemVer
+  - FindHighestSemVer
+  - TestHighestPre
+  - TestHighestPreAndBuild
+  - pre
 
 spellcheck_filenames: true

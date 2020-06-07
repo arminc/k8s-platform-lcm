@@ -117,7 +117,7 @@ func (gc *githubClient) getLatestReleaseVersion(ctx context.Context, owner strin
 }
 
 // GetLatestVersionFromTag returns the latest version from GitHub using tags
-// For now this works by comparing all tags to vind the latest, which means tags need to follow semver
+// For now this works by comparing all tags to find the latest, which means tags need to follow semver
 func (gc *githubClient) GetLatestVersionFromTag(ctx context.Context, owner string, repo string) (string, error) {
 	var err error
 	version := ""

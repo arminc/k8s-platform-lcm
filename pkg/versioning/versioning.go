@@ -8,8 +8,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// FindHighestSemVer finds the higest version according to the SemVer spec
-// Note that build numbers are ingored and it will take the last one in the array, this might be lower build number
+// FindHighestSemVer finds the highest version according to the SemVer spec
+// Note that build numbers are ignored and it will take the last one in the array, this might be lower build number
 func FindHighestSemVer(versions []string) (string, error) {
 	var versionSet = false
 	var semverVersion semver.Version
