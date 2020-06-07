@@ -33,7 +33,7 @@ func TestGetVulnerability(t *testing.T) {
 		},
 	}
 	vul, err := client.GetVulnerabilities("awscli", "1.16.238-1", prefixes)
-	assert.NoError(t, err, "No error espected")
+	assert.NoError(t, err, "No error expected")
 	log.Info(vul)
 	assert.Equal(t, 5, len(vul), "Should have 5 vulnerabilities")
 }

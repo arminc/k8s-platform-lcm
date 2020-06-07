@@ -25,5 +25,10 @@ excluded_words:
   - TestHighestPreAndBuild
   - pre
   - TestHighestNotSemVer
+  - containerd
+  - Cves
+  - Debugf
+  - GetCves
+  - cve
 
 spellcheck_filenames: true
