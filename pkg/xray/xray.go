@@ -1,3 +1,4 @@
+// Package xray is used to access Xray to find vulerabilities for images
 package xray
 
 import (
@@ -23,6 +24,7 @@ type Prefix struct {
 	Images []string `koanf:"images"`
 }
 
+// XrayScanner is an interface that wraps calls to Xray
 type XrayScanner interface {
 	GetVulnerabilities(name, version string, prefixes []Prefix) ([]vulnerabilities.Vulnerability, error)
 	GetXrayResults(request xray.SummaryArtifactRequest) (xray.SummaryArtifact, error)
@@ -32,6 +34,8 @@ type xrayClient struct {
 	client *xray.Client
 }
 
+// NewXray constructs access to Xray
+// It returns an implementation of the Xray client represented as the XrayScanner interface
 func NewXray(config Config) (XrayScanner, error) {
 	client, err := xray.NewClient(config.Url, nil)
 	if err != nil {
@@ -43,7 +47,9 @@ func NewXray(config Config) (XrayScanner, error) {
 	}, nil
 }
 
+// GetVulnerabilities returns Xray results as generic Vulnerabilities instead of in the Xray format
 func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix) ([]vulnerabilities.Vulnerability, error) {
+	log.WithField("image", name).WithField("version", version).Debug("Fetching vulnerabilities")
 	path := fmt.Sprintf("%s/%s/%s", findPrefix(name, prefixes), name, version)
 	xrayVulnerabilities, err := x.GetXrayResults(xray.SummaryArtifactRequest{
 		Paths: &[]string{path},
@@ -54,6 +60,8 @@ func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix)
 
 	var allVulnerabilities []vulnerabilities.Vulnerability
 	for _, issue := range xrayVulnerabilities.GetIssues() {
+		log.Debugf("Vulnerabilities %v", issue.GetCves())
+		log.Debugf("Vulnerabilities %v", issue.GetDescription())
 		for _, cve := range issue.GetCves() {
 			vulnerability := vulnerabilities.Vulnerability{
 				Identifier:  cve.GetCve(),
@@ -65,6 +73,7 @@ func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix)
 	return allVulnerabilities, nil
 }
 
+// GetXrayResults returns results as they come from Xray
 func (x *xrayClient) GetXrayResults(request xray.SummaryArtifactRequest) (xray.SummaryArtifact, error) {
 	sum, response, err := x.client.Summary.Artifact(&request)
 	if err != nil {
@@ -77,6 +86,8 @@ func (x *xrayClient) GetXrayResults(request xray.SummaryArtifactRequest) (xray.S
 	if len(sum.GetErrors()) >= 1 {
 		return xray.SummaryArtifact{}, fmt.Errorf("Got an error from xray for [%v] error [%s]", request, *sum.GetErrors()[0].Error)
 	}
+
+	// Currentyl we only fetch one image a a time, therefore we can just grab the first arftiact
 	if len(sum.GetArtifacts()) > 0 {
 		return sum.GetArtifacts()[0], nil
 	}

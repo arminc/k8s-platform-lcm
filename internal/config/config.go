@@ -4,8 +4,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
-	"github.com/arminc/k8s-platform-lcm/internal/scanning"
 	"github.com/arminc/k8s-platform-lcm/pkg/github"
+	"github.com/arminc/k8s-platform-lcm/pkg/xray"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/confmap"
@@ -19,7 +19,7 @@ type Config struct {
 	KubernetesFetchEnabled bool                       `koanf:"kubernetesFetchEnabled"`
 	Namespaces             []string                   `koanf:"namespaces"`
 	ImageRegistries        registries.ImageRegistries `koanf:"imageRegistries"`
-	ImageScanners          scanning.ImageScanners     `koanf:"imageScanners"`
+	Xray                   xray.Config                `koanf:"xray"`
 	GitHub                 github.Repos               `koanf:"github"`
 	Images                 []string                   `koanf:"images"`
 	HelmRegistries         registries.HelmRegistries  `koanf:"helmRegistries"`
