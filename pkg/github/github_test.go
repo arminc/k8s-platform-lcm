@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func createGitHubRepo(repo string, tag bool) GitHubRepo {
-	return GitHubRepo{
+func createRepo(repo string, tag bool) Repo {
+	return Repo{
 		Repo:    repo,
 		Version: "",
 		UseTag:  tag,
@@ -17,38 +17,38 @@ func createGitHubRepo(repo string, tag bool) GitHubRepo {
 
 func TestGetReleaseNonExistingRepo(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
-	_, err := client.GetLatestVersion(context.TODO(), createGitHubRepo("arminc/unknown", false))
+	_, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/unknown", false))
 	assert.Error(t, err)
 }
 
 func TestGetReleaseNonExistend(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
-	_, err := client.GetLatestVersion(context.TODO(), createGitHubRepo("arminc/lcm_empty", false))
+	_, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/lcm_empty", false))
 	assert.Error(t, err)
 }
 
 func TestGetRelease(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
-	version, err := client.GetLatestVersion(context.TODO(), createGitHubRepo("arminc/lcm_release", false))
+	version, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/lcm_release", false))
 	assert.Nil(t, err)
 	assert.Equal(t, "0.2.0", version, "Version should be the same")
 }
 
 func TestGetTagsNonExistingRepo(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
-	_, err := client.GetLatestVersion(context.TODO(), createGitHubRepo("arminc/unknown", true))
+	_, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/unknown", true))
 	assert.Error(t, err)
 }
 
 func TestGetTagsNonExistend(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
-	_, err := client.GetLatestVersion(context.TODO(), createGitHubRepo("arminc/lcm_empty", true))
+	_, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/lcm_empty", true))
 	assert.Error(t, err)
 }
 
 func TestGetTags(t *testing.T) {
 	client := NewRepoVersionGetter(context.TODO(), Credentials{})
-	version, err := client.GetLatestVersion(context.TODO(), createGitHubRepo("arminc/lcm_release", true))
+	version, err := client.GetLatestVersion(context.TODO(), createRepo("arminc/lcm_release", true))
 	assert.Nil(t, err)
 	assert.Equal(t, "0.2.0", version, "Version should be the same")
 }

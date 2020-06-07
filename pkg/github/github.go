@@ -14,20 +14,21 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// GitHubRepos contains all the GitHub repositories and security information to watch for new versions on GitHub
-type GitHubRepos struct {
-	Credentials Credentials  `koanf:"credentials"`
-	Repos       []GitHubRepo `koanf:"repos"`
+// Repos contains all the GitHub repositories and security information to watch for new versions on GitHub
+type Repos struct {
+	Credentials Credentials `koanf:"credentials"`
+	Repos       []Repo      `koanf:"repos"`
 }
 
+// Credentials contains access details for GitHub
 type Credentials struct {
 	Username string `koanf:"username"`
 	Password string `koanf:"password"`
 	Token    string `koanf:"token"`
 }
 
-// GitHubRepo contains repositories that need to be checked for a new version
-type GitHubRepo struct {
+// Repo contains repositories that need to be checked for a new version
+type Repo struct {
 	Repo    string `koanf:"repo"`
 	Version string `koanf:"version"`
 	UseTag  bool   `koanf:"useTag"`
@@ -35,7 +36,7 @@ type GitHubRepo struct {
 
 // RepoVersionGetter is an interface that wraps calls to GitHub
 type RepoVersionGetter interface {
-	GetLatestVersion(ctx context.Context, gitRepo GitHubRepo) (string, error)
+	GetLatestVersion(ctx context.Context, gitRepo Repo) (string, error)
 	GetLatestVersionFromRelease(ctx context.Context, owner string, repo string) (string, error)
 	GetLatestVersionFromTag(ctx context.Context, owner string, repo string) (string, error)
 }
@@ -72,14 +73,14 @@ func NewRepoVersionGetter(ctx context.Context, credentials Credentials) RepoVers
 }
 
 // getRepoAndOwner splits repo "owner/repo" to owner and repo
-func (g GitHubRepo) getRepoAndOwner() (string, string) {
-	owner := strings.Split(g.Repo, "/")[0]
-	repo := strings.Split(g.Repo, "/")[1]
+func (r Repo) getRepoAndOwner() (string, string) {
+	owner := strings.Split(r.Repo, "/")[0]
+	repo := strings.Split(r.Repo, "/")[1]
 	return owner, repo
 }
 
 // GetLatestVersion returns latest version from release or tag depending on the setting
-func (gc *githubClient) GetLatestVersion(ctx context.Context, gitRepo GitHubRepo) (string, error) {
+func (gc *githubClient) GetLatestVersion(ctx context.Context, gitRepo Repo) (string, error) {
 	owner, repo := gitRepo.getRepoAndOwner()
 	if gitRepo.UseTag {
 		return gc.GetLatestVersionFromTag(ctx, owner, repo)

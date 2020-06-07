@@ -17,7 +17,7 @@ func TestHighestNone(t *testing.T) {
 }
 
 func TestHighestNotSemVer(t *testing.T) {
-	_, err := FindHighestSemVer([]string{"0"})
+	_, err := FindHighestSemVer([]string{"b"})
 	assert.Error(t, err)
 }
 

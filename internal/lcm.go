@@ -125,7 +125,7 @@ func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, na
 	return chartInfo
 }
 
-func getLatestVersionsForGitHub(ctx context.Context, gitHubRepos github.GitHubRepos) []GitHubInfo {
+func getLatestVersionsForGitHub(ctx context.Context, gitHubRepos github.Repos) []GitHubInfo {
 	var gitHubInfo []GitHubInfo
 	for _, repo := range gitHubRepos.Repos {
 		gitHub := github.NewRepoVersionGetter(ctx, gitHubRepos.Credentials)

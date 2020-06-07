@@ -20,7 +20,7 @@ type Config struct {
 	Namespaces             []string                   `koanf:"namespaces"`
 	ImageRegistries        registries.ImageRegistries `koanf:"imageRegistries"`
 	ImageScanners          scanning.ImageScanners     `koanf:"imageScanners"`
-	GitHub                 github.GitHubRepos         `koanf:"github"`
+	GitHub                 github.Repos               `koanf:"github"`
 	Images                 []string                   `koanf:"images"`
 	HelmRegistries         registries.HelmRegistries  `koanf:"helmRegistries"`
 }
