@@ -33,7 +33,7 @@ type GitHubRepo struct {
 	UseTag  bool   `koanf:"useTag"`
 }
 
-// RepoVersionGetter is an interface that wrapps calls to GitHub
+// RepoVersionGetter is an interface that wraps calls to GitHub
 type RepoVersionGetter interface {
 	GetLatestVersion(ctx context.Context, gitRepo GitHubRepo) (string, error)
 	GetLatestVersionFromRelease(ctx context.Context, owner string, repo string) (string, error)
@@ -46,20 +46,20 @@ type githubClient struct {
 
 // NewRepoVersionGetter is used to construct authenticated or unauthenticated access to GitHub
 // It returns an implementation of the GitHub client represented as the RepoVersionGetter interface
-func NewRepoVersionGetter(ctx context.Context, creds Credentials) RepoVersionGetter {
-	if creds.Username != "" && creds.Password != "" {
+func NewRepoVersionGetter(ctx context.Context, credentials Credentials) RepoVersionGetter {
+	if credentials.Username != "" && credentials.Password != "" {
 		auth := github.BasicAuthTransport{
-			Username: creds.Username,
-			Password: creds.Password,
+			Username: credentials.Username,
+			Password: credentials.Password,
 		}
 		return &githubClient{
 			client: github.NewClient(auth.Client()),
 		}
 	}
 
-	if creds.Token != "" {
+	if credentials.Token != "" {
 		auth := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: creds.Token},
+			&oauth2.Token{AccessToken: credentials.Token},
 		)
 		return &githubClient{
 			github.NewClient(oauth2.NewClient(ctx, auth)),
@@ -78,7 +78,7 @@ func (g GitHubRepo) getRepoAndOwner() (string, string) {
 	return owner, repo
 }
 
-// GetLatestVersion returns lates version from release or tag depending on the setting
+// GetLatestVersion returns latest version from release or tag depending on the setting
 func (gc *githubClient) GetLatestVersion(ctx context.Context, gitRepo GitHubRepo) (string, error) {
 	owner, repo := gitRepo.getRepoAndOwner()
 	if gitRepo.UseTag {
