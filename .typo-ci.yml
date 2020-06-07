@@ -1,0 +1,13 @@
+---
+
+dictionaries:
+  - en
+
+excluded_files:
+  - go.mod
+  - go.sum
+
+excluded_words:
+  - arminc
+
+spellcheck_filenames: true
