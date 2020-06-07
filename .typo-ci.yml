@@ -8,6 +8,11 @@ excluded_files:
   - go.sum
 
 excluded_words:
-  - arminc
+  - repo
+  - repos
+  - sirupsen
+  - logrus
+  - gitHubRepos
+  - NewRepoVersionGetter
 
 spellcheck_filenames: true
