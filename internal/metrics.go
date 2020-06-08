@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"github.com/arminc/k8s-platform-lcm/internal/config"
 	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
@@ -33,7 +34,7 @@ var (
 		"version",
 		"latestVersion",
 	})
-	toolStats = promauto.NewGaugeVec(prometheus.GaugeOpts{
+	githubStats = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "tool_info",
 		Help: "Information on tool releases",
 	}, []string{
@@ -44,9 +45,10 @@ var (
 )
 
 func runStats(config config.Config) {
+	ctx := context.Background()
 
 	imageStats.Reset()
-	toolStats.Reset()
+	githubStats.Reset()
 	chartStats.Reset()
 
 	//charts = getLatestVersionsForHelmCharts(config.HelmRegistries, config.Namespaces, config.RunningLocally(), clients)
@@ -88,17 +90,17 @@ func runStats(config config.Config) {
 	}
 
 	// tools images
-	tools := getLatestVersionsForTools(config.Tools, config.ToolRegistries)
-	for _, item := range tools {
-		tool := item.Tool.Repo
-		version := item.Tool.Version
+	github := getLatestVersionsForGitHub(ctx, config.GitHub)
+	for _, item := range github {
+		tool := item.Repo
+		version := item.Version
 		latestVersion := item.LatestVersion
 		getHighestVersion := versioning.FindHighestVersionInList([]string{version, latestVersion}, true)
 		status := 0.0
 		if version == getHighestVersion {
 			status = 1.0
 		}
-		toolStats.WithLabelValues(tool, version, latestVersion, ).Set(status)
+		githubStats.WithLabelValues(tool, version, latestVersion, ).Set(status)
 	}
 }
 
