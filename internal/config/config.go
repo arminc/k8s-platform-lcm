@@ -30,6 +30,7 @@ type AppConfig struct {
 	Locally            bool
 	ConfigFile         string
 	StartServer        bool   `koanf:"startServer"`
+	ExportMetrics      bool   `koanf:"exportMetrics"`
 	JSONLoggingEnabled bool   `koanf:"jsonLoggingEnabled"`
 	LogFile            string `koanf:"logFile"`
 	Verbose            bool   `koanf:"verbose"`

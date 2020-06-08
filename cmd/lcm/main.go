@@ -45,6 +45,7 @@ func initFlags() config.AppConfig {
 	app.Flag("jsonLogging", "Log in json format").BoolVar(&cliFlags.JSONLoggingEnabled)
 	app.Flag("logFile", "Log file path").StringVar(&cliFlags.LogFile)
 	app.Flag("server", "Start the server").BoolVar(&cliFlags.StartServer)
+	app.Flag("metrics", "Start the metrics server").BoolVar(&cliFlags.ExportMetrics)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	return *cliFlags
@@ -56,7 +57,11 @@ func main() {
 	config.CliFlags = cliFlags // Add cli flags to config object
 	initLogging(config)
 	log.WithField("version", version).Info("Running version")
+
 	internal.Execute(config)
+	if config.CliFlags.ExportMetrics {
+		go internal.StartMetricsServer(config)
+	}
 	if config.CliFlags.StartServer {
 		internal.StartServer()
 	}
