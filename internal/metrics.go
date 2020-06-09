@@ -35,8 +35,8 @@ var (
 		"latestVersion",
 	})
 	githubStats = promauto.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "tool_info",
-		Help: "Information on tool releases",
+		Name: "github_info",
+		Help: "Information on github tool/application releases",
 	}, []string{
 		"tool",
 		"version",
@@ -89,7 +89,7 @@ func runStats(config config.Config) {
 		imageStats.WithLabelValues(image, version, latestVersion, registry).Set(status)
 	}
 
-	// tools images
+	// github released versions
 	github := getLatestVersionsForGitHub(ctx, config.GitHub)
 	for _, item := range github {
 		tool := item.Repo
