@@ -130,7 +130,7 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string, cacheToken string)
 
 	if r.AuthType == AuthTypeToken && cacheToken == "" {
 		log.Debug("Need to fetch the auth token")
-		err, cacheToken = r.getToken(url)
+		cacheToken, err = r.getToken(url)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -162,33 +162,33 @@ func getNextLink(resp *http.Response) (string, error) {
 	return "", ErrNoMorePages
 }
 
-func (r ImageRegistry) getToken(url string) (err error, cacheToken string) {
+func (r ImageRegistry) getToken(url string) (cacheToken string, err error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	// Check if we need to login and find out the token url
 	resp, err := client.Do(req)
 	if err != nil {
-		return err, ""
+		return "", err
 	} else if resp.StatusCode != http.StatusUnauthorized {
-		return fmt.Errorf("Response code was not Unauthorized but [%v]", resp.StatusCode), ""
+		return "", fmt.Errorf("Response code was not Unauthorized but [%v]", resp.StatusCode)
 	}
 	defer resp.Body.Close()
 
 	// Get token url and login to get the token
 	tokenURL, err := parsHeaders(resp.Header)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	log.WithField("url", tokenURL).Debug("Token url")
 	client = &http.Client{}
 	req, err = http.NewRequest("GET", tokenURL, nil)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	if r.Username != "" || r.Password != "" {
@@ -197,9 +197,9 @@ func (r ImageRegistry) getToken(url string) (err error, cacheToken string) {
 
 	resp, err = client.Do(req)
 	if err != nil {
-		return err, ""
+		return "", err
 	} else if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Response code was not Oke but [%v]", resp.StatusCode), ""
+		return "", fmt.Errorf("Response code was not Oke but [%v]", resp.StatusCode)
 	}
 	defer resp.Body.Close()
 
@@ -207,15 +207,15 @@ func (r ImageRegistry) getToken(url string) (err error, cacheToken string) {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&authToken)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	cacheToken = authToken.Token
-	return nil, cacheToken
+	return cacheToken, nil
 }
 
 type authToken struct {
-	Token     string `json:"token"`
+	Token string `json:"token"`
 }
 
 // example: Www-Authenticate: Bearer realm="https://auth.docker.io/token",service="r.docker.io",scope="repository:library/ubuntu:pull"
