@@ -44,13 +44,10 @@ func Execute(config config.Config) {
 	var containers = []kubernetes.Container{}
 	if config.IsKubernetesFetchEnabled() {
 		containers = kubernetes.GetContainersFromNamespaces(config.Namespaces, config.RunningLocally())
-		log.L.WithField("lcm", "FetchEabled").Debugf("Containers are %+v", containers)
 	}
 
 	containers = getExtraImages(config.Images, containers)
-	log.L.WithField("lcm", "InclExtraImages").Debugf("Incl. ExtraContainers are %+v", containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
-	log.L.WithField("lcm", "LatestVersionsForContainers").Debugf("Info after getLatestVersionsForContainers%+v", info)
 	if len(config.Xray.URL) > 0 {
 		info = getVulnerabilities(info, config)
 	}
