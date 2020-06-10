@@ -39,6 +39,7 @@ jobs:
       uses: release-drafter/release-drafter@v5.11.0
       with:
           publish: true
+          version: ${{ github.event.release.tag_name }}
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
 
