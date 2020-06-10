@@ -53,8 +53,6 @@ type ImageRegistry struct {
 	AllowAllReleases bool
 }
 
-var cacheToken = ""
-
 // GetLatestVersion fetches the latest version of the docker image from Docker registry
 func (r ImageRegistry) GetLatestVersion(name string) string {
 	log.WithField("registry", r.Name).WithField("image", name).Debug("Get latest version for Docker image")
@@ -64,10 +62,10 @@ func (r ImageRegistry) GetLatestVersion(name string) string {
 		name = "library/" + name
 	}
 
-	cacheToken = "" // reset the token
+	cacheToken := "" // reset the token
 
 	pathSuffix := fmt.Sprintf("/v2/%s/tags/list", name)
-	tags, err := r.fetch(pathSuffix)
+	tags, err := r.fetch(pathSuffix, cacheToken)
 	if err != nil {
 		log.WithError(err).WithField("name", name).Error("Could not fetch tags")
 		return versioning.Notfound
@@ -75,13 +73,13 @@ func (r ImageRegistry) GetLatestVersion(name string) string {
 	return versioning.FindHighestVersionInList(tags, r.AllowAllReleases)
 }
 
-func (r ImageRegistry) fetch(pathSuffix string) ([]string, error) {
+func (r ImageRegistry) fetch(pathSuffix string, cacheToken string) ([]string, error) {
 	tags := []string{}
 
 	for {
 		var response tagsResponse
 		var err error
-		pathSuffix, err = r.getPaginatedJSON(pathSuffix, &response)
+		pathSuffix, err = r.getPaginatedJSON(pathSuffix, &response, cacheToken)
 		switch err {
 		case ErrNoMorePages:
 			tags = append(tags, response.Tags...)
@@ -95,8 +93,8 @@ func (r ImageRegistry) fetch(pathSuffix string) ([]string, error) {
 	}
 }
 
-func (r ImageRegistry) getPaginatedJSON(pathSuffix string, response interface{}) (string, error) {
-	client, req, err := r.getClientAndRequest(pathSuffix)
+func (r ImageRegistry) getPaginatedJSON(pathSuffix string, response interface{}, cacheToken string) (string, error) {
+	client, req, err := r.getClientAndRequest(pathSuffix, cacheToken)
 	if err != nil {
 		return "", err
 	}
@@ -117,7 +115,7 @@ func (r ImageRegistry) getPaginatedJSON(pathSuffix string, response interface{})
 	return getNextLink(resp)
 }
 
-func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *http.Request, error) {
+func (r ImageRegistry) getClientAndRequest(pathSuffix string, cacheToken string) (*http.Client, *http.Request, error) {
 	url := fmt.Sprintf("https://%s%s", r.URL, pathSuffix)
 	log.WithField("url", url).Debugf("Try fetching url")
 	client := &http.Client{}
@@ -132,7 +130,8 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string) (*http.Client, *ht
 
 	if r.AuthType == AuthTypeToken && cacheToken == "" {
 		log.Debug("Need to fetch the auth token")
-		if err := r.getToken(url); err != nil {
+		cacheToken, err = r.getToken(url)
+		if err != nil {
 			return nil, nil, err
 		}
 	}
@@ -163,33 +162,33 @@ func getNextLink(resp *http.Response) (string, error) {
 	return "", ErrNoMorePages
 }
 
-func (r ImageRegistry) getToken(url string) error {
+func (r ImageRegistry) getToken(url string) (cacheToken string, err error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Check if we need to login and find out the token url
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return "", err
 	} else if resp.StatusCode != http.StatusUnauthorized {
-		return fmt.Errorf("Response code was not Unauthorized but [%v]", resp.StatusCode)
+		return "", fmt.Errorf("Response code was not Unauthorized but [%v]", resp.StatusCode)
 	}
 	defer resp.Body.Close()
 
 	// Get token url and login to get the token
 	tokenURL, err := parsHeaders(resp.Header)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	log.WithField("url", tokenURL).Debug("Token url")
 	client = &http.Client{}
 	req, err = http.NewRequest("GET", tokenURL, nil)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if r.Username != "" || r.Password != "" {
@@ -198,9 +197,9 @@ func (r ImageRegistry) getToken(url string) error {
 
 	resp, err = client.Do(req)
 	if err != nil {
-		return err
+		return "", err
 	} else if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Response code was not Oke but [%v]", resp.StatusCode)
+		return "", fmt.Errorf("Response code was not Oke but [%v]", resp.StatusCode)
 	}
 	defer resp.Body.Close()
 
@@ -208,11 +207,11 @@ func (r ImageRegistry) getToken(url string) error {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&authToken)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	cacheToken = authToken.Token
-	return nil
+	return cacheToken, nil
 }
 
 type authToken struct {
