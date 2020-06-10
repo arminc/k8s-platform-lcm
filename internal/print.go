@@ -10,8 +10,8 @@ import (
 
 func prettyPrintContainerInfo(info []ContainerInfo) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Image", "Version", "Latest", "Cves"})
-	table.SetColumnAlignment([]int{3, 1, 1, 3})
+	table.SetHeader([]string{"Image", "Version", "Latest", "Totaal Cves", "Cves"})
+	table.SetColumnAlignment([]int{3, 1, 1, 1, 1})
 
 	for _, container := range info {
 		row := []string{
@@ -19,8 +19,28 @@ func prettyPrintContainerInfo(info []ContainerInfo) {
 			container.Container.Version,
 			container.LatestVersion,
 			container.GetCveStatus(),
+			strconv.Itoa(container.VulnerabilitiesNotAccepted),
 		}
 		table.Append(row)
+	}
+	table.Render()
+}
+
+func prettyPrintContainerInfoVulnerabilities(info []ContainerInfo) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Image", "CVE", "Severity", "Description"})
+	table.SetColumnAlignment([]int{3, 1, 1, 3})
+
+	for _, container := range info {
+		for _, vul := range container.Vulnerabilities {
+			row := []string{
+				container.Container.Name,
+				vul.Identifier,
+				vul.Severity,
+				vul.Description,
+			}
+			table.Append(row)
+		}
 	}
 	table.Render()
 }
@@ -59,17 +79,10 @@ func prettyPrintChartInfo(charts []ChartInfo) {
 
 // GetCveStatus shows the status based on the cve's
 func (c ContainerInfo) GetCveStatus() string {
-	cve := strconv.Itoa(len(c.Cves))
-
-	if len(c.Cves) == 1 {
-		switch c.Cves[0] {
-		case versioning.Failure:
-			cve = versioning.Failure
-		case versioning.Nodata:
-			cve = versioning.Nodata
-		}
+	if !c.Fetched {
+		return versioning.Nodata
 	}
-	return cve
+	return strconv.Itoa(len(c.Vulnerabilities))
 }
 
 // GetStatus shows the status based on version and cve status
@@ -78,7 +91,7 @@ func (c ContainerInfo) GetStatus() string {
 		return c.LatestVersion
 	} else if c.GetCveStatus() == versioning.Failure || c.GetCveStatus() == versioning.Nodata {
 		return c.GetCveStatus()
-	} else if len(c.Cves) >= 1 {
+	} else if c.VulnerabilitiesNotAccepted > 0 {
 		return versioning.Failure
 	}
 	return versioning.DetermineLifeCycleStatus(c.LatestVersion, c.Container.Version)

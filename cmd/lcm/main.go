@@ -46,6 +46,7 @@ func initFlags() config.AppConfig {
 	app.Flag("logFile", "Log file path").StringVar(&cliFlags.LogFile)
 	app.Flag("server", "Start the server").BoolVar(&cliFlags.StartServer)
 	app.Flag("metrics", "Start the metrics server").BoolVar(&cliFlags.ExportMetrics)
+	app.Flag("vul", "Show vulnerabilities if pretty print allowed").BoolVar(&cliFlags.Vulnerabilities)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	return *cliFlags

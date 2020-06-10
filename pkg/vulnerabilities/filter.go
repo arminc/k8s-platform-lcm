@@ -8,21 +8,28 @@ import (
 
 // Filter is an interface to filtering vulnerabilities
 type Filter interface {
-	Vulnerabilities()
+	Vulnerabilities(name string, vul []Vulnerability) []Vulnerability
 }
 
 // FilterData contains all the accepted vulnerabilities that need to be filtered out
 type FilterData struct {
-	Severities  []string
-	Identifiers []Identifier
+	Severities  []string     `koanf:"severities"`
+	Identifiers []Identifier `koanf:"identifiers"`
 }
 
 // Identifier holds a matcher to match against and a list of identifiers who are accepted
 // In case of an Docker image this can be regular expression like arminc.* or arminc/something.* or explicit arminc/something:1.2.1
 // Identifiers need to exactly match the ones passed in
 type Identifier struct {
-	Match       string
-	Identifiers []string
+	Match       string   `koanf:"name"`
+	Identifiers []string `koanf:"identifiers"`
+}
+
+func NewVulnerabilityFilter(severities []string, identifiers []Identifier) Filter {
+	return &FilterData{
+		Severities:  severities,
+		Identifiers: identifiers,
+	}
 }
 
 // Vulnerabilities filters all accepted vulnerabilities out
