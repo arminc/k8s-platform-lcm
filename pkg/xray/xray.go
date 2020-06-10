@@ -65,7 +65,8 @@ func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix)
 		for _, cve := range issue.GetCves() {
 			vulnerability := vulnerabilities.Vulnerability{
 				Identifier:  cve.GetCve(),
-				Description: *issue.Description,
+				Description: issue.GetDescription(),
+				Severity:    issue.GetSeverity(),
 			}
 			allVulnerabilities = append(allVulnerabilities, vulnerability)
 		}

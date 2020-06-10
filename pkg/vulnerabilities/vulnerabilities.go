@@ -4,4 +4,5 @@ package vulnerabilities
 type Vulnerability struct {
 	Identifier  string
 	Description string
+	Severity    string
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
 	"github.com/arminc/k8s-platform-lcm/pkg/github"
+	"github.com/arminc/k8s-platform-lcm/pkg/vulnerabilities"
 	"github.com/arminc/k8s-platform-lcm/pkg/xray"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -14,15 +15,16 @@ import (
 
 // Config of the lcm application, normally loaded from the config file
 type Config struct {
-	CliFlags               AppConfig
-	AppConfig              AppConfig                  `koanf:"app"`
-	KubernetesFetchEnabled bool                       `koanf:"kubernetesFetchEnabled"`
-	Namespaces             []string                   `koanf:"namespaces"`
-	ImageRegistries        registries.ImageRegistries `koanf:"imageRegistries"`
-	Xray                   xray.Config                `koanf:"xray"`
-	GitHub                 github.Repos               `koanf:"github"`
-	Images                 []string                   `koanf:"images"`
-	HelmRegistries         registries.HelmRegistries  `koanf:"helmRegistries"`
+	CliFlags                AppConfig
+	AppConfig               AppConfig                  `koanf:"app"`
+	KubernetesFetchEnabled  bool                       `koanf:"kubernetesFetchEnabled"`
+	Namespaces              []string                   `koanf:"namespaces"`
+	ImageRegistries         registries.ImageRegistries `koanf:"imageRegistries"`
+	Xray                    xray.Config                `koanf:"xray"`
+	GitHub                  github.Repos               `koanf:"github"`
+	Images                  []string                   `koanf:"images"`
+	HelmRegistries          registries.HelmRegistries  `koanf:"helmRegistries"`
+	VulnerabilityFilterData vulnerabilities.FilterData `koanf:"filterVulnerabilities"`
 }
 
 // AppConfig is the config for the app which can be set trough cli and config
@@ -35,6 +37,7 @@ type AppConfig struct {
 	LogFile            string `koanf:"logFile"`
 	Verbose            bool   `koanf:"verbose"`
 	Debug              bool   `koanf:"debug"`
+	Vulnerabilities    bool
 }
 
 // LoadConfiguration loads the configuration from file

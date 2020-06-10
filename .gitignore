@@ -1,4 +1,5 @@
 config.yaml
+config2.yaml
 cmd/fake
 todo.md
 .vscode/**

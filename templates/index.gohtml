@@ -20,6 +20,7 @@ Last run: {{ .LastTimeFetched }}
             <th>Current Version</th>
             <th>Latest Version</th>
             <th>Vulnerabilities</th>
+            <th>Total Vulnerabilities</th>
         </tr>
     </thead>
     <tbody>
@@ -29,6 +30,7 @@ Last run: {{ .LastTimeFetched }}
             <td>{{.Container.Version}}</td>
             <td>{{.LatestVersion}}</td>
             <td>{{.GetCveStatus}}</td>
+            <td>{{.VulnerabilitiesNotAccepted}}</td>
         </tr>
     {{end}}
     </tbody>
