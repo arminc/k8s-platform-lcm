@@ -25,6 +25,8 @@ type Identifier struct {
 	Identifiers []string `koanf:"identifiers"`
 }
 
+// NewVulnerabilityFilter constructs a vulnerabilities filter
+// It returns a filter data represented as the Filter interface
 func NewVulnerabilityFilter(severities []string, identifiers []Identifier) Filter {
 	return &FilterData{
 		Severities:  severities,
@@ -35,10 +37,10 @@ func NewVulnerabilityFilter(severities []string, identifiers []Identifier) Filte
 // Vulnerabilities filters all accepted vulnerabilities out
 // name can be anything, in case of Docker image arminc/something:1.2.1
 func (fd *FilterData) Vulnerabilities(name string, vul []Vulnerability) []Vulnerability {
-	unnacepted := vul
+	unaccepted := vul
 
 	if len(fd.Severities) > 0 {
-		unnacepted = FilterAcceptedSeverities(unnacepted, fd.Severities)
+		unaccepted = FilterAcceptedSeverities(unaccepted, fd.Severities)
 	}
 
 	if len(fd.Identifiers) > 0 {
@@ -49,11 +51,11 @@ func (fd *FilterData) Vulnerabilities(name string, vul []Vulnerability) []Vulner
 			}
 			log.Info(match)
 			if match {
-				unnacepted = FilterAcceptedIdentifiers(unnacepted, identifier.Identifiers)
+				unaccepted = FilterAcceptedIdentifiers(unaccepted, identifier.Identifiers)
 			}
 		}
 	}
-	return unnacepted
+	return unaccepted
 }
 
 // FilterAcceptedSeverities removes accepted severities and returns remaining vulnerabilities

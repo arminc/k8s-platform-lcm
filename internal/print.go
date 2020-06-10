@@ -10,7 +10,7 @@ import (
 
 func prettyPrintContainerInfo(info []ContainerInfo) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Image", "Version", "Latest", "Totaal Cves", "Cves"})
+	table.SetHeader([]string{"Image", "Version", "Latest", "Total Cves", "Cves"})
 	table.SetColumnAlignment([]int{3, 1, 1, 1, 1})
 
 	for _, container := range info {
