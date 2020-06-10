@@ -35,13 +35,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
 
-    - name: Publish Release Notes
-      uses: release-drafter/release-drafter@v5.11.0
-      with:
-          publish: true
-          version: 0.11.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
+    # - name: Publish Release Notes
+    #   uses: release-drafter/release-drafter@v5.11.0
+    #   with:
+    #       publish: true
+    #       version: ${{ github.event.release.tag_name }}
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.TOKEN_REPO }}
 
     - name: Clear Docker credentials
       run: rm -f ${HOME}/.docker/config.json
