@@ -15,7 +15,7 @@ This project helps you keep track of all your software and tools that are used o
 ## Features
 
 -   [x] Keep track of versions of all the running containers (including init containers) inside the Kubernetes
--   [x] Keep track of new image versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory by default 
+-   [x] Keep track of new image versions. Supporting Quay, Gcr, Docker hub, Jfrog Artifactory by default
 -   [x] Works with private registries and private images
 -   [x] Allow overriding of the registry to search latest versions from another registry
 -   [x] Keep track of image vulnerabilities using Jfrog Xray
@@ -23,10 +23,11 @@ This project helps you keep track of all your software and tools that are used o
 -   [x] Keep track of Helm chart deployments and track new versions of the charts
 -   [x] Present the information command line
 -   [x] Present the information trough a web UI
+-   [x] Export prometheus metrics
 
 ## Help (how to run)
 
-For all the configuration options please have a look at the [exampleConfig.yaml](exampleConfig.yaml). 
+For all the configuration options please have a look at the [exampleConfig.yaml](exampleConfig.yaml).
 
 When running lcm you can provide certain flags which are not available in the config. The application assumes there is a config.yaml available in the same folder.
 
@@ -46,6 +47,7 @@ Flags:
   --jsonLogging           Log in json format
   --logFile=LOGFILE       Log file path
   --server                Start the server
+  --metrics               Start the metric server (runs on port 9572)
 ```
 
 **Note:** If you are using `--server` option please make sure the `templates` and `static` folder are next to the binary so it can serve the page.
@@ -83,6 +85,14 @@ docker run -it -v $(pwd)/config.yaml:/config.yaml -p 7321:7321 arminc/lcm:latest
 | derailed/popeye     | v0.4.1  |  v0.5.0  |
 | hashicorp/terraform | 0.11.14 | v0.12.18 |
 +---------------------+---------+----------+
+```
+
+### Metric output
+
+```text
+chart_info{chart="polaris",latestVersion="1.1.0",version="0.10.1"} 0
+image_info{image="storageos/csi-provisioner",latestVersion="v1.4.0",registry="docker.io",version="v1.4.0"} 1
+tool_info{latestVersion="v0.12.26",tool="hashicorp/terraform",version="0.11.14"} 0
 ```
 
 ### Web UI

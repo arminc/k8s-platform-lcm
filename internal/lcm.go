@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/arminc/k8s-platform-lcm/internal/config"
@@ -47,7 +48,9 @@ func Execute(config config.Config) {
 
 	containers = getExtraImages(config.Images, containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
-	info = getVulnerabilities(info, config)
+	if len(config.Xray.URL) > 0 {
+		info = getVulnerabilities(info, config)
+	}
 	if config.PrettyPrintAllowed() {
 		prettyPrintContainerInfo(info)
 	}
@@ -81,14 +84,32 @@ func getExtraImages(images []string, containers []kubernetes.Container) []kubern
 }
 
 func getLatestVersionsForContainers(containers []kubernetes.Container, registries registries.ImageRegistries) []ContainerInfo {
-	containerInfo := []ContainerInfo{}
+	var wg sync.WaitGroup
+	var containerInfo []ContainerInfo
+	queue := make(chan ContainerInfo, 1)
+	wg.Add(len(containers))
+	log.L.WithField("lcm", "getLatestVersionsForContainers").Debugf("all containers slice is %+v", containers)
 	for _, container := range containers {
-		version := registries.GetLatestVersionForImage(container.Name, container.URL)
-		containerInfo = append(containerInfo, ContainerInfo{
-			Container:     container,
-			LatestVersion: version,
-		})
+		log.L.WithField("lcm", "getLatestVersionsForContainers").Debugf("current container is %+v", container)
+		go func(container kubernetes.Container) {
+			version := registries.GetLatestVersionForImage(container.Name, container.URL)
+			newContainerInfo := ContainerInfo{
+				Container:     container,
+				LatestVersion: version,
+			}
+			queue <- newContainerInfo
+		}(container)
 	}
+
+	go func() {
+		for t := range queue {
+			containerInfo = append(containerInfo, t)
+			wg.Done()
+		}
+	}()
+
+	wg.Wait()
+	log.L.WithField("lcm", "getLatestVersionsForContainers").Debugf("containerInfo slice is %+v", containerInfo)
 
 	sort.Slice(containerInfo, func(i, j int) bool {
 		return containerInfo[i].Container.Name < containerInfo[j].Container.Name
