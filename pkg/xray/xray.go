@@ -2,6 +2,8 @@
 package xray
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"regexp"
 
@@ -60,11 +62,13 @@ func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix)
 
 	var allVulnerabilities []vulnerabilities.Vulnerability
 	for _, issue := range xrayVulnerabilities.GetIssues() {
-		log.Debugf("Vulnerabilities %v", issue.GetCves())
-		log.Debugf("Vulnerabilities %v", issue.GetDescription())
 		for _, cve := range issue.GetCves() {
+			cve := cve.GetCve()
+			if cve == "" {
+				cve = hashString(issue.GetDescription())
+			}
 			vulnerability := vulnerabilities.Vulnerability{
-				Identifier:  cve.GetCve(),
+				Identifier:  cve,
 				Description: issue.GetDescription(),
 				Severity:    issue.GetSeverity(),
 			}
@@ -113,4 +117,14 @@ func findPrefix(imageName string, prefixes []Prefix) string {
 	}
 
 	return ""
+}
+
+func hashString(text string) string {
+	hasher := sha1.New()
+	_, err := hasher.Write([]byte(text))
+	if err != nil {
+		log.WithError(err).Warn("Could not hash")
+		return "HASH_ERROR"
+	}
+	return base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 }
