@@ -141,3 +141,15 @@ type: yml # default type
 #     - repo: hashicorp/terraform-provider-archive
 #       version: "1.1.0"
 #       useTag: true # If the repository isn't using releases you can use tags to find the latest version, versions need to be semver
+
+# It is possible to filter out the vulnerabilities which are accepted
+# Specify severities you do not want to include in the count
+# Specify the name of the image, this can be full docker image name with tag - arminc/other:1.1.0 
+# Or it can be a match (regular expression) like arminc.*
+# filterVulnerabilities:
+#   severities:
+#     - LOW
+#   identifiers:
+#     name: arminc.*
+#     identifiers:
+#       - CVE-2018-7169

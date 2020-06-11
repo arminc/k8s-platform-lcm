@@ -24,6 +24,7 @@ This project helps you keep track of all your software and tools that are used o
 -   [x] Present the information command line
 -   [x] Present the information trough a web UI
 -   [x] Export prometheus metrics
+-   [x] Filter out vulnerabilties which are accepted
 
 ## Help (how to run)
 
@@ -48,6 +49,7 @@ Flags:
   --logFile=LOGFILE       Log file path
   --server                Start the server
   --metrics               Start the metric server (runs on port 9572)
+  --vul                   Print all vulnerabilities at the end
 ```
 
 **Note:** If you are using `--server` option please make sure the `templates` and `static` folder are next to the binary so it can serve the page.
