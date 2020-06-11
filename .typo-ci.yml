@@ -34,5 +34,7 @@ excluded_words:
   - Severities
   - Itoa
   - strconv
-
+  - hasher
+  - crypto
+  
 spellcheck_filenames: true
