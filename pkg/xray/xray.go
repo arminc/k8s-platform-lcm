@@ -121,6 +121,10 @@ func findPrefix(imageName string, prefixes []Prefix) string {
 
 func hashString(text string) string {
 	hasher := sha1.New()
-	hasher.Write([]byte(text))
+	_, err := hasher.Write([]byte(text))
+	if err != nil {
+		log.WithError(err).Warn("Could not hash")
+		return "HASH_ERROR"
+	}
 	return base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 }
