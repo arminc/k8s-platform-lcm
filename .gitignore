@@ -7,3 +7,4 @@ dist
 main
 coverage.txt
 .DS_Store
+lcm

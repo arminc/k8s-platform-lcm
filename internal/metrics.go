@@ -2,11 +2,13 @@ package internal
 
 import (
 	"context"
-	"github.com/arminc/k8s-platform-lcm/internal/config"
-	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
-	"github.com/arminc/k8s-platform-lcm/internal/versioning"
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/arminc/k8s-platform-lcm/internal/config"
+	"github.com/arminc/k8s-platform-lcm/internal/versioning"
+	"github.com/arminc/k8s-platform-lcm/pkg/kubernetes"
+	log "github.com/sirupsen/logrus"
+
 	// Import to initialize client auth plugins.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
@@ -52,10 +54,20 @@ func runStats(config config.Config) {
 	chartStats.Reset()
 
 	//charts = getLatestVersionsForHelmCharts(config.HelmRegistries, config.Namespaces, config.RunningLocally(), clients)
-	var containers []kubernetes.Container
+	var containers []kubernetes.Image
 	var charts []ChartInfo
 	if config.IsKubernetesFetchEnabled() {
-		containers = kubernetes.GetContainersFromNamespaces(config.Namespaces, config.RunningLocally())
+		kube, err := kubernetes.NewKubeClient(config.RunningLocally())
+		if err != nil {
+			log.WithError(err).Error("Could not create a kubernetes client")
+		} else {
+			c, err := kube.GetImagesFromNamespaces(config.Namespaces)
+			if err != nil {
+				log.WithError(err).Error("Could not fetch image info from kubernetes")
+			} else {
+				containers = c
+			}
+		}
 		charts = getLatestVersionsForHelmCharts(config.HelmRegistries, config.Namespaces, config.RunningLocally())
 	}
 
@@ -100,7 +112,7 @@ func runStats(config config.Config) {
 		if version == getHighestVersion {
 			status = 1.0
 		}
-		githubStats.WithLabelValues(tool, version, latestVersion, ).Set(status)
+		githubStats.WithLabelValues(tool, version, latestVersion).Set(status)
 	}
 }
 

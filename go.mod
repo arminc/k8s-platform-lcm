@@ -14,6 +14,7 @@ require (
 	github.com/franela/goblin v0.0.0-20200409142057-1def193310bb // indirect
 	github.com/gin-gonic/gin v1.6.3 // indirect
 	github.com/gogo/googleapis v1.4.0 // indirect
+	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/mux v1.7.4
 	github.com/heptiolabs/healthcheck v0.0.0-20180807145615-6ff867650f40
@@ -21,6 +22,7 @@ require (
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/opencontainers/runtime-spec v1.0.2 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.2.1
 	github.com/prometheus/common v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.6.0
