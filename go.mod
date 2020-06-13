@@ -23,8 +23,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/opencontainers/runtime-spec v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.2.1
-	github.com/prometheus/common v0.9.1 // indirect
+	github.com/prometheus/client_golang v1.6.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1
 	github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2 // indirect
