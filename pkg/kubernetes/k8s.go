@@ -65,11 +65,11 @@ func (k k8sClient) GetImagesFromNamespaces(namespaces []string) ([]Image, error)
 			containers = append(containers, container)
 		}
 	}
-	log.Info("Finished fecthing all containers")
+	log.Info("Finished fetching all containers")
 	return containers, nil
 }
 
-// getNamespaces returns all namesapces or just the ones that are defined
+// getNamespaces returns all namespaces or just the ones that are defined
 func getNamespaces(namespaces []string, k Kube) ([]string, error) {
 	if len(namespaces) == 0 {
 		log.Debug("No namespaces defined, fetching all namespaces from Kubernetes")

@@ -36,5 +36,15 @@ excluded_words:
   - strconv
   - hasher
   - crypto
+  - Wrapf
+  - deduplicated
+  - Kube
+  - NewKubeClient
+  - apimachinery
+  - gcr
+  - Infof
+  - kubeconfig
+  - clientcmd
+  - vulnera
   
 spellcheck_filenames: true

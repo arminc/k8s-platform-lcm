@@ -9,7 +9,7 @@ import (
 )
 
 // FindHighestSemVer finds the highest version according to the SemVer spec
-// It is tollerant to versions, it will try to make it a proper version if it is not completely SemVer
+// It is tolerant to versions, it will try to make it a proper version if it is not completely SemVer
 // Note that build numbers are ignored and it will take the last one in the array, this might be lower build number
 // The versions which can't be parsed will be skipped
 func FindHighestSemVer(versions []string) (string, error) {
