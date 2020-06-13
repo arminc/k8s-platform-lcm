@@ -8,6 +8,7 @@ import (
 	"regexp"
 
 	"github.com/arminc/k8s-platform-lcm/pkg/vulnerabilities"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/target/go-arty/xray"
 )
@@ -50,6 +51,7 @@ func NewXray(config Config) (Scanner, error) {
 }
 
 // GetVulnerabilities returns Xray results as generic Vulnerabilities instead of in the Xray format
+// It returns empty Image list on error
 func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix) ([]vulnerabilities.Vulnerability, error) {
 	log.WithField("image", name).WithField("version", version).Debug("Fetching vulnerabilities")
 	path := fmt.Sprintf("%s/%s/%s", findPrefix(name, prefixes), name, version)
@@ -57,10 +59,10 @@ func (x *xrayClient) GetVulnerabilities(name, version string, prefixes []Prefix)
 		Paths: &[]string{path},
 	})
 	if err != nil {
-		return nil, err
+		return []vulnerabilities.Vulnerability{}, err
 	}
 
-	var allVulnerabilities []vulnerabilities.Vulnerability
+	allVulnerabilities := []vulnerabilities.Vulnerability{}
 	for _, issue := range xrayVulnerabilities.GetIssues() {
 		for _, cve := range issue.GetCves() {
 			cve := cve.GetCve()
@@ -85,11 +87,10 @@ func (x *xrayClient) GetXrayResults(request xray.SummaryArtifactRequest) (xray.S
 		return xray.SummaryArtifact{}, err
 	}
 	if response.StatusCode != 200 {
-		log.WithField("request", request).Warnf("Error fetching xray vulnerabilities: http-status: %s", response.Status)
-		return xray.SummaryArtifact{}, fmt.Errorf("Error fetching xray vulnerabilities, http-status: %s", response.Status)
+		return xray.SummaryArtifact{}, errors.Wrapf(err, "Error fetching xray vulnerabilities, http-status: %s", response.Status)
 	}
 	if len(sum.GetErrors()) >= 1 {
-		return xray.SummaryArtifact{}, fmt.Errorf("Got an error from xray for [%v] error [%s]", request, *sum.GetErrors()[0].Error)
+		return xray.SummaryArtifact{}, errors.Wrapf(err, "Got an error from xray for [%v] error [%s]", request, *sum.GetErrors()[0].Error)
 	}
 
 	// Currently we only fetch one image a a time, therefore we can just grab the first artifact

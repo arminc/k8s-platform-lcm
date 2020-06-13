@@ -3,10 +3,10 @@ package github
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/arminc/k8s-platform-lcm/pkg/versioning"
 	"github.com/google/go-github/v31/github"
@@ -106,12 +106,12 @@ func (gc *githubClient) GetLatestVersionFromRelease(ctx context.Context, owner s
 func (gc *githubClient) getLatestReleaseVersion(ctx context.Context, owner string, repo string) (string, error) {
 	release, response, err := gc.client.Repositories.GetLatestRelease(ctx, owner, repo)
 	if err != nil {
-		log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest version: err: %s", err)
-		return "", err
+		log.WithField("repo", owner+"/"+repo).WithError(err).Warn("Error fetching latest version")
+		return "", errors.Wrap(err, "Error fetching latest version")
 	}
 	if response.StatusCode != 200 {
 		log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest version: http-status: %s", response.Status)
-		return "", fmt.Errorf("Error fetching latest version: http-status: %s", response.Status)
+		return "", errors.Wrapf(err, "Error fetching latest version: http-status: %s", response.Status)
 	}
 	return release.GetTagName(), nil
 }
@@ -137,12 +137,12 @@ func (gc *githubClient) getLatestTag(ctx context.Context, owner string, repo str
 	for {
 		tags, response, err := gc.client.Repositories.ListTags(ctx, owner, repo, opt)
 		if err != nil {
-			log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest tags: err: %s", err)
-			return "", err
+			log.WithField("repo", owner+"/"+repo).WithError(err).Warn("Error fetching latest tags")
+			return "", errors.Wrap(err, "Error fetching latest tags")
 		}
 		if response.StatusCode != 200 {
-			log.WithField("repo", owner+"/"+repo).Warnf("Error fetching latest tags: http-status: %s", response.Status)
-			return "", fmt.Errorf("Error fetching latest tag: http-status: %s", response.Status)
+			log.WithField("repo", owner+"/"+repo).WithField("http-status", response.Status).Warn("Error fetching latest tags")
+			return "", errors.Wrapf(err, "Error fetching latest tag: http-status: %s", response.Status)
 		}
 		for _, tag := range tags {
 			allTags = append(allTags, *tag.Name)
@@ -169,19 +169,18 @@ func retryWhenRateLimited(cb func() error) error {
 			rerr, ok := err.(*github.RateLimitError)
 			if ok {
 				var d = time.Until(rerr.Rate.Reset.Time)
-				log.Warnf("hit rate limit, sleeping for %.0f min", d.Minutes())
+				log.Warnf("Hit rate limit, sleeping for %.0f min", d.Minutes())
 				time.Sleep(d)
 				continue
 			}
 			aerr, ok := err.(*github.AbuseRateLimitError)
 			if ok {
 				var d = aerr.GetRetryAfter()
-				log.Warnf("hit abuse mechanism, sleeping for %.f min", d.Minutes())
+				log.Warnf("Hit abuse mechanism, sleeping for %.f min", d.Minutes())
 				time.Sleep(d)
 				continue
 			}
-			log.Warnf("Error calling github web-api: %s", err)
-			return err
+			return errors.Wrap(err, "Error calling github web-api")
 		}
 		return nil
 	}

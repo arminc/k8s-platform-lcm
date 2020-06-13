@@ -70,7 +70,6 @@ func (h k8sHelmClient) GetHelmChartInfoFromNamespaces(namespaces []string) ([]Ch
 			})
 		}
 	}
-	log.WithField("charts", charts).Debug("All charts")
 	return charts, nil
 }
 

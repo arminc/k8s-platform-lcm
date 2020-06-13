@@ -56,7 +56,6 @@ func (k k8sClient) GetImagesFromNamespaces(namespaces []string) ([]Image, error)
 		for _, container := range containers {
 			runningContainers[container] = true
 		}
-		log.WithField("namespace", namespace).WithField("containers", containers).Debug("Using following namespaces")
 	}
 
 	containers := []Image{}
