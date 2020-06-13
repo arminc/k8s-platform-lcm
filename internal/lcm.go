@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/arminc/k8s-platform-lcm/internal/config"
-	"github.com/arminc/k8s-platform-lcm/internal/kubernetes"
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
 	"github.com/arminc/k8s-platform-lcm/pkg/github"
+	"github.com/arminc/k8s-platform-lcm/pkg/kubernetes"
 	"github.com/arminc/k8s-platform-lcm/pkg/vulnerabilities"
 	"github.com/arminc/k8s-platform-lcm/pkg/xray"
 	log "github.com/sirupsen/logrus"
@@ -30,7 +30,7 @@ type ChartInfo struct {
 
 // ContainerInfo contains pod information about the container, its version info, and security
 type ContainerInfo struct {
-	Container                  kubernetes.Container
+	Container                  kubernetes.Image
 	LatestVersion              string
 	Fetched                    bool
 	Vulnerabilities            []vulnerabilities.Vulnerability
@@ -43,9 +43,19 @@ func Execute(config config.Config) {
 
 	WebDataVar.Status = "Running"
 
-	var containers = []kubernetes.Container{}
+	var containers = []kubernetes.Image{}
 	if config.IsKubernetesFetchEnabled() {
-		containers = kubernetes.GetContainersFromNamespaces(config.Namespaces, config.RunningLocally())
+		kube, err := kubernetes.NewKubeClient(config.RunningLocally())
+		if err != nil {
+			log.WithError(err).Error("Could not create a kubernetes client")
+		} else {
+			c, err := kube.GetImagesFromNamespaces(config.Namespaces)
+			if err != nil {
+				log.WithError(err).Error("Could not fetch image info from kubernetes")
+			} else {
+				containers = c
+			}
+		}
 	}
 
 	containers = getExtraImages(config.Images, containers)
@@ -80,9 +90,9 @@ func Execute(config config.Config) {
 	WebDataVar.LastTimeFetched = time.Now().Format("15:04:05 02-01-2006")
 }
 
-func getExtraImages(images []string, containers []kubernetes.Container) []kubernetes.Container {
+func getExtraImages(images []string, containers []kubernetes.Image) []kubernetes.Image {
 	for _, image := range images {
-		container, err := kubernetes.ImageStringToContainerStruct(image)
+		container, err := kubernetes.ImagePathToImage(image)
 		if err == nil {
 			containers = append(containers, container)
 		}
@@ -90,7 +100,7 @@ func getExtraImages(images []string, containers []kubernetes.Container) []kubern
 	return containers
 }
 
-func getLatestVersionsForContainers(containers []kubernetes.Container, registries registries.ImageRegistries) []ContainerInfo {
+func getLatestVersionsForContainers(containers []kubernetes.Image, registries registries.ImageRegistries) []ContainerInfo {
 	var wg sync.WaitGroup
 	var containerInfo []ContainerInfo
 	queue := make(chan ContainerInfo, 1)
@@ -98,7 +108,7 @@ func getLatestVersionsForContainers(containers []kubernetes.Container, registrie
 	log.WithField("lcm", "getLatestVersionsForContainers").Debugf("all containers slice is %+v", containers)
 	for _, container := range containers {
 		log.WithField("lcm", "getLatestVersionsForContainers").Debugf("current container is %+v", container)
-		go func(container kubernetes.Container) {
+		go func(container kubernetes.Image) {
 			version := registries.GetLatestVersionForImage(container.Name, container.URL)
 			newContainerInfo := ContainerInfo{
 				Container:     container,
@@ -136,14 +146,14 @@ func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []C
 		}
 	} else {
 		for _, ci := range containerInfo {
-			vulnerabilities, err := xray.GetVulnerabilities(ci.Container.Name, ci.Container.Version, config.Xray.Prefixes)
+			vulnera, err := xray.GetVulnerabilities(ci.Container.Name, ci.Container.Version, config.Xray.Prefixes)
 			if err != nil {
 				log.WithError(err).WithField("image", ci.Container.Name).Warn("Could not fetch vulnerabilities")
 				ci.Fetched = false
 			} else {
 				ci.Fetched = true
-				ci.Vulnerabilities = vulnerabilities
-				vulnerabilitiesNotAccepted := filter.Vulnerabilities(ci.Container.Name, vulnerabilities)
+				ci.Vulnerabilities = vulnera
+				vulnerabilitiesNotAccepted := filter.Vulnerabilities(ci.Container.Name, vulnera)
 				ci.VulnerabilitiesNotAccepted = len(vulnerabilitiesNotAccepted)
 			}
 			containerInfoWithVul = append(containerInfoWithVul, ci)
@@ -158,7 +168,17 @@ func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []C
 
 func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, namespaces []string, local bool) []ChartInfo {
 	var chartInfo []ChartInfo
-	charts := kubernetes.GetHelmChartsFromNamespaces(namespaces, local)
+	helm, err := kubernetes.NewHelmClient(local)
+	if err != nil {
+		log.WithError(err).Error("Failed to create helm client")
+	}
+
+	charts, err := helm.GetHelmChartInfoFromNamespaces(namespaces)
+	if err != nil {
+		log.WithError(err).Error("Failed to create fetch helm charts")
+		return []ChartInfo{}
+	}
+
 	for _, chart := range charts {
 		version := helmRegistries.GetLatestVersionFromHelm(chart.Name)
 		chartInfo = append(chartInfo, ChartInfo{
@@ -174,9 +194,9 @@ func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, na
 }
 
 func getLatestVersionsForGitHub(ctx context.Context, gitHubRepos github.Repos) []GitHubInfo {
+	gitHub := github.NewRepoVersionGetter(ctx, gitHubRepos.Credentials)
 	var gitHubInfo []GitHubInfo
 	for _, repo := range gitHubRepos.Repos {
-		gitHub := github.NewRepoVersionGetter(ctx, gitHubRepos.Credentials)
 		version, _ := gitHub.GetLatestVersion(ctx, repo)
 		gitHubInfo = append(gitHubInfo, GitHubInfo{
 			Repo:          repo.Repo,

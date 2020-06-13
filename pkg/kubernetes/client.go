@@ -11,8 +11,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// GetLocalKubernetesClient returns Kubernetes client for local use
-func GetLocalKubernetesClient() (*kubernetes.Clientset, error) {
+// CreateLocalKubernetesClient returns Kubernetes client for local use
+func CreateLocalKubernetesClient() (*kubernetes.Clientset, error) {
 	home := homeDir()
 	log.WithField("homedir", home).Debug("Creating Kubernetes client locally")
 	kubeconfig := filepath.Join(home, ".kube", "config")
@@ -20,6 +20,7 @@ func GetLocalKubernetesClient() (*kubernetes.Clientset, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not find kubernetes config")
 	}
+
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not load kubernetes config")
@@ -27,8 +28,8 @@ func GetLocalKubernetesClient() (*kubernetes.Clientset, error) {
 	return clientset, nil
 }
 
-// GetKubernetesClient return Kubernetes client for in cluster use
-func GetKubernetesClient() (*kubernetes.Clientset, error) {
+// CreateKubernetesClient returns Kubernetes client for in cluster use
+func CreateKubernetesClient() (*kubernetes.Clientset, error) {
 	log.Debug("Accessing Kubernetes inside the cluster")
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -39,7 +40,6 @@ func GetKubernetesClient() (*kubernetes.Clientset, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not load kubernetes config in the cluster")
 	}
-
 	return clientset, nil
 }
 
