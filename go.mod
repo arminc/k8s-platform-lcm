@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/blang/semver/v4 v4.0.0
-	github.com/containerd/containerd v1.3.4
+	github.com/containerd/containerd v1.3.6
 	github.com/containerd/fifo v0.0.0-20200410184934-f15a3290365b // indirect
 	github.com/containerd/ttrpc v1.0.1 // indirect
 	github.com/containerd/typeurl v1.0.1 // indirect
