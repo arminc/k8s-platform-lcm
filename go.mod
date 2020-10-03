@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/blang/semver/v4 v4.0.0
-	github.com/containerd/containerd v1.3.4
+	github.com/containerd/containerd v1.4.1
 	github.com/containerd/fifo v0.0.0-20200410184934-f15a3290365b // indirect
 	github.com/containerd/ttrpc v1.0.1 // indirect
 	github.com/containerd/typeurl v1.0.1 // indirect
@@ -22,6 +22,7 @@ require (
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/opencontainers/runtime-spec v1.0.2 // indirect
+	github.com/opencontainers/selinux v1.6.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.0
 	github.com/sirupsen/logrus v1.7.0
