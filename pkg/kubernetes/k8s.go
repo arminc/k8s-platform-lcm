@@ -1,6 +1,8 @@
 package kubernetes
 
 import (
+	"context"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -9,9 +11,9 @@ import (
 
 // Kube is an interface that wraps calls to Kubernetes cluster
 type Kube interface {
-	GetImagesFromNamespaces(namespaces []string) ([]Image, error)
-	GetAllNamespaces() ([]string, error)
-	GetImagePathsFromPods(namespace string) ([]string, error)
+	GetImagesFromNamespaces(ctx context.Context, namespaces []string) ([]Image, error)
+	GetAllNamespaces(ctx context.Context) ([]string, error)
+	GetImagePathsFromPods(ctx context.Context, namespace string) ([]string, error)
 }
 type k8sClient struct {
 	client *kubernetes.Clientset
@@ -39,8 +41,8 @@ func NewKubeClient(local bool) (Kube, error) {
 // It uses the provided namespaces or if it the list is empty it fetches it from all namespaces
 // It skips the namespaces on error, trying to fetch as much as possible and returning that information
 // It returns empty Image list on other cases
-func (k k8sClient) GetImagesFromNamespaces(namespaces []string) ([]Image, error) {
-	namespaces, err := getNamespaces(namespaces, k)
+func (k k8sClient) GetImagesFromNamespaces(ctx context.Context, namespaces []string) ([]Image, error) {
+	namespaces, err := getNamespaces(ctx, namespaces, k)
 	if err != nil {
 		return []Image{}, err
 	}
@@ -49,7 +51,7 @@ func (k k8sClient) GetImagesFromNamespaces(namespaces []string) ([]Image, error)
 	runningContainers := make(map[string]bool)
 
 	for _, namespace := range namespaces {
-		containers, err := k.GetImagePathsFromPods(namespace)
+		containers, err := k.GetImagePathsFromPods(ctx, namespace)
 		if err != nil {
 			log.WithField("namespace", namespace).WithError(err).Error("Failed to fetch pods, skip")
 		}
@@ -70,18 +72,18 @@ func (k k8sClient) GetImagesFromNamespaces(namespaces []string) ([]Image, error)
 }
 
 // getNamespaces returns all namespaces or just the ones that are defined
-func getNamespaces(namespaces []string, k Kube) ([]string, error) {
+func getNamespaces(ctx context.Context, namespaces []string, k Kube) ([]string, error) {
 	if len(namespaces) == 0 {
 		log.Debug("No namespaces defined, fetching all namespaces from Kubernetes")
-		return k.GetAllNamespaces()
+		return k.GetAllNamespaces(ctx)
 	}
 	return namespaces, nil
 }
 
 // GetAllNamespaces returns all namespaces from the cluster
-func (k k8sClient) GetAllNamespaces() ([]string, error) {
+func (k k8sClient) GetAllNamespaces(ctx context.Context) ([]string, error) {
 	log.Debug("Fetching all namespaces from Kubernetes")
-	namespaces, err := k.client.CoreV1().Namespaces().List(metav1.ListOptions{})
+	namespaces, err := k.client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not fetch namespaces")
 	}
@@ -96,10 +98,10 @@ func (k k8sClient) GetAllNamespaces() ([]string, error) {
 // GetImagePathsFromPods returns Docker image paths from running and init containers in the Pods
 // It dos not deduplicated
 // It returns empty list on error
-func (k k8sClient) GetImagePathsFromPods(namespace string) ([]string, error) {
+func (k k8sClient) GetImagePathsFromPods(ctx context.Context, namespace string) ([]string, error) {
 	containers := []string{}
 	log.WithField("namespace", namespace).Debug("Fetching containers for namespace")
-	pods, err := k.client.CoreV1().Pods(namespace).List(metav1.ListOptions{})
+	pods, err := k.client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return containers, errors.Wrap(err, "Could not fetch pods")
 	}

@@ -49,7 +49,7 @@ func Execute(config config.Config) {
 		if err != nil {
 			log.WithError(err).Error("Could not create a kubernetes client")
 		} else {
-			c, err := kube.GetImagesFromNamespaces(config.Namespaces)
+			c, err := kube.GetImagesFromNamespaces(ctx, config.Namespaces)
 			if err != nil {
 				log.WithError(err).Error("Could not fetch image info from kubernetes")
 			} else {
@@ -69,7 +69,7 @@ func Execute(config config.Config) {
 	WebDataVar.ContainerInfo = info
 
 	if config.IsKubernetesFetchEnabled() {
-		charts := getLatestVersionsForHelmCharts(config.HelmRegistries, config.Namespaces, config.RunningLocally())
+		charts := getLatestVersionsForHelmCharts(ctx, config.HelmRegistries, config.Namespaces, config.RunningLocally())
 		if config.PrettyPrintAllowed() {
 			prettyPrintChartInfo(charts)
 		}
@@ -166,14 +166,14 @@ func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []C
 	return containerInfoWithVul
 }
 
-func getLatestVersionsForHelmCharts(helmRegistries registries.HelmRegistries, namespaces []string, local bool) []ChartInfo {
+func getLatestVersionsForHelmCharts(ctx context.Context, helmRegistries registries.HelmRegistries, namespaces []string, local bool) []ChartInfo {
 	var chartInfo []ChartInfo
 	helm, err := kubernetes.NewHelmClient(local)
 	if err != nil {
 		log.WithError(err).Error("Failed to create helm client")
 	}
 
-	charts, err := helm.GetHelmChartInfoFromNamespaces(namespaces)
+	charts, err := helm.GetHelmChartInfoFromNamespaces(ctx, namespaces)
 	if err != nil {
 		log.WithError(err).Error("Failed to create fetch helm charts")
 		return []ChartInfo{}

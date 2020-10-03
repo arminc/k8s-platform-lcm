@@ -61,14 +61,14 @@ func runStats(config config.Config) {
 		if err != nil {
 			log.WithError(err).Error("Could not create a kubernetes client")
 		} else {
-			c, err := kube.GetImagesFromNamespaces(config.Namespaces)
+			c, err := kube.GetImagesFromNamespaces(ctx, config.Namespaces)
 			if err != nil {
 				log.WithError(err).Error("Could not fetch image info from kubernetes")
 			} else {
 				containers = c
 			}
 		}
-		charts = getLatestVersionsForHelmCharts(config.HelmRegistries, config.Namespaces, config.RunningLocally())
+		charts = getLatestVersionsForHelmCharts(ctx, config.HelmRegistries, config.Namespaces, config.RunningLocally())
 	}
 
 	//// charts
