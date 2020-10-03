@@ -16,7 +16,7 @@ require (
 	github.com/gogo/googleapis v1.4.0 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
-	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/mux v1.8.0
 	github.com/heptiolabs/healthcheck v0.0.0-20180807145615-6ff867650f40
 	github.com/knadh/koanf v0.13.0
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
