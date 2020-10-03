@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"context"
 	"os"
 
 	"github.com/pkg/errors"
@@ -17,7 +18,7 @@ type Chart struct {
 
 // Helm is an interface that wraps calls to Kubernetes cluster for fetching Helm information
 type Helm interface {
-	GetHelmChartInfoFromNamespaces(namespaces []string) ([]Chart, error)
+	GetHelmChartInfoFromNamespaces(ctx context.Context, namespaces []string) ([]Chart, error)
 }
 
 type k8sHelmClient struct {
@@ -41,8 +42,8 @@ func NewHelmClient(local bool) (Helm, error) {
 // It uses the provided namespaces or if it the list is empty it fetches it from all namespaces
 // It skips the namespaces on error, trying to fetch as much as possible and returning that information
 // It returns empty Chart list on other cases
-func (h k8sHelmClient) GetHelmChartInfoFromNamespaces(namespaces []string) ([]Chart, error) {
-	namespaces, err := getNamespaces(namespaces, h.kube)
+func (h k8sHelmClient) GetHelmChartInfoFromNamespaces(ctx context.Context, namespaces []string) ([]Chart, error) {
+	namespaces, err := getNamespaces(ctx, namespaces, h.kube)
 	if err != nil {
 		return []Chart{}, err
 	}

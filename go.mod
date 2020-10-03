@@ -22,7 +22,6 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
 	github.com/urfave/negroni v1.0.0
-	github.com/xenolf/lego v2.7.2+incompatible // indirect
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/genproto v0.0.0-20200117163144-32f20d992d24 // indirect
@@ -33,7 +32,9 @@ require (
 	k8s.io/apimachinery v0.18.8
 	k8s.io/client-go v0.18.8
 	rsc.io/letsencrypt v0.0.3 // indirect
-	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
 
-replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309
+replace (
+	github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.2+incompatible
+	github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309
+)
