@@ -4,32 +4,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	log "github.com/sirupsen/logrus"
 )
 
-// Charts is data structure coming from hub.helm.sh
-type Charts struct {
-	Data []Chart `json:"data"`
+// ChartInfo is data structure coming from artifacthub.io
+type ChartInfo struct {
+	AvailableVersions []AvailableVersions `json:"available_versions"`
 }
 
-// Chart contains attribute information for a chart coming from hub.helm.sh
-type Chart struct {
-	Attributes Attributes `json:"attributes"`
+// AvailableVersions contains version information for a chart coming from artifacthub.io
+type AvailableVersions struct {
+	Version   string `json:"version"`
+	CreatedAt int    `json:"created_at"`
 }
 
-// Attributes contains version information for a chart coming from hub.helm.sh
-type Attributes struct {
-	Version string `json:"version"`
-}
-
-// SearchResultData contains search results from hub.helm.sh
+// SearchResultData contains search results from artifacthub.io
 type SearchResultData struct {
 	Data []ChartSearchResult `json:"data"`
 }
 
-// ChartSearchResult contains chart search results from hub.helm.sh
+// ChartSearchResult contains chart search results from artifacthub.io
 type ChartSearchResult struct {
 	ID string `json:"id"`
 }
@@ -55,7 +52,7 @@ func (h HelmRegistries) useHelmHub(chart string) string {
 }
 
 func findChart(chart string) (string, error) {
-	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/search?q=%s", chart)
+	url := fmt.Sprintf("https://artifacthub.io/api/chartsvc/v1/charts/search?q=%s", url.QueryEscape(chart))
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -78,7 +75,7 @@ func findChart(chart string) (string, error) {
 }
 
 func getChartVersions(chart string) ([]string, error) {
-	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/%s/versions", chart)
+	url := fmt.Sprintf("https://artifacthub.io/api/v1/packages/helm/%s", chart)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -86,15 +83,15 @@ func getChartVersions(chart string) ([]string, error) {
 
 	defer resp.Body.Close()
 
-	chartsData := Charts{}
-	err = json.NewDecoder(resp.Body).Decode(&chartsData)
+	chartInfo := ChartInfo{}
+	err = json.NewDecoder(resp.Body).Decode(&chartInfo)
 	if err != nil {
 		return nil, err
 	}
 
 	var versions []string
-	for _, data := range chartsData.Data {
-		versions = append(versions, data.Attributes.Version)
+	for _, version := range chartInfo.AvailableVersions {
+		versions = append(versions, version.Version)
 	}
 	return versions, nil
 }
