@@ -17,7 +17,7 @@ require (
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.7.0
+	github.com/prometheus/client_golang v1.8.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
