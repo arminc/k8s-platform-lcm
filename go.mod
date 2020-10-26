@@ -10,7 +10,6 @@ require (
 	github.com/evanphx/json-patch v4.2.0+incompatible // indirect
 	github.com/franela/goblin v0.0.0-20200409142057-1def193310bb // indirect
 	github.com/gin-gonic/gin v1.6.3 // indirect
-	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/heptiolabs/healthcheck v0.0.0-20180807145615-6ff867650f40
@@ -19,14 +18,11 @@ require (
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.8.0
-	github.com/prometheus/common v0.14.0 // indirect
-	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
 	github.com/urfave/negroni v1.0.0
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211 // indirect https://github.com/ory/dockertest/issues/212
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/genproto v0.0.0-20200117163144-32f20d992d24 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect
