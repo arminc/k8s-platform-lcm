@@ -7,7 +7,6 @@ require (
 	github.com/blang/semver/v4 v4.0.0
 	github.com/containerd/containerd v1.4.1 // indirect
 	github.com/docker/distribution v2.7.1+incompatible
-	github.com/evanphx/json-patch v4.2.0+incompatible // indirect
 	github.com/franela/goblin v0.0.0-20200409142057-1def193310bb // indirect
 	github.com/gin-gonic/gin v1.6.3 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
@@ -25,16 +24,15 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
 	github.com/urfave/negroni v1.0.0
-	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211 // indirect https://github.com/ory/dockertest/issues/212
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/sys v0.0.0-20201112073958-5cba982894dd // indirect https://github.com/ory/dockertest/issues/212
 	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/genproto v0.0.0-20200117163144-32f20d992d24 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	gotest.tools/v3 v3.0.2 // indirect
 	helm.sh/helm/v3 v3.3.4
-	k8s.io/apimachinery v0.18.8
-	k8s.io/client-go v0.18.8
+	k8s.io/apimachinery v0.20.2
+	k8s.io/client-go v0.20.2
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
