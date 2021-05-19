@@ -31,8 +31,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.0.2 // indirect
 	helm.sh/helm/v3 v3.3.4
-	k8s.io/apimachinery v0.21.0
-	k8s.io/client-go v0.21.0
+	k8s.io/apimachinery v0.21.1
+	k8s.io/client-go v0.21.1
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
