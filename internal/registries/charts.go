@@ -44,5 +44,5 @@ func (h HelmRegistries) GetLatestVersionFromHelm(chart string) string {
 		}
 	}
 
-	return h.useHelmHub(chart)
+	return h.useArtifactHub(chart)
 }

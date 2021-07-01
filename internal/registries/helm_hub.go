@@ -4,23 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	log "github.com/sirupsen/logrus"
 )
 
-// Charts is data structure coming from hub.helm.sh
-type Charts struct {
-	Data []Chart `json:"data"`
-}
-
 // Chart contains attribute information for a chart coming from hub.helm.sh
 type Chart struct {
-	Attributes Attributes `json:"attributes"`
+	Packages []Packages `json:"packages"`
 }
 
 // Attributes contains version information for a chart coming from hub.helm.sh
-type Attributes struct {
+type Packages struct {
 	Version string `json:"version"`
 }
 
@@ -31,70 +27,53 @@ type SearchResultData struct {
 
 // ChartSearchResult contains chart search results from hub.helm.sh
 type ChartSearchResult struct {
-	ID string `json:"id"`
+	ID string `json:"package_id"`
 }
 
-func (h HelmRegistries) useHelmHub(chart string) string {
-	chartName := h.OverrideChartNames[chart]
-	if chartName == "" {
-		var err error
-		chartName, err = findChart(chart)
-		if err != nil {
-			log.WithError(err).WithField("chart", chart).Error("Failed to search chart info")
-			return versioning.Failure
-		}
+func (h HelmRegistries) useArtifactHub(chart string) string {
+	repositoryName := ""
+	chartName := chart
+
+	overrideChartValue := h.OverrideChartNames[chart]
+	overrideChart := strings.Split(overrideChartValue, "/")
+	if len(overrideChart) > 1 {
+		chartName = overrideChart[1]
+		repositoryName = overrideChart[0]
 	}
 
-	versions, err := getChartVersions(chartName)
+	version, err := findChartVersion(repositoryName, chartName)
 	if err != nil {
-		log.WithError(err).WithField("chart", chart).Error("Failed to fetch chart info")
+		log.WithError(err).WithField("chart", chart).Error("Failed to search chart info")
 		return versioning.Failure
 	}
 
-	return versioning.FindHighestVersionInList(versions, false)
+	return version
 }
 
-func findChart(chart string) (string, error) {
-	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/search?q=%s", chart)
+func findChartVersion(repositoryName, chartName string) (string, error) {
+	repoParam := ""
+
+	if repositoryName != "" {
+		repoParam = fmt.Sprintf("&repo=%s", repositoryName)
+	}
+	// result is always limited to 1, because we can't handle multiple results anyway
+	url := fmt.Sprintf("https://artifacthub.io/api/v1/packages/search?facets=false&kind=0&deprecated=true&operators=false&verified_publisher=false&official=false&sort=stars&limit=1&ts_query_web=%s%s", chartName, repoParam)
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
 	}
-
 	defer resp.Body.Close()
+	chartData := Chart{}
+	err = json.NewDecoder(resp.Body).Decode(&chartData)
 
-	searchData := SearchResultData{}
-	err = json.NewDecoder(resp.Body).Decode(&searchData)
 	if err != nil {
 		return "", err
 	}
-
-	if len(searchData.Data) == 0 {
+	if len(chartData.Packages) == 0 {
 		return "", fmt.Errorf("Could not find the chart")
-	} else if len(searchData.Data) == 1 {
-		return searchData.Data[0].ID, nil
 	}
-	return "", fmt.Errorf("More than one result %v", searchData)
-}
+	log.Info(chartData.Packages)
 
-func getChartVersions(chart string) ([]string, error) {
-	url := fmt.Sprintf("https://hub.helm.sh/api/chartsvc/v1/charts/%s/versions", chart)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
+	return chartData.Packages[0].Version, nil
 
-	defer resp.Body.Close()
-
-	chartsData := Charts{}
-	err = json.NewDecoder(resp.Body).Decode(&chartsData)
-	if err != nil {
-		return nil, err
-	}
-
-	var versions []string
-	for _, data := range chartsData.Data {
-		versions = append(versions, data.Attributes.Version)
-	}
-	return versions, nil
 }
