@@ -61,7 +61,7 @@ func findChartVersion(repositoryName, chartName string) (string, error) {
 	if repositoryName != "" {
 		repoParam = fmt.Sprintf("&repo=%s", repositoryName)
 	}
-	// result is always limited to 1, because we can't handle multiple results anyway
+	// returns max five results, not much use in returning more
 	url := fmt.Sprintf("https://artifacthub.io/api/v1/packages/search?facets=false&kind=0&deprecated=true&operators=false&verified_publisher=false&official=false&sort=stars&limit=5&ts_query_web=%s%s", chartName, repoParam)
 	resp, err := http.Get(url)
 	if err != nil {
