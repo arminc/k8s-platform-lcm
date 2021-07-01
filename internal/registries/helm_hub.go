@@ -10,10 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Charts struct {
-	Data Chart `json:"data"`
-}
-
 // Chart contains attribute information for a chart coming from hub.helm.sh
 type Chart struct {
 	Packages []Packages `json:"packages"`
@@ -21,7 +17,12 @@ type Chart struct {
 
 // Attributes contains version information for a chart coming from hub.helm.sh
 type Packages struct {
-	Version string `json:"version"`
+	Version    string     `json:"version"`
+	Repository Repository `json:"repository,omitempty"`
+}
+
+type Repository struct {
+	Name string `json:"name"`
 }
 
 // SearchResultData contains search results from hub.helm.sh
@@ -34,13 +35,18 @@ type ChartSearchResult struct {
 	ID string `json:"package_id"`
 }
 
-func (h HelmRegistries) useHelmHub(chart string) string {
-	chartName := h.OverrideChartNames[chart]
-	chartName = strings.Replace(chartName, "/", "%20", -1)
-	if chartName == "" {
-		chartName = chart
+func (h HelmRegistries) useArtifactHub(chart string) string {
+	repositoryName := ""
+	chartName := chart
+
+	overrideChartValue := h.OverrideChartNames[chart]
+	overrideChart := strings.Split(overrideChartValue, "/")
+	if len(overrideChart) > 1 {
+		chartName = overrideChart[1]
+		repositoryName = overrideChart[0]
 	}
-	version, err := findChartVersion(chartName)
+
+	version, err := findChartVersion(repositoryName, chartName)
 	if err != nil {
 		log.WithError(err).WithField("chart", chart).Error("Failed to search chart info")
 		return versioning.Failure
@@ -49,25 +55,39 @@ func (h HelmRegistries) useHelmHub(chart string) string {
 	return version
 }
 
-func findChartVersion(chartName string) (string, error) {
-	url := fmt.Sprintf("https://artifacthub.io/api/v1/packages/search?limit=1&facets=false&ts_query_web=%s&kind=0", chartName)
+func findChartVersion(repositoryName, chartName string) (string, error) {
+	repoParam := ""
+
+	if repositoryName != "" {
+		repoParam = fmt.Sprintf("&repo=%s", repositoryName)
+	}
+	// returns max five results, not much use in returning more
+	url := fmt.Sprintf("https://artifacthub.io/api/v1/packages/search?facets=false&kind=0&deprecated=true&operators=false&verified_publisher=false&official=false&sort=stars&limit=5&ts_query_web=%s%s", chartName, repoParam)
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-
-	chartData := Charts{}
+	chartData := Chart{}
 	err = json.NewDecoder(resp.Body).Decode(&chartData)
 
 	if err != nil {
 		return "", err
 	}
-	if len(chartData.Data.Packages) == 0 {
+	if len(chartData.Packages) == 0 {
 		return "", fmt.Errorf("Could not find the chart")
 	}
-	log.Info(chartData.Data.Packages)
+	if len(chartData.Packages) > 1 {
 
-	return chartData.Data.Packages[0].Version, nil
+		sources := []string{}
+		for _, key := range chartData.Packages {
+			sources = append(sources, key.Repository.Name)
+		}
+		return "", fmt.Errorf("found more than one result, source repositories: %s, filter down with helmRegistries.overrideChartNames", sources)
+	}
+
+	log.Info(chartData.Packages)
+
+	return chartData.Packages[0].Version, nil
 
 }
