@@ -17,7 +17,12 @@ type Chart struct {
 
 // Attributes contains version information for a chart coming from hub.helm.sh
 type Packages struct {
-	Version string `json:"version"`
+	Version    string     `json:"version"`
+	Repository Repository `json:"repository,omitempty"`
+}
+
+type Repository struct {
+	Name string `json:"name"`
 }
 
 // SearchResultData contains search results from hub.helm.sh
@@ -57,7 +62,7 @@ func findChartVersion(repositoryName, chartName string) (string, error) {
 		repoParam = fmt.Sprintf("&repo=%s", repositoryName)
 	}
 	// result is always limited to 1, because we can't handle multiple results anyway
-	url := fmt.Sprintf("https://artifacthub.io/api/v1/packages/search?facets=false&kind=0&deprecated=true&operators=false&verified_publisher=false&official=false&sort=stars&limit=1&ts_query_web=%s%s", chartName, repoParam)
+	url := fmt.Sprintf("https://artifacthub.io/api/v1/packages/search?facets=false&kind=0&deprecated=true&operators=false&verified_publisher=false&official=false&sort=stars&limit=5&ts_query_web=%s%s", chartName, repoParam)
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -72,6 +77,15 @@ func findChartVersion(repositoryName, chartName string) (string, error) {
 	if len(chartData.Packages) == 0 {
 		return "", fmt.Errorf("Could not find the chart")
 	}
+	if len(chartData.Packages) > 1 {
+
+		sources := []string{}
+		for _, key := range chartData.Packages {
+			sources = append(sources, key.Repository.Name)
+		}
+		return "", fmt.Errorf("found more than one result, source repositories: %s, filter down with helmRegistries.overrideChartNames", sources)
+	}
+
 	log.Info(chartData.Packages)
 
 	return chartData.Packages[0].Version, nil
