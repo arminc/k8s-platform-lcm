@@ -28,7 +28,7 @@ require (
 	gotest.tools/v3 v3.0.2 // indirect
 	helm.sh/helm/v3 v3.3.4
 	k8s.io/apimachinery v0.18.14
-	k8s.io/client-go v0.18.14
+	k8s.io/client-go v0.21.2
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
