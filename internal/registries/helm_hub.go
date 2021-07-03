@@ -17,6 +17,7 @@ type Chart struct {
 
 // Attributes contains version information for a chart coming from hub.helm.sh
 type Packages struct {
+	Name       string     `json:"name"`
 	Version    string     `json:"version"`
 	Repository Repository `json:"repository,omitempty"`
 }
@@ -79,15 +80,37 @@ func findChartVersion(repositoryName, chartName string) (string, error) {
 	}
 	if len(chartData.Packages) > 1 {
 
-		sources := []string{}
-		for _, key := range chartData.Packages {
-			sources = append(sources, key.Repository.Name)
+		repositoryNames := []string{}
+		for _, chartInfo := range chartData.Packages {
+			repositoryNames = append(repositoryNames, chartInfo.Repository.Name)
 		}
-		return "", fmt.Errorf("found more than one result, source repositories: %s, filter down with helmRegistries.overrideChartNames", sources)
+
+		// validate for different repository names
+		if allSameStrings(repositoryNames) {
+			// search for falco returns falco, falcoexporter and falcosidekick for example
+			for _, packageName := range chartData.Packages {
+				if packageName.Name == chartName {
+					return packageName.Version, nil
+				}
+			}
+		} else {
+			return "", fmt.Errorf("found more than one result, source repositories: %s, filter down with helmRegistries.overrideChartNames", repositoryNames)
+		}
+
+		return "", fmt.Errorf("Couldn't process result %s", chartData.Packages)
 	}
 
 	log.Info(chartData.Packages)
 
 	return chartData.Packages[0].Version, nil
 
+}
+
+func allSameStrings(a []string) bool {
+	for i := 1; i < len(a); i++ {
+		if a[i] != a[0] {
+			return false
+		}
+	}
+	return true
 }
