@@ -1,0 +1,41 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: k8s.io/apimachinery
+    versions:
+    - 0.20.2
+    - 0.20.3
+    - 0.20.4
+    - 0.20.5
+    - 0.21.0
+  - dependency-name: k8s.io/client-go
+    versions:
+    - 0.20.2
+    - 0.20.3
+    - 0.20.4
+    - 0.20.5
+  - dependency-name: github.com/sirupsen/logrus
+    versions:
+    - 1.7.1
+    - 1.8.0
+  - dependency-name: helm.sh/helm/v3
+    versions:
+    - 3.5.1
+  - dependency-name: github.com/stretchr/testify
+    versions:
+    - 1.7.0
+  - dependency-name: github.com/knadh/koanf
+    versions:
+    - 0.15.0
+  - dependency-name: github.com/prometheus/client_golang
+    versions:
+    - 1.9.0
+  - dependency-name: gopkg.in/yaml.v2
+    versions:
+    - 2.4.0
