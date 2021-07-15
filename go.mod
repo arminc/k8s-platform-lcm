@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/blang/semver/v4 v4.0.0
-	github.com/containerd/containerd v1.4.1 // indirect
 	github.com/docker/distribution v2.7.1+incompatible
 	github.com/franela/goblin v0.0.0-20200409142057-1def193310bb // indirect
 	github.com/gin-gonic/gin v1.6.3 // indirect
@@ -18,17 +17,16 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.8.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/target/go-arty v0.0.0-20191122155631-9967a6326524
 	github.com/urfave/negroni v1.0.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/appengine v1.6.6 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	gotest.tools/v3 v3.0.2 // indirect
-	helm.sh/helm/v3 v3.3.4
-	k8s.io/apimachinery v0.18.14
-	k8s.io/client-go v0.18.14
+	helm.sh/helm/v3 v3.6.3
+	k8s.io/apimachinery v0.21.0
+	k8s.io/client-go v0.21.0
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
