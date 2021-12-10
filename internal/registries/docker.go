@@ -7,12 +7,19 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ecr"
 
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	log "github.com/sirupsen/logrus"
 )
+
+const DEFAULT_AWS_REGION = "us-east-1"
 
 const (
 	// DockerHub is the default name for the DockerHub registry
@@ -33,6 +40,8 @@ const (
 	AuthTypeToken = "token"
 	// AuthTypeNone is no auth
 	AuthTypeNone = "none"
+	// AuthTypeECR is ECR auth type
+	AuthTypeECR = "ecr"
 )
 
 // ErrNoMorePages defines that there are no more pages
@@ -135,6 +144,28 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string, cacheToken string)
 			return nil, nil, err
 		}
 	}
+
+	if r.AuthType == AuthTypeECR && cacheToken == "" {
+		log.Debug("Need to fetch the auth token from AWS")
+
+		config := &aws.Config{Region: aws.String(getAwsRegion())}
+		svc := ecr.New(session.New(), config)
+
+		output, err := svc.GetAuthorizationToken(nil)
+
+		if err != nil {
+			fmt.Printf("\nError fetching authorization token in region %v\n%v\n", aws.StringValue(config.Region), err.Error())
+			os.Exit(1)
+		}
+
+		fmt.Printf("\nECR authorization fetched successfully!\n\nAWS Output:\n%v", output)
+
+		cacheToken, err = r.getToken(url)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	if cacheToken != "" {
 		log.Debug("Using cached token")
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", cacheToken))
@@ -231,4 +262,13 @@ func parsHeaders(headers http.Header) (string, error) {
 	url = strings.ReplaceAll(url, ",", "&")
 	url = strings.ReplaceAll(url, "\"", "")
 	return url, nil
+}
+
+// Returns the aws region from env var or default region defined in DEFAULT_AWS_REGION constant
+func getAwsRegion() string {
+	awsRegion := os.Getenv("AWS_REGION")
+	if awsRegion != "" {
+		return awsRegion
+	}
+	return DEFAULT_AWS_REGION
 }
