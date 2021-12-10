@@ -10,6 +10,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ecr"
+
 	"github.com/arminc/k8s-platform-lcm/internal/versioning"
 	log "github.com/sirupsen/logrus"
 )
@@ -33,6 +37,8 @@ const (
 	AuthTypeToken = "token"
 	// AuthTypeNone is no auth
 	AuthTypeNone = "none"
+	// AuthTypeECR is ECR auth type
+	AuthTypeECR = "ecr"
 )
 
 // ErrNoMorePages defines that there are no more pages
@@ -49,6 +55,7 @@ type ImageRegistry struct {
 	AuthType         string `koanf:"authType"`
 	Username         string `koanf:"username"`
 	Password         string `koanf:"password"`
+	Region           string `koanf:"region"`
 	Default          bool   `koanf:"default"`
 	AllowAllReleases bool
 }
@@ -80,6 +87,7 @@ func (r ImageRegistry) fetch(pathSuffix string, cacheToken string) ([]string, er
 		var response tagsResponse
 		var err error
 		pathSuffix, err = r.getPaginatedJSON(pathSuffix, &response, cacheToken)
+
 		switch err {
 		case ErrNoMorePages:
 			tags = append(tags, response.Tags...)
@@ -135,9 +143,42 @@ func (r ImageRegistry) getClientAndRequest(pathSuffix string, cacheToken string)
 			return nil, nil, err
 		}
 	}
+
+	if r.AuthType == AuthTypeECR && cacheToken == "" {
+		log.Debug("Need to fetch the auth token from AWS")
+
+		const DefaultAwsRegion = "us-east-1"
+
+		awsRegion := r.Region
+		if awsRegion == "" {
+			awsRegion = DefaultAwsRegion
+		}
+
+		config := &aws.Config{Region: aws.String(awsRegion)}
+		sess, err := session.NewSession(config)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		svc := ecr.New(sess)
+
+		output, err := svc.GetAuthorizationToken(nil)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		cacheToken = *(output.AuthorizationData[0].AuthorizationToken)
+	}
+
 	if cacheToken != "" {
 		log.Debug("Using cached token")
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", cacheToken))
+		if r.AuthType == AuthTypeECR {
+			req.Header.Set("Authorization", fmt.Sprintf("Basic %s", cacheToken))
+		} else {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", cacheToken))
+		}
 	}
 	return client, req, nil
 }

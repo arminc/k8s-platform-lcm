@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
+	github.com/aws/aws-sdk-go v1.42.22 // indirect
 	github.com/blang/semver/v4 v4.0.0
 	github.com/containerd/containerd v1.4.1 // indirect
 	github.com/docker/distribution v2.7.1+incompatible
