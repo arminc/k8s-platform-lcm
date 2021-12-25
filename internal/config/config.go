@@ -5,6 +5,7 @@ import (
 
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
 	"github.com/arminc/k8s-platform-lcm/pkg/github"
+	"github.com/arminc/k8s-platform-lcm/pkg/trivy"
 	"github.com/arminc/k8s-platform-lcm/pkg/vulnerabilities"
 	"github.com/arminc/k8s-platform-lcm/pkg/xray"
 	"github.com/knadh/koanf"
@@ -21,6 +22,7 @@ type Config struct {
 	Namespaces              []string                   `koanf:"namespaces"`
 	ImageRegistries         registries.ImageRegistries `koanf:"imageRegistries"`
 	Xray                    xray.Config                `koanf:"xray"`
+	Trivy                   trivy.Config               `koanf:"trivy"`
 	GitHub                  github.Repos               `koanf:"github"`
 	Images                  []string                   `koanf:"images"`
 	HelmRegistries          registries.HelmRegistries  `koanf:"helmRegistries"`
