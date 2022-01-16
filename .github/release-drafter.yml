@@ -1,5 +1,5 @@
-name-template: '$NEXT_MINOR_VERSION'
-tag-template: '$NEXT_MINOR_VERSION'
+name-template: '$RESOLVED_VERSION'
+tag-template: '$RESOLVED_VERSION'
 categories:
   - title: '🚀 Features'
     labels:
@@ -11,9 +11,11 @@ categories:
       - 'bugfix'
       - 'bug'
   - title: '🧰 Maintenance'
-    labels: 
+    labels:
       - 'chore'
       - 'documentation'
+version-resolver:
+  default: minor
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes
