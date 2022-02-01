@@ -10,6 +10,7 @@ import (
 	"github.com/arminc/k8s-platform-lcm/internal/registries"
 	"github.com/arminc/k8s-platform-lcm/pkg/github"
 	"github.com/arminc/k8s-platform-lcm/pkg/kubernetes"
+	"github.com/arminc/k8s-platform-lcm/pkg/trivy"
 	"github.com/arminc/k8s-platform-lcm/pkg/vulnerabilities"
 	"github.com/arminc/k8s-platform-lcm/pkg/xray"
 	log "github.com/sirupsen/logrus"
@@ -60,7 +61,7 @@ func Execute(config config.Config) {
 
 	containers = getExtraImages(config.Images, containers)
 	info := getLatestVersionsForContainers(containers, config.ImageRegistries)
-	if len(config.Xray.URL) > 0 {
+	if len(config.Xray.URL) > 0 || len(config.Trivy.URL) > 0 {
 		info = getVulnerabilities(info, config)
 	}
 	if config.PrettyPrintAllowed() {
@@ -137,16 +138,39 @@ func getLatestVersionsForContainers(containers []kubernetes.Image, registries re
 func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []ContainerInfo {
 	filter := vulnerabilities.NewVulnerabilityFilter(config.VulnerabilityFilterData.Severities, config.VulnerabilityFilterData.Identifiers)
 	containerInfoWithVul := []ContainerInfo{}
-	xray, err := xray.NewXray(config.Xray)
+
+	var err error
+	var trivyClient trivy.Scanner
+	var xrayClient xray.Scanner
+	var scannerIsXray bool
+
+	if len(config.Xray.URL) > 0 && len(config.Trivy.URL) > 0 {
+		log.Warn("Cannot use xray and trivy simultaneously")
+		return containerInfoWithVul
+	}
+
+	if len(config.Xray.URL) > 0 {
+		xrayClient, err = xray.NewXray(config.Xray)
+		scannerIsXray = true
+	} else if len(config.Trivy.URL) > 0 {
+		trivyClient, err = trivy.NewTrivy(config.Trivy)
+		scannerIsXray = false
+	}
+
 	if err != nil {
-		log.WithError(err).Warn("Could not create Xray client")
+		log.WithError(err).Warn("Could not create vuln scanning client")
 		for _, ci := range containerInfo {
 			ci.Fetched = false
 			containerInfoWithVul = append(containerInfoWithVul, ci)
 		}
 	} else {
 		for _, ci := range containerInfo {
-			vulnera, err := xray.GetVulnerabilities(ci.Container.Name, ci.Container.Version, config.Xray.Prefixes)
+			var vulnera []vulnerabilities.Vulnerability
+			if scannerIsXray {
+				vulnera, err = xrayClient.GetVulnerabilities(ci.Container.Name, ci.Container.Version, config.Xray.Prefixes)
+			} else {
+				vulnera, err = trivyClient.GetVulnerabilities(ci.Container.FullPath)
+			}
 			if err != nil {
 				log.WithError(err).WithField("image", ci.Container.Name).Warn("Could not fetch vulnerabilities")
 				ci.Fetched = false
