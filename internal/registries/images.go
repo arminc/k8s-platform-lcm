@@ -78,6 +78,8 @@ func (i ImageRegistries) GetLatestVersionForImage(name, url string) string {
 	return registry.GetLatestVersion(name)
 }
 
+// DetermineRegistry gets the approriate registry for an image/url,
+//  based on the override rules given within the config
 func (i ImageRegistries) DetermineRegistry(name, url string) ImageRegistry {
 	registry, exists := i.FindRegistryByOverrideByImage(name)
 	if exists {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
@@ -37,10 +38,11 @@ func disabledAnalyzers() []analyzer.Type {
 	return analyzers
 }
 
-func NewClient(remoteUrl string) (s *client.Scanner, err error) {
+// NewClient returns a new Trivy client
+func NewClient(remoteURL string) (s *client.Scanner, err error) {
 	log.Debug("Getting trivy client")
 
-	url := client.RemoteURL(remoteUrl)
+	url := client.RemoteURL(remoteURL)
 	customHeaders := client.CustomHeaders(make(map[string][]string))
 
 	scannerScanner := client.NewProtobufClient(url)
@@ -61,9 +63,16 @@ func getDockerOptions(registry registries.ImageRegistry) (o *types2.DockerOption
 	case "token":
 		return &types2.DockerOption{}, nil
 	case "ecr":
+		config := &aws.Config{Region: aws.String(registry.Region)}
+		sess, err := session.NewSession(config)
+
+		if err != nil {
+			return nil, err
+		}
+
 		// get credentials for ECR
 		roleProvider := &ec2rolecreds.EC2RoleProvider{
-			Client: ec2metadata.New(session.New()),
+			Client: ec2metadata.New(sess),
 		}
 
 		creds := credentials.NewCredentials(roleProvider)
@@ -83,6 +92,8 @@ func getDockerOptions(registry registries.ImageRegistry) (o *types2.DockerOption
 	}
 }
 
+// Run gets vulnerability details about an image from a trivy server, and returns a trivy report
+//   the report is further processed by the caller
 func Run(scanner *client.Scanner, url string, imageName string, registry registries.ImageRegistry) (r *pkgReport.Report, err error) {
 	ctx := context.Background()
 
