@@ -12,8 +12,10 @@ import (
 
 // Chart contains Helm chart info
 type Chart struct {
-	Name    string
-	Version string
+	Release   string
+	Chart     string
+	Namespace string
+	Version   string
 }
 
 // Helm is an interface that wraps calls to Kubernetes cluster for fetching Helm information
@@ -66,8 +68,10 @@ func (h k8sHelmClient) GetHelmChartInfoFromNamespaces(ctx context.Context, names
 
 		for _, chart := range chartsInNamespace {
 			charts = append(charts, Chart{
-				Name:    chart.Name,
-				Version: chart.Chart.Metadata.Version,
+				Release:   chart.Name,
+				Version:   chart.Chart.Metadata.Version,
+				Chart:     chart.Chart.Metadata.Name,
+				Namespace: namespace,
 			})
 		}
 	}

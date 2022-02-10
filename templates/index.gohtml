@@ -40,7 +40,9 @@ Last run: {{ .LastTimeFetched }}
 <table>
     <thead>
         <tr>
+            <th>Release</th>
             <th>Chart</th>
+            <th>Namespace</th>
             <th>Current Version</th>
             <th>Latest Version</th>
         </tr>
@@ -48,7 +50,9 @@ Last run: {{ .LastTimeFetched }}
     <tbody>
     {{range .ChartInfo}}
         <tr class="{{.GetStatus}}">
-            <td>{{.Chart.Name}}</td>
+            <td>{{.Chart.Release}}</td>
+            <td>{{.Chart.Chart}}</td>
+            <td>{{.Chart.Namespace}}</td>
             <td>{{.Chart.Version}}</td>
             <td>{{.LatestVersion}}</td>
         </tr>

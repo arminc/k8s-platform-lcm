@@ -32,6 +32,7 @@ var (
 		Name: "chart_info",
 		Help: "Information on chart releases",
 	}, []string{
+		"release",
 		"chart",
 		"version",
 		"latestVersion",
@@ -73,7 +74,8 @@ func runStats(config config.Config) {
 
 	//// charts
 	for _, item := range charts {
-		chart := item.Chart.Name
+		release := item.Chart.Release
+		chart := item.Chart.Chart
 		version := item.Chart.Version
 		latestVersion := item.LatestVersion
 		getHighestVersion := versioning.FindHighestVersionInList([]string{version, latestVersion}, true)
@@ -81,7 +83,7 @@ func runStats(config config.Config) {
 		if version == getHighestVersion {
 			status = 1.0
 		}
-		chartStats.WithLabelValues(chart, version, latestVersion).Set(status)
+		chartStats.WithLabelValues(release, chart, version, latestVersion).Set(status)
 	}
 
 	containers = getExtraImages(config.Images, containers)
