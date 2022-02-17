@@ -3,13 +3,21 @@ package trivy
 import (
 	"context"
 	"net/http"
-	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
+	"github.com/aws/aws-sdk-go/aws/ec2metadata"
+	"github.com/aws/aws-sdk-go/aws/session"
+
+	"github.com/arminc/k8s-platform-lcm/internal/registries"
 
 	"github.com/aquasecurity/fanal/analyzer"
 	"github.com/aquasecurity/fanal/analyzer/config"
 	"github.com/aquasecurity/fanal/artifact"
 	image2 "github.com/aquasecurity/fanal/artifact/image"
 	"github.com/aquasecurity/fanal/image"
+	types2 "github.com/aquasecurity/fanal/types"
 	"github.com/aquasecurity/trivy/pkg/cache"
 	"github.com/aquasecurity/trivy/pkg/commands/operation"
 	pkgReport "github.com/aquasecurity/trivy/pkg/report"
@@ -25,26 +33,16 @@ func disabledAnalyzers() []analyzer.Type {
 	// Specified analyzers to be disabled depending on scanning modes
 	// e.g. The 'image' subcommand should disable the lock file scanning.
 	analyzers := analyzer.TypeLockfiles
-
-	// It doesn't analyze apk commands by default.
-	if true {
-		analyzers = append(analyzers, analyzer.TypeApkCommand)
-	}
-
-	/*
-		// Don't analyze programming language packages when not running in 'library' mode
-		if !utils.StringInSlice(types.VulnTypeLibrary, opt.VulnType) {
-			analyzers = append(analyzers, analyzer.TypeLanguages...)
-		}
-	*/
+	analyzers = append(analyzers, analyzer.TypeApkCommand)
 
 	return analyzers
 }
 
-func NewClient(remoteUrl string, placeholder string) (s *client.Scanner, err error) {
+// NewClient returns a new Trivy client
+func NewClient(remoteURL string) (s *client.Scanner, err error) {
 	log.Debug("Getting trivy client")
 
-	url := client.RemoteURL(remoteUrl)
+	url := client.RemoteURL(remoteURL)
 	customHeaders := client.CustomHeaders(make(map[string][]string))
 
 	scannerScanner := client.NewProtobufClient(url)
@@ -53,19 +51,63 @@ func NewClient(remoteUrl string, placeholder string) (s *client.Scanner, err err
 	return &clientScanner, nil
 }
 
-func Run(scanner *client.Scanner, url string, imageName string) (r *pkgReport.Report, err error) {
+func getDockerOptions(registry registries.ImageRegistry) (o *types2.DockerOption, err error) {
+	switch registry.AuthType {
+	case "none":
+		return &types2.DockerOption{}, nil
+	case "basic":
+		return &types2.DockerOption{
+			UserName: registry.Username,
+			Password: registry.Password,
+		}, nil
+	case "token":
+		return &types2.DockerOption{}, nil
+	case "ecr":
+		config := &aws.Config{Region: aws.String(registry.Region)}
+		sess, err := session.NewSession(config)
+
+		if err != nil {
+			return nil, err
+		}
+
+		// get credentials for ECR
+		roleProvider := &ec2rolecreds.EC2RoleProvider{
+			Client: ec2metadata.New(sess),
+		}
+
+		creds := credentials.NewCredentials(roleProvider)
+		credVal, err := creds.Get()
+		if err != nil {
+			return nil, err
+		}
+
+		return &types2.DockerOption{
+			AwsAccessKey:    credVal.AccessKeyID,
+			AwsSecretKey:    credVal.SecretAccessKey,
+			AwsSessionToken: credVal.SessionToken,
+			AwsRegion:       registry.Region,
+		}, nil
+	default:
+		return &types2.DockerOption{}, nil
+	}
+}
+
+// Run gets vulnerability details about an image from a trivy server, and returns a trivy report
+//   the report is further processed by the caller
+func Run(scanner *client.Scanner, url string, imageName string, registry registries.ImageRegistry) (r *pkgReport.Report, err error) {
 	ctx := context.Background()
 
 	customCacheHeaders := http.Header(make(map[string][]string))
 
 	remoteCache := cache.NewRemoteCache(cache.RemoteURL(url), customCacheHeaders)
 
-	dockerOption, err := types.GetDockerOption(30 * time.Second)
+	dockerOptions, err := getDockerOptions(registry)
 	if err != nil {
-		log.Debugf("trivy docker error: %v\n%v", err, dockerOption)
+		log.Debugf("trivy dockerOptions error: %v", err)
+		return nil, err
 	}
 
-	typesImage, cleanup, err := image.NewDockerImage(ctx, imageName, dockerOption)
+	typesImage, cleanup, err := image.NewDockerImage(ctx, imageName, *dockerOptions)
 	if err != nil {
 		log.Debugf("trivy typesImage error: %v\n%v", err, typesImage)
 		return nil, err

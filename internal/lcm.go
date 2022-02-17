@@ -153,7 +153,7 @@ func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []C
 		xrayClient, err = xray.NewXray(config.Xray)
 		scannerIsXray = true
 	} else if len(config.Trivy.URL) > 0 {
-		trivyClient, err = trivy.NewTrivy(config.Trivy)
+		trivyClient, err = trivy.NewTrivy(config.Trivy, config.ImageRegistries)
 		scannerIsXray = false
 	}
 
@@ -169,7 +169,7 @@ func getVulnerabilities(containerInfo []ContainerInfo, config config.Config) []C
 			if scannerIsXray {
 				vulnera, err = xrayClient.GetVulnerabilities(ci.Container.Name, ci.Container.Version, config.Xray.Prefixes)
 			} else {
-				vulnera, err = trivyClient.GetVulnerabilities(ci.Container.FullPath)
+				vulnera, err = trivyClient.GetVulnerabilities(ci.Container.FullPath, ci.Container.Name, ci.Container.URL)
 			}
 			if err != nil {
 				log.WithError(err).WithField("image", ci.Container.Name).Warn("Could not fetch vulnerabilities")

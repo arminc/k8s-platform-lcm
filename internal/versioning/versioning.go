@@ -74,9 +74,9 @@ func FindHighestVersionInList(versions []string, allowAllReleases bool) string {
 	return Notfound
 }
 
-// DetermineLifeCycleStatus compares two versions to determin the status of the difference
+// DetermineLifeCycleStatus compares two versions to determine the status of the difference
 func DetermineLifeCycleStatus(latestVersion string, currentVersion string) string {
-	log.WithField("version", currentVersion).WithField("latestVersion", latestVersion).Debug("Determin status for version")
+	log.WithField("version", currentVersion).WithField("latestVersion", latestVersion).Debug("Determine status for version")
 	latest := strings.Split(version.Normalize(latestVersion), ".")
 	curr := strings.Split(version.Normalize(currentVersion), ".")
 

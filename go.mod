@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
+	github.com/aquasecurity/fanal v0.0.0-20211224205755-c94f68b6d71a
 	github.com/aquasecurity/trivy v0.22.0
 	github.com/aws/aws-sdk-go v1.42.22
 	github.com/blang/semver/v4 v4.0.0
@@ -61,7 +62,6 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/aquasecurity/cfsec v0.2.2 // indirect
 	github.com/aquasecurity/defsec v0.0.37 // indirect
-	github.com/aquasecurity/fanal v0.0.0-20211224205755-c94f68b6d71a // indirect
 	github.com/aquasecurity/go-dep-parser v0.0.0-20211224170007-df43bca6b6ff // indirect
 	github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce // indirect
 	github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 // indirect
