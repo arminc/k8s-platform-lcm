@@ -204,7 +204,7 @@ func getLatestVersionsForHelmCharts(ctx context.Context, helmRegistries registri
 	}
 
 	for _, chart := range charts {
-		version := helmRegistries.GetLatestVersionFromHelm(chart.Name)
+		version := helmRegistries.GetLatestVersionFromHelm(chart.Chart)
 		chartInfo = append(chartInfo, ChartInfo{
 			Chart:         chart,
 			LatestVersion: version,
@@ -212,7 +212,7 @@ func getLatestVersionsForHelmCharts(ctx context.Context, helmRegistries registri
 	}
 
 	sort.Slice(chartInfo, func(i, j int) bool {
-		return chartInfo[i].Chart.Name < chartInfo[j].Chart.Name
+		return chartInfo[i].Chart.Release < chartInfo[j].Chart.Release
 	})
 	return chartInfo
 }

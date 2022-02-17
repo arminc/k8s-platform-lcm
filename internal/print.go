@@ -63,12 +63,14 @@ func prettyPrintGitHubInfo(gitHub []GitHubInfo) {
 
 func prettyPrintChartInfo(charts []ChartInfo) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Chart", "Version", "Latest"})
+	table.SetHeader([]string{"Release", "Chart", "Namespace", "Version", "Latest"})
 	table.SetColumnAlignment([]int{3, 1, 1})
 
 	for _, chart := range charts {
 		row := []string{
-			chart.Chart.Name,
+			chart.Chart.Release,
+			chart.Chart.Chart,
+			chart.Chart.Namespace,
 			chart.Chart.Version,
 			chart.LatestVersion,
 		}
