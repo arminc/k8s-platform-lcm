@@ -1,6 +1,7 @@
 # Specify the pipeline stages we want to run
 stages:
   - build
+  - upload
 
 # Specify rules for when to run the pipelines; these are our defaults
 workflow:
@@ -24,6 +25,9 @@ include:
   - project: 'BlueOwlDev/ci-template-library'
     ref: main
     file: '/templates/kaniko/kaniko.yml'
+  - project: 'BlueOwlDev/ci-template-library'
+    ref: main
+    file: '/templates/ecr-auth/ecr-auth.yml'
 
 # Specify how to use the template
 build_image:
@@ -31,3 +35,23 @@ build_image:
   variables:
     KUBERNETES_MEMORY_LIMIT: 8Gi
   extends: .kaniko
+
+upload:
+  stage: upload
+  variables:
+    ECR_REGISTRY: 436196666173.dkr.ecr.us-east-1.amazonaws.com
+  extends:
+    .push_to_ecr
+  needs: 
+  - build
+  except:
+  - blueowl-ci
+
+promote:
+  stage: promote
+  variables:
+    ECR_REGISTRY: 077588356682.dkr.ecr.us-east-1.amazonaws.com
+  extends:
+    .push_to_ecr
+  only:
+  - blueowl-ci
