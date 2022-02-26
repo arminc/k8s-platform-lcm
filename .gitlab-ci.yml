@@ -2,6 +2,7 @@
 stages:
   - build
   - upload
+  - promote
 
 # Specify rules for when to run the pipelines; these are our defaults
 workflow:
