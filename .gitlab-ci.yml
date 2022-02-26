@@ -43,8 +43,6 @@ upload:
     ECR_REGISTRY: 436196666173.dkr.ecr.us-east-1.amazonaws.com
   extends:
     .push_to_ecr
-  needs: 
-  - build
   except:
   - blueowl-ci
 
