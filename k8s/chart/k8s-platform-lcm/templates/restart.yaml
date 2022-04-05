@@ -1,0 +1,67 @@
+{{ if .Values.restart.enabled }}
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: restart-{{ include "k8s-platform-lcm.fullname" . }}
+  labels:
+    {{- include "k8s-platform-lcm.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }} 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: restart-{{ include "k8s-platform-lcm.fullname" . }}
+  labels:
+    {{- include "k8s-platform-lcm.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: ["apps", "extensions"]
+    resources: ["deployments"]
+    resourceNames: ["{{ include "k8s-platform-lcm.fullname" . }}"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: restart-{{ include "k8s-platform-lcm.fullname" . }}
+  labels:
+    {{- include "k8s-platform-lcm.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: restart-{{ include "k8s-platform-lcm.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: restart-{{ include "k8s-platform-lcm.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: restart-{{ include "k8s-platform-lcm.fullname" . }}
+  labels:
+    {{- include "k8s-platform-lcm.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  concurrencyPolicy: Forbid # Do not run concurrently!
+  schedule: {{ .Values.restart.schedule }}
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2 
+      activeDeadlineSeconds: 60
+      template:
+        spec:
+          serviceAccountName: restart-{{ include "k8s-platform-lcm.fullname" . }} # Run under the service account created above
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: "{{ .Values.restart.image.repository }}:{{ .Values.restart.image.tag}}" # Specify the kubectl image
+              command: # The kubectl command to execute
+                - 'kubectl'
+                - 'rollout'
+                - 'restart'
+                - 'deployment/{{ include "k8s-platform-lcm.fullname" . }}'
+{{- end }}
