@@ -11,6 +11,6 @@ metadata:
     app.kubernetes.io/version: "0.13.0"
     app.kubernetes.io/managed-by: Helm
 rules:
-- apiGroups: [""]  
+- apiGroups: [""]
   resources: ["pods", "namespaces"]
   verbs: ["get", "list"]

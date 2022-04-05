@@ -51,16 +51,16 @@ affinity: {}
 # Toggles permissions in the clusterrole, helm requires the ability to read secrets
 imageScan:
   enabled: true
-helmScan: 
+helmScan:
   enabled: false # default closed on being able to get/list secrets in all namespaces
 
 # restart cronjob is to control memory usage, simply runs `kubectl rollout restart` at each interval
 restart:
   enabled: true
-  schedule: "8 */1 * * *"
+  schedule: "13 */1 * * *"
   image:
     repository: bitnami/kubectl
-    tag: ""
+    tag: "latest"
 
 
 config: |-

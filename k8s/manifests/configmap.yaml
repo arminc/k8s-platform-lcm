@@ -13,6 +13,6 @@ metadata:
 data:
   # file-like keys
   config.yml: |-
-    
+
     type: yml
     # look at https://github.com/arminc/k8s-platform-lcm/blob/master/exampleConfig.yaml

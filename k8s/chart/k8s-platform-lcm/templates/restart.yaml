@@ -5,7 +5,7 @@ metadata:
   name: restart-{{ include "k8s-platform-lcm.fullname" . }}
   labels:
     {{- include "k8s-platform-lcm.labels" . | nindent 4 }}
-  namespace: {{ .Release.Namespace }} 
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -45,12 +45,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   concurrencyPolicy: Forbid # Do not run concurrently!
-  schedule: {{ .Values.restart.schedule }}
+  schedule: "{{ .Values.restart.schedule }}"
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
-      backoffLimit: 2 
+      backoffLimit: 2
       activeDeadlineSeconds: 60
       template:
         spec:

@@ -52,7 +52,7 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 10
           volumeMounts:
-          - name: config 
+          - name: config
             mountPath: "/mount"
             readOnly: true
           resources:

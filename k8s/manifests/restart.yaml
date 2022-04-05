@@ -65,12 +65,12 @@ metadata:
   namespace: lcm
 spec:
   concurrencyPolicy: Forbid # Do not run concurrently!
-  schedule: 8 */1 * * *
+  schedule: "13 */1 * * *"
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
-      backoffLimit: 2 
+      backoffLimit: 2
       activeDeadlineSeconds: 60
       template:
         spec:
