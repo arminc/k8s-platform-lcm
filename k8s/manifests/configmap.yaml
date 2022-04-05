@@ -1,0 +1,18 @@
+---
+# Source: k8s-platform-lcm/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lcm-k8s-platform-lcm
+  labels:
+    helm.sh/chart: k8s-platform-lcm-0.1.0
+    app.kubernetes.io/name: k8s-platform-lcm
+    app.kubernetes.io/instance: lcm
+    app.kubernetes.io/version: "0.13.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  # file-like keys
+  config.yml: |-
+    
+    type: yml
+    # look at https://github.com/arminc/k8s-platform-lcm/blob/master/exampleConfig.yaml

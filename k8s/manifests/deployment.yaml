@@ -1,0 +1,63 @@
+---
+# Source: k8s-platform-lcm/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lcm-k8s-platform-lcm
+  labels:
+    helm.sh/chart: k8s-platform-lcm-0.1.0
+    app.kubernetes.io/name: k8s-platform-lcm
+    app.kubernetes.io/instance: lcm
+    app.kubernetes.io/version: "0.13.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8s-platform-lcm
+      app.kubernetes.io/instance: lcm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8s-platform-lcm
+        app.kubernetes.io/instance: lcm
+    spec:
+      serviceAccountName: lcm-k8s-platform-lcm
+      securityContext:
+        {}
+      containers:
+        - name: k8s-platform-lcm
+          securityContext:
+            {}
+          image: "arminc/lcm:0.13.0"
+          imagePullPolicy: IfNotPresent
+          args: ["--config", "/mount/config.yml", "--server", "--metrics"]
+          ports:
+            - name: metrics
+              containerPort: 9572
+            - name: ui
+              containerPort: 7321
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 7321
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 7321
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 10
+          volumeMounts:
+          - name: config 
+            mountPath: "/mount"
+            readOnly: true
+          resources:
+            {}
+      volumes:
+        - name: config
+          configMap:
+            name: lcm-k8s-platform-lcm

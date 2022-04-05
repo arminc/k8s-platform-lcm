@@ -1,0 +1,16 @@
+---
+# Source: k8s-platform-lcm/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: lcm-k8s-platform-lcm
+  labels:
+    helm.sh/chart: k8s-platform-lcm-0.1.0
+    app.kubernetes.io/name: k8s-platform-lcm
+    app.kubernetes.io/instance: lcm
+    app.kubernetes.io/version: "0.13.0"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups: [""]  
+  resources: ["pods", "namespaces"]
+  verbs: ["get", "list"]
