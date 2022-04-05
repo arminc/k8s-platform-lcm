@@ -48,11 +48,11 @@ tolerations: []
 
 affinity: {}
 
-# influence the cluster role permissions, helm requires the ability to read secrets
+# Toggles permissions in the clusterrole, helm requires the ability to read secrets
 imageScan:
   enabled: true
 helmScan: 
-  enabled: false # secrets being accessible may be a non-starter for folks
+  enabled: false # default closed on being able to get/list secrets in all namespaces
 
 # restart cronjob is to control memory usage, simply runs `kubectl rollout restart` at each interval
 restart:
