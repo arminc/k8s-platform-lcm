@@ -1,0 +1,68 @@
+image:
+  repository: arminc/lcm
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.13.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  name: ""
+  annotations: {}
+
+clusterRole:
+  annotations: {}
+
+deployAnnotations: {}
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Toggles permissions in the clusterrole, helm requires the ability to read secrets
+imageScan:
+  enabled: true
+helmScan:
+  enabled: false # default closed on being able to get/list secrets in all namespaces
+
+# restart cronjob is to control memory usage, simply runs `kubectl rollout restart` at each interval
+restart:
+  enabled: true
+  schedule: "13 */1 * * *"
+  image:
+    repository: bitnami/kubectl
+    tag: "latest"
+
+
+config: |-
+  type: yml
+  # look at https://github.com/arminc/k8s-platform-lcm/blob/master/exampleConfig.yaml

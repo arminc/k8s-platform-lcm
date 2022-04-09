@@ -1,0 +1,86 @@
+---
+# Source: k8s-platform-lcm/templates/restart.yaml
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: restart-lcm-k8s-platform-lcm
+  labels:
+    helm.sh/chart: k8s-platform-lcm-0.1.0
+    app.kubernetes.io/name: k8s-platform-lcm
+    app.kubernetes.io/instance: lcm
+    app.kubernetes.io/version: "0.13.0"
+    app.kubernetes.io/managed-by: Helm
+  namespace: lcm
+---
+# Source: k8s-platform-lcm/templates/restart.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: restart-lcm-k8s-platform-lcm
+  labels:
+    helm.sh/chart: k8s-platform-lcm-0.1.0
+    app.kubernetes.io/name: k8s-platform-lcm
+    app.kubernetes.io/instance: lcm
+    app.kubernetes.io/version: "0.13.0"
+    app.kubernetes.io/managed-by: Helm
+  namespace: lcm
+rules:
+  - apiGroups: ["apps", "extensions"]
+    resources: ["deployments"]
+    resourceNames: ["lcm-k8s-platform-lcm"]
+    verbs: ["get", "patch"]
+---
+# Source: k8s-platform-lcm/templates/restart.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: restart-lcm-k8s-platform-lcm
+  labels:
+    helm.sh/chart: k8s-platform-lcm-0.1.0
+    app.kubernetes.io/name: k8s-platform-lcm
+    app.kubernetes.io/instance: lcm
+    app.kubernetes.io/version: "0.13.0"
+    app.kubernetes.io/managed-by: Helm
+  namespace: lcm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: restart-lcm-k8s-platform-lcm
+subjects:
+  - kind: ServiceAccount
+    name: restart-lcm-k8s-platform-lcm
+    namespace: lcm
+---
+# Source: k8s-platform-lcm/templates/restart.yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: restart-lcm-k8s-platform-lcm
+  labels:
+    helm.sh/chart: k8s-platform-lcm-0.1.0
+    app.kubernetes.io/name: k8s-platform-lcm
+    app.kubernetes.io/instance: lcm
+    app.kubernetes.io/version: "0.13.0"
+    app.kubernetes.io/managed-by: Helm
+  namespace: lcm
+spec:
+  concurrencyPolicy: Forbid # Do not run concurrently!
+  schedule: "13 */1 * * *"
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 60
+      template:
+        spec:
+          serviceAccountName: restart-lcm-k8s-platform-lcm # Run under the service account created above
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: "bitnami/kubectl:" # Specify the kubectl image
+              command: # The kubectl command to execute
+                - 'kubectl'
+                - 'rollout'
+                - 'restart'
+                - 'deployment/lcm-k8s-platform-lcm'
