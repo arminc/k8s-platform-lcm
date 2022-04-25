@@ -1,8 +1,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: lcm
-  namespace: lcm
+  name: k8s-platform-lcm
+  namespace: k8s-platform-lcm
 spec:
   chart:
     spec:
