@@ -1,4 +1,5 @@
 FROM golang:1.17.7-alpine3.14 as gobuild
+ENV CGO_ENABLED=0
 RUN apk add -U --no-cache build-base ca-certificates
 COPY . /src
 RUN cd /src && go build -ldflags="-s -w" -v -o ./k8s-platform-lcm cmd/lcm/main.go
