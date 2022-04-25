@@ -11,7 +11,7 @@ spec:
       sourceRef:
         kind: GitRepository
         name: k8s-platform-lcm-helm
-        namespace: k8s-platform-lcm
+        namespace: flux-system
   test:
     enable: true
     ignoreFailures: true
