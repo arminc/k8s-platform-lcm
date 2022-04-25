@@ -13,3 +13,23 @@ spec:
       tag: "7b827bf4-" # {"$imagepolicy": "lcm:lcm:tag"}
     helmScan:
       enabled: true
+    config: |-
+      type: yml
+      filterVulnerabilities:
+        severities:
+          - LOW
+      helmRegistries:
+        override:
+          - registry:
+              url: https://chart-repository.management-us-east-1.blueowl.systems/index.yaml
+            charts:
+              - ".*"
+      imageRegistries:
+        override:
+          - registry: 
+              name: DevECR
+              url: 436196666173.dkr.ecr.us-east-1.amazonaws.com
+              authType: ecr
+              region: us-east-1
+            images:
+              - .*
