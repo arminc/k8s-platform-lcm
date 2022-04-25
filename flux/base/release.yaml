@@ -10,7 +10,7 @@ spec:
       chart: ./k8s/chart/k8s-platform-lcm
       sourceRef:
         kind: GitRepository
-        name: k8s-platform-lcm-helm
+        name: k8s-platform-lcm
         namespace: flux-system
   test:
     enable: true

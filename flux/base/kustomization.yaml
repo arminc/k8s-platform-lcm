@@ -3,4 +3,3 @@ kind: Kustomization
 namespace: k8s-platform-lcm
 resources:
   - release.yaml
-  - helmgitrepo.yaml
