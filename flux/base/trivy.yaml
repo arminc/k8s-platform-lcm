@@ -1,0 +1,25 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: aquasecurity
+  namespace: k8s-platform-lcm
+spec:
+  interval: 1m0s
+  url: https://aquasecurity.github.io/helm-charts/
+
+---
+
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: k8s-platform-lcm
+  namespace: k8s-platform-lcm
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: trivy
+      sourceRef:
+        name: aquasecurity
+        kind: HelmRepository
+        namespace: k8s-platform-lcm
