@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: lcm
+  namespace: lcm
+spec:
+  chart:
+    spec:
+      version: "<1.0.0"
+  values:
+    image:
+      repository: 436196666173.dkr.ecr.us-east-1.amazonaws.com/blueowldev/k8s-platform-lcm
+      tag: "ec90fae5-" # {"$imagepolicy": "lcm:lcm:tag"}
+  helmScan:
+    enabled: true
