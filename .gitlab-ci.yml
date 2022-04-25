@@ -1,0 +1,33 @@
+# Specify the pipeline stages we want to run
+stages:
+  - build
+
+# Specify rules for when to run the pipelines; these are our defaults
+workflow:
+  rules:
+    # Filter out duplicate events from when a PR is opened or modified
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"
+      when: never
+
+    # Trigger for all unique branches, but not tags
+    - if: $CI_COMMIT_BRANCH
+
+    # Allow manually triggering via the UI
+    - if: $CI_PIPELINE_SOURCE == 'web'
+
+    # Allow setting schedules via the UI or API
+    - if: $CI_PIPELINE_SOURCE == 'schedule'
+
+# Specify which pipeline templates to use
+include:
+  # This is the template for building containers.
+  - project: 'BlueOwlDev/ci-template-library'
+    ref: main
+    file: '/templates/kaniko/kaniko.yml'
+
+# Specify how to use the template
+build_image:
+  stage: build
+  variables:
+    KUBERNETES_MEMORY_LIMIT: 8Gi
+  extends: .kaniko
