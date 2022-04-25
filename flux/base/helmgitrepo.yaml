@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: k8s-platform-lcm-helm
+  namespace: k8s-platform-lcm
+spec:
+  interval: 1m0s
+  ref:
+    branch: blueowl-ci
+  secretRef:
+    name: flux-token
+  url: https://github.com/BlueOwlDev/k8s-platform-lcm.git

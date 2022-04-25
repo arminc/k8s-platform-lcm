@@ -4,11 +4,14 @@ metadata:
   name: k8s-platform-lcm
   namespace: k8s-platform-lcm
 spec:
-  chart:
-    git: git@github.com:BlueOwlDev/k8s-platform-lcm.git
-    ref: blueowl-ci
-    path: k8s/chart/k8s-platform-lcm
   interval: 5m
+  chart:
+    spec:
+      chart: ./k8s/chart/k8s-platform-lcm
+      sourceRef:
+        kind: GitRepository
+        name: k8s-platform-lcm-helm
+        namespace: k8s-platform-lcm
   test:
     enable: true
     ignoreFailures: true
