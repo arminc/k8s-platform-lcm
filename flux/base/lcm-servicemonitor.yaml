@@ -2,7 +2,8 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    app: service-monitor
+    app: k8s-platform-lcm
+    context: cluster
   name: lcm-service-monitor
 spec:
   endpoints:
@@ -12,4 +13,3 @@ spec:
   selector:
     matchLabels:
       app: k8s-platform-lcm
-      context: cluster
