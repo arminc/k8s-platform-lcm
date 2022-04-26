@@ -12,10 +12,6 @@ spec:
         kind: GitRepository
         name: k8s-platform-lcm
         namespace: flux-system
-  test:
-    enable: true
-    ignoreFailures: true
 # Default values
   values:
-    test:
-      enabled: false
+    initialDelaySeconds: 120
