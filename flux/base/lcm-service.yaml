@@ -9,7 +9,7 @@ spec:
   ports:
     - name: lcm-http
       protocol: TCP
-      port: 7321
+      port: 80
       targetPort: ui
     - name: lcm-metrics
       protocol: TCP

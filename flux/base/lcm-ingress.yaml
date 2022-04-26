@@ -19,4 +19,4 @@ spec:
               service:
                 name: lcm-service
                 port:
-                  number: 80
+                  name: lcm-http
