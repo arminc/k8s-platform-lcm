@@ -10,6 +10,7 @@ spec:
     - path: /metrics
       port: lcm-metrics
       interval: 600s # 5 minutes
+      scrapeTimeout: 240s # 4 minutes
   selector:
     matchLabels:
       app: k8s-platform-lcm
