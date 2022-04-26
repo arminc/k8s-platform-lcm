@@ -33,3 +33,5 @@ spec:
               region: us-east-1
             images:
               - .*
+      trivy:
+        url: "http://trivy:4954"
