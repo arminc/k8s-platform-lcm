@@ -4,3 +4,6 @@ namespace: k8s-platform-lcm
 resources:
   - trivy.yaml
   - release.yaml
+  - lcm-service.yaml
+  - lcm-ingress.yaml
+  - lcm-servicemonitor.yaml

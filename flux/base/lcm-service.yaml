@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lcm-service
+  labels:
+    app: k8s-platform-lcm
+spec:
+  type: ClusterIP
+  ports:
+    - name: lcm-http
+      protocol: TCP
+      port: 7321
+      targetPort: ui
+    - name: lcm-metrics
+      protocol: TCP
+      port: 9572
+      targetPort: metrics
+  selector:
+    app.kubernetes.io/instance: k8s-platform-lcm
+    app.kubernetes.io/name: k8s-platform-lcm
