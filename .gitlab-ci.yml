@@ -20,6 +20,12 @@ workflow:
     # Allow setting schedules via the UI or API
     - if: $CI_PIPELINE_SOURCE == 'schedule'
 
+    # Don't trigger on flux changes (for now)
+    - if:
+      changes: 
+        - flux/**/*
+      when: never
+
 # Specify which pipeline templates to use
 include:
   # This is the template for building containers.
