@@ -1,6 +1,7 @@
 # Specify the pipeline stages we want to run
 stages:
   - build
+  - test
   - upload
   - promote
 
@@ -22,7 +23,7 @@ workflow:
 
     # Don't trigger on flux changes (for now)
     - if:
-      changes: 
+      changes:
         - flux/**/*
       when: never
 
@@ -35,6 +36,10 @@ include:
   - project: 'BlueOwlDev/ci-template-library'
     ref: main
     file: '/templates/ecr-auth/ecr-auth.yml'
+  # This is the template for doing container scanning
+  - project: 'BlueOwlDev/ci-template-library'
+    ref: main
+    file: '/templates/sdlc/security/container-scanning.yml'
 
 # Specify how to use the template
 build_image:
@@ -42,6 +47,14 @@ build_image:
   variables:
     KUBERNETES_MEMORY_LIMIT: 8Gi
   extends: .kaniko
+
+container_scanning:
+  stage: test
+  variables:
+    CI_APPLICATION_REPOSITORY: "$IMAGE_REGISTRY/$IMAGE_NAME"
+    CI_APPLICATION_TAG: "$IMAGE_TAG"
+  dependencies:
+    - build_image
 
 upload:
   stage: upload
