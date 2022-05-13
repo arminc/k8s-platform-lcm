@@ -53,3 +53,9 @@ func TestPodStringToPodStructWithPort(t *testing.T) {
 	expected := container("gcr.io:443/somebody/test:1.3", "gcr.io:443", "somebody/test", "1.3")
 	assert.Equal(t, expected, pod, "With port")
 }
+
+func TestPodStringToPodStructWithSha(t *testing.T) {
+	pod, _ := ImagePathToImage("gcr.io:443/somebody/test@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143")
+	expected := container("gcr.io:443/somebody/test@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143", "gcr.io:443", "somebody/test", "0")
+	assert.Equal(t, expected, pod, "With sha")
+}

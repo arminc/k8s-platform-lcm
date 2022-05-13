@@ -23,15 +23,18 @@ func (c Image) WithoutLibrary() string {
 // ImagePathToImage converts image string to container information
 // In case of an error it returns an empty Image
 func ImagePathToImage(imagePath string) (Image, error) {
+	version := "0"
 	image, err := reference.ParseNormalizedNamed(imagePath)
 	if err != nil {
 		return Image{}, errors.Wrap(err, "Failed to pars image name")
 	}
 	image = reference.TagNameOnly(image) // adds tag latest if no tag is set
 
-	version := image.(reference.NamedTagged).Tag()
-	if version == "latest" {
-		version = "0" // tag 'latest' can't be compared
+	if !strings.Contains(imagePath, "@sha256:") {
+		version = image.(reference.NamedTagged).Tag()
+		if version == "latest" {
+			version = "0" // tag 'latest' can't be compared
+		}
 	}
 
 	return Image{
